@@ -1,9 +1,6 @@
 package gene
 
-import (
-	"bytes"
-	"fmt"
-)
+import "bytes"
 
 func (m *Module) GenerateHandlers() error {
 	temp := templates.New("handlers.tmpl")
@@ -19,32 +16,34 @@ func (m *Module) GenerateHandlers() error {
 		return err
 	}
 
-	fmt.Println("buf.String()-->", buf.String())
-	return err
+	path := "./gene/modules/" + lowFirst(m.schema.Title) + "/" + lowFirst(m.schema.Title) + "api/" + lowFirst(m.schema.Title) + ".go"
+
+	return writeFormattedFile(path, buf.Bytes())
 }
 
-var HandlerTemplate = `
-// Updates {{lowFirst .Title}} by it's ID
-mux.Handle("POST", "/{{lowFirst .Title}}/{id}", handler.Wrapper(
-    handler.Request{
-        Handler:        {{lowFirst .Title}}.Update,
-        Name:           "{{lowFirst .Title}}-update",
-    },
-))
+var HandlerTemplate = `package {{lowFirst .Title}}api
+func InitHandlers(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux {
+    // Updates {{lowFirst .Title}} by it's ID
+    mux.Handle("POST", "/{{lowFirst .Title}}/{id}", handler.Wrapper(
+        handler.Request{
+            Handler: {{lowFirst .Title}}.Update,
+            Name: "{{lowFirst .Title}}-update",
+        },
+    ))
 
-// Deletes {{lowFirst .Title}} by it's ID
-mux.Handle("DELETE", "/{{lowFirst .Title}}/{id}", handler.Wrapper(
-    handler.Request{
-        Handler:        {{lowFirst .Title}}.Delete,
-        Name:           "{{lowFirst .Title}}-delete",
-    },
-))
+    // Deletes {{lowFirst .Title}} by it's ID
+    mux.Handle("DELETE", "/{{lowFirst .Title}}/{id}", handler.Wrapper(
+        handler.Request{
+            Handler:        {{lowFirst .Title}}.Delete,
+            Name:           "{{lowFirst .Title}}-delete",
+        },
+    ))
 
-// Creates a new {{lowFirst .Title}} and returns it
-mux.Handle("POST", "/{{lowFirst .Title}}", handler.Wrapper(
-    handler.Request{
-        Handler:        {{lowFirst .Title}}.Create,
-        Name:           "{{lowFirst .Title}}-create",
-    },
-))
-`
+    // Creates a new {{lowFirst .Title}} and returns it
+    mux.Handle("POST", "/{{lowFirst .Title}}", handler.Wrapper(
+        handler.Request{
+            Handler:        {{lowFirst .Title}}.Create,
+            Name:           "{{lowFirst .Title}}-create",
+        },
+    ))
+}`

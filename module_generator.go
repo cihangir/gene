@@ -11,7 +11,20 @@ func NewModule(s *Schema) *Module {
 }
 
 func (m *Module) Create() error {
-	return EnsureFolders("./", createModuleStructure(lowFirst(m.schema.Title)))
+	if err := EnsureFolders(
+		"./", // root folder
+		createModuleStructure(
+			lowFirst(m.schema.Title),
+		),
+	); err != nil {
+		return err
+	}
+
+	if err := m.GenerateHandlers(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 var moduleFolderStucture = []string{
