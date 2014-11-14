@@ -10,6 +10,7 @@ var folderStucture = []string{
 	"gene/modules",
 	"gene/modules/",
 	"gene/models",
+	"gene/app",
 }
 
 func EnsureFolders(root string, folderStucture []string) error {
