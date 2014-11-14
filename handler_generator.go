@@ -16,13 +16,21 @@ func (m *Module) GenerateHandlers() error {
 		return err
 	}
 
-	path := "./gene/modules/" + lowFirst(m.schema.Title) + "/" + lowFirst(m.schema.Title) + "api/" + lowFirst(m.schema.Title) + ".go"
+	path := "./gene/modules/" + lowFirst(m.schema.Title) + "/api/" + lowFirst(m.schema.Title) + ".go"
 
 	return writeFormattedFile(path, buf.Bytes())
 }
 
 var HandlerTemplate = `package {{lowFirst .Title}}api
-func InitHandlers(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux {
+
+// New creates a new local api handler
+func New() gene.Initer { return &api{} }
+
+// api is for holding the interface functions, nothing more
+type api struct{}
+
+func (api) Init(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux {
+
     // Updates {{lowFirst .Title}} by it's ID
     mux.Handle("POST", "/{{lowFirst .Title}}/{id}", handler.Wrapper(
         handler.Request{
