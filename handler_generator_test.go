@@ -12,8 +12,12 @@ func TestHandlerGenerator(t *testing.T) {
 	}
 
 	m := NewModule(&s)
-	err := m.GenerateHandlers()
-	if err != nil {
+	if err := m.Create(); err != nil {
+
 		t.Fatalf("err while generating handlers %s", err.Error())
 	}
+
+	// if err := m.GenerateHandlers(); err != nil {
+	// 	t.Fatalf("err while generating handlers %s", err.Error())
+	// }
 }
