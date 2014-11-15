@@ -62,7 +62,7 @@ var (
 )
 
 func main() {
-	err := server.New({{ToLower .Title}}api.New()).Listen()
+	err := freeserver.New({{ToLower .Title}}api.New()).Listen()
 	if err != nil {
 		fmt.Println(err.Error)
 	}
