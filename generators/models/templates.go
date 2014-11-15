@@ -10,7 +10,14 @@ type {{ToUpperFirst .Name}} {{goType .Definition}}
 
 var ValidatorsTemplate = `
 // Validate validates the struct
-func ({{ToLowerFirst .Name}} *{{.Name}}) Validate() error {
+func ({{Pointerize .Name}} *{{.Name}}) Validate() error {
 {{GenerateValidator .Definition}}
 }
+`
+
+var FunctionsTemplate = `{{range .}}
+    func (s *{{.}}){{.}}() {
+
+    }
+{{end}}
 `
