@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"bitbucket.org/cihangirsavas/gene/generators/folders"
+	"bitbucket.org/cihangirsavas/gene/generators/handlers"
 	"bitbucket.org/cihangirsavas/gene/schema"
+
 	"bitbucket.org/cihangirsavas/gene/stringext"
 )
 
@@ -17,18 +19,33 @@ func NewModule(s *schema.Schema) *Module {
 }
 
 func (m *Module) Create() error {
+	rootPath := "./"
+
+	// first ensure that we have the correct folder structure for our system
 	if err := folders.EnsureFolders(
-		"./", // root folder
-		createModuleStructure(
-			stringext.ToLowerFirst(m.schema.Title),
-		),
+		rootPath, // root folder
+		folders.FolderStucture,
 	); err != nil {
 		return err
 	}
 
-	// if err := m.GenerateHandlers(); err != nil {
-	// 	return err
-	// }
+	// create the module folder structure
+	if err := folders.EnsureFolders(
+		rootPath, // root folder
+		createModuleStructure(stringext.ToLowerFirst(
+			m.schema.Title,
+		)),
+	); err != nil {
+		return err
+	}
+
+	if err := handlers.Generate(rootPath, m.schema.Title); err != nil {
+		return err
+	}
+
+	if err := m.GenerateMainFile(rootPath); err != nil {
+		return err
+	}
 
 	return nil
 }
