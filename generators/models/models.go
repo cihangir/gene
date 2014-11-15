@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"text/template"
 
+	"bitbucket.org/cihangirsavas/gene/generators/validators"
 	"bitbucket.org/cihangirsavas/gene/schema"
 	"bitbucket.org/cihangirsavas/gene/stringext"
 	"bitbucket.org/cihangirsavas/gene/writers"
@@ -106,7 +107,10 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 // Generate functions according to the schema.
 func GenerateValidators(s *schema.Schema) ([]byte, error) {
 	temp := template.New("validators.tmpl")
-	temp.Funcs(schema.Helpers)
+	temp.Funcs(template.FuncMap{
+		"GenerateValidator": validators.GenerateValidator,
+		"Pointerize":        stringext.Pointerize,
+	})
 
 	_, err := temp.Parse(ValidatorsTemplate)
 	if err != nil {
@@ -124,6 +128,29 @@ func GenerateValidators(s *schema.Schema) ([]byte, error) {
 	}
 
 	temp.ExecuteTemplate(&buf, "validators.tmpl", context)
+
+	return writers.Clear(buf)
+}
+
+// Generate functions according to the schema.
+func GenerateFunctions(s *schema.Schema) ([]byte, error) {
+
+	temp := template.New("functions.tmpl")
+	temp.Funcs(schema.Helpers)
+
+	_, err := temp.Parse(FunctionsTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+
+	if err := temp.ExecuteTemplate(&buf, "functions.tmpl", []string{
+		"Create", "Update", "Delete", "ById",
+		"Some", "One",
+	}); err != nil {
+		return nil, err
+	}
 
 	return writers.Clear(buf)
 }

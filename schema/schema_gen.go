@@ -9,22 +9,7 @@ import (
 	"strings"
 
 	"bitbucket.org/cihangirsavas/gene/stringext"
-	"bitbucket.org/cihangirsavas/gene/writers"
 )
-
-// Generate validators according to the schema.
-func (s *Schema) GenerateFunctions() ([]byte, error) {
-	var buf bytes.Buffer
-
-	if err := templates.ExecuteTemplate(&buf, "funcs2.tmpl", []string{
-		"Create", "Update", "Delete", "ById",
-		"Some", "One",
-	}); err != nil {
-		return nil, err
-	}
-
-	return writers.Clear(buf)
-}
 
 // Generate generates code according to the schema.
 func (s *Schema) Generate() ([]byte, error) {
