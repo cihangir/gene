@@ -1,4 +1,4 @@
-package server
+package freeserver
 
 import (
 	"fmt"
