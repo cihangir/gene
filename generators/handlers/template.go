@@ -1,6 +1,6 @@
 package handlers
 
-var HandlerTemplate = `package {{lowFirst .}}api
+var HandlerTemplate = `package {{ToLowerFirst .}}api
 
 // New creates a new local api handler
 func New() gene.Initer { return &api{} }
@@ -10,27 +10,37 @@ type api struct{}
 
 func (api) Init(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux {
 
-    // Updates {{lowFirst .}} by it's ID
-    mux.Handle("POST", "/{{lowFirst .}}/{id}", handler.Wrapper(
+    // Updates {{ToLowerFirst .}} by it's ID
+    mux.Handle("POST", "/{{ToLowerFirst .}}/{id}", handler.Wrapper(
         handler.Router{
-            Handler: {{lowFirst .}}.Update,
-            Name: "{{lowFirst .}}-update",
+            Handler: {{ToLowerFirst .}}.Update,
+            Name: "{{ToLowerFirst .}}-update",
         },
     ))
 
-    // Deletes {{lowFirst .}} by it's ID
-    mux.Handle("DELETE", "/{{lowFirst .}}/{id}", handler.Wrapper(
+    // Deletes {{ToLowerFirst .}} by it's ID
+    mux.Handle("DELETE", "/{{ToLowerFirst .}}/{id}", handler.Wrapper(
         handler.Router{
-            Handler:        {{lowFirst .}}.Delete,
-            Name:           "{{lowFirst .}}-delete",
+            Handler:        {{ToLowerFirst .}}.Delete,
+            Name:           "{{ToLowerFirst .}}-delete",
         },
     ))
 
-    // Creates a new {{lowFirst .}} and returns it
-    mux.Handle("POST", "/{{lowFirst .}}", handler.Wrapper(
+    // Creates a new {{ToLowerFirst .}} and returns it
+    mux.Handle("POST", "/{{ToLowerFirst .}}", handler.Wrapper(
         handler.Router{
-            Handler:        {{lowFirst .}}.Create,
-            Name:           "{{lowFirst .}}-create",
+            Handler:        {{ToLowerFirst .}}.Create,
+            Name:           "{{ToLowerFirst .}}-create",
         },
     ))
+
+    // Get an existing {{ToLowerFirst .}}
+    mux.Handle("GET", "/{{ToLowerFirst .}}/{id}", handler.Wrapper(
+        handler.Router{
+            Handler:        {{ToLowerFirst .}}.Get,
+            Name:           "{{ToLowerFirst .}}-get",
+        },
+    ))
+
+    return mux
 }`
