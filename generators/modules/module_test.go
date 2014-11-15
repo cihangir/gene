@@ -1,7 +1,11 @@
-package gene
+package modules
 
 import (
 	"encoding/json"
+
+	"bitbucket.org/cihangirsavas/gene/schema"
+	"bitbucket.org/cihangirsavas/gene/testdata"
+
 	"testing"
 )
 
@@ -33,8 +37,8 @@ func TestCreateModuleStructure(t *testing.T) {
 }
 
 func TestCreateModule(t *testing.T) {
-	var s Schema
-	if err := json.Unmarshal([]byte(testJSON1), &s); err != nil {
+	var s schema.Schema
+	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
 		t.Fatal(err.Error())
 	}
 

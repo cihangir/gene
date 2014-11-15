@@ -1,28 +1,34 @@
-package gene
+package modules
 
-import "fmt"
+import (
+	"fmt"
+
+	"bitbucket.org/cihangirsavas/gene/generators/folders"
+	"bitbucket.org/cihangirsavas/gene/schema"
+	"bitbucket.org/cihangirsavas/gene/stringext"
+)
 
 type Module struct {
-	schema *Schema
+	schema *schema.Schema
 }
 
-func NewModule(s *Schema) *Module {
+func NewModule(s *schema.Schema) *Module {
 	return &Module{schema: s}
 }
 
 func (m *Module) Create() error {
-	if err := EnsureFolders(
+	if err := folders.EnsureFolders(
 		"./", // root folder
 		createModuleStructure(
-			lowFirst(m.schema.Title),
+			stringext.ToLowerFirst(m.schema.Title),
 		),
 	); err != nil {
 		return err
 	}
 
-	if err := m.GenerateHandlers(); err != nil {
-		return err
-	}
+	// if err := m.GenerateHandlers(); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
