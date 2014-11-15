@@ -19,7 +19,7 @@ func Wrapper(r Router) http.Handler {
 
 	httpHandler = tigertonic.Marshaled(r.Handler)
 
-	// todo set registery here for timers
+	// todo set registery here for timers as third parameter
 	httpHandler = tigertonic.Timed(httpHandler, r.Name, nil)
 
 	// create the final handler
