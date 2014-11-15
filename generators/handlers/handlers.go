@@ -9,8 +9,12 @@ import (
 	"bitbucket.org/cihangirsavas/gene/writers"
 )
 
-func Generate(name string) error {
+func Generate(rootPath string, name string) error {
 	temp := template.New("handlers.tmpl")
+	temp.Funcs(template.FuncMap{
+		"ToLowerFirst": stringext.ToLowerFirst,
+	})
+
 	_, err := temp.Parse(HandlerTemplate)
 	if err != nil {
 		return err
@@ -24,11 +28,10 @@ func Generate(name string) error {
 	}
 
 	path := fmt.Sprintf(
-		"./gene/modules/",
+		"%sgene/modules/%s/api/%s.go",
+		rootPath,
 		stringext.ToLowerFirst(name),
-		"/api/",
 		stringext.ToLowerFirst(name),
-		".go",
 	)
 
 	return writers.WriteFormattedFile(path, buf.Bytes())
