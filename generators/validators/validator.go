@@ -12,7 +12,7 @@ import (
 func GenerateValidator(p *schema.Schema) string {
 	validators := make([]string, 0)
 	// schemaName := p.Title
-	schemaFirstChar := stringext.ToLowerFirst(p.Title)
+	schemaFirstChar := stringext.Pointerize(p.Title)
 
 	for key, property := range p.Properties {
 		switch property.Type {
