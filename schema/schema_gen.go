@@ -1,30 +1,16 @@
-package gene
+package schema
 
 import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"regexp"
+	"sort"
 	"strings"
-	"text/template"
+
+	"bitbucket.org/cihangirsavas/gene/stringext"
+	"bitbucket.org/cihangirsavas/gene/writers"
 )
-
-var templates *template.Template
-
-func init() {
-	templates = template.New("package.tmpl").Funcs(helpers)
-	templates = template.Must(Parse(templates))
-}
-
-func clear(buf bytes.Buffer) ([]byte, error) {
-	bytes := newlines.ReplaceAll(buf.Bytes(), []byte(""))
-
-	clean, err := format.Source(bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return clean, nil
-}
 
 // Generate model according to the schema.
 func (s *Schema) GenerateModel() ([]byte, error) {
@@ -49,7 +35,7 @@ func (s *Schema) GenerateModel() ([]byte, error) {
 	buf.WriteString(string(schema))
 	buf.WriteString(string(validators))
 
-	return clear(buf)
+	return writers.Clear(buf)
 }
 
 // Generate imports according to the schema.
@@ -76,7 +62,7 @@ func (s *Schema) GenerateSchema() ([]byte, error) {
 
 	templates.ExecuteTemplate(&buf, "struct.tmpl", context)
 
-	return clear(buf)
+	return writers.Clear(buf)
 }
 
 // Generate validators according to the schema.
@@ -90,7 +76,7 @@ func (s *Schema) GenerateFunctions() ([]byte, error) {
 		return nil, err
 	}
 
-	return clear(buf)
+	return writers.Clear(buf)
 }
 
 // Generate functions according to the schema.
@@ -107,7 +93,7 @@ func (s *Schema) GenerateValidators() ([]byte, error) {
 
 	templates.ExecuteTemplate(&buf, "validators.tmpl", context)
 
-	return clear(buf)
+	return writers.Clear(buf)
 }
 
 // Generate generates code according to the schema.
@@ -134,7 +120,7 @@ func (s *Schema) Generate() ([]byte, error) {
 		Version: s.Version,
 	})
 
-	for _, name := range sortedKeys(s.Properties) {
+	for _, name := range SortedKeys(s.Properties) {
 		schema := s.Properties[name]
 		// Skipping definitions because there is no links, nor properties.
 		if schema.Links == nil && schema.Properties == nil {
@@ -154,7 +140,7 @@ func (s *Schema) Generate() ([]byte, error) {
 	}
 
 	// Remove blank lines added by text/template
-	bytes := newlines.ReplaceAll(buf.Bytes(), []byte(""))
+	bytes := NewLinesRegex.ReplaceAll(buf.Bytes(), []byte(""))
 
 	// Format sources
 	clean, err := format.Source(bytes)
@@ -163,6 +149,8 @@ func (s *Schema) Generate() ([]byte, error) {
 	}
 	return clean, nil
 }
+
+var NewLinesRegex = regexp.MustCompile(`(?m:\s*$)`)
 
 // Resolve resolves reference inside the schema.
 func (s *Schema) Resolve(r *Schema) *Schema {
@@ -271,9 +259,9 @@ func (s *Schema) goType(required bool, force bool) (goType string) {
 				continue
 			}
 			buf := bytes.NewBufferString("struct {")
-			for _, name := range sortedKeys(s.Properties) {
+			for _, name := range SortedKeys(s.Properties) {
 				prop := s.Properties[name]
-				req := contains(name, s.Required) || force
+				req := stringext.Contains(name, s.Required) || force
 				templates.ExecuteTemplate(buf, "field.tmpl", struct {
 					Definition *Schema
 					Name       string
@@ -298,7 +286,7 @@ func (s *Schema) goType(required bool, force bool) (goType string) {
 		panic(fmt.Sprintf("type not found : %s", types))
 	}
 	// Types allow null
-	if contains("null", types) || !(required || force) {
+	if stringext.Contains("null", types) || !(required || force) {
 		return "*" + goType
 	}
 	return goType
@@ -307,7 +295,7 @@ func (s *Schema) goType(required bool, force bool) (goType string) {
 // Values returns function return values types.
 func (s *Schema) Values(name string, l *Link) []string {
 	var values []string
-	name = initialCap(name)
+	name = stringext.ToUpperFirst(name)
 	switch l.Rel {
 	case "destroy", "empty":
 		values = append(values, "error")
@@ -368,4 +356,38 @@ func (l *Link) Resolve(r *Schema) {
 // GoType returns Go type for the given schema as string.
 func (l *Link) GoType() string {
 	return l.Schema.goType(true, false)
+}
+
+func SortedKeys(m map[string]*Schema) (keys []string) {
+	for key := range m {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return
+}
+
+func Args(h *HRef) string {
+	return strings.Join(h.Order, ", ")
+}
+
+func Values(n string, s *Schema, l *Link) string {
+	v := s.Values(n, l)
+	return strings.Join(v, ", ")
+}
+
+func Required(n string, def *Schema) bool {
+	return stringext.Contains(n, def.Required)
+}
+
+func Params(l *Link) string {
+	var p []string
+	order, Params := l.Parameters()
+	for _, n := range order {
+		p = append(p, fmt.Sprintf("%s %s", stringext.ToLowerFirst(n), Params[n]))
+	}
+	return strings.Join(p, ", ")
+}
+
+func goType(p *Schema) string {
+	return p.GoType()
 }
