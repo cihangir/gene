@@ -4,7 +4,7 @@ import "github.com/rcrowley/go-tigertonic"
 
 // Initer is for initializing the api endpoints for a module
 type Initer interface {
-	Iinit(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux
+	Init(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux
 }
 
 // Customizer is for adding custom handlers to the module
