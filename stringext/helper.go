@@ -19,6 +19,11 @@ func ToLowerFirst(ident string) string {
 	return string(unicode.ToLower(r)) + ident[n:]
 }
 
+func Pointerize(ident string) string {
+	r, _ := utf8.DecodeRuneInString(ident)
+	return string(unicode.ToLower(r))
+}
+
 func ToUpperFirst(ident string) string {
 	r, n := utf8.DecodeRuneInString(ident)
 	return string(unicode.ToUpper(r)) + ident[n:]
