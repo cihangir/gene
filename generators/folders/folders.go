@@ -1,11 +1,11 @@
-package gene
+package folders
 
 import (
 	"os"
 	"path"
 )
 
-var folderStucture = []string{
+var FolderStucture = []string{
 	"gene",
 	"gene/modules",
 	"gene/modules/",
