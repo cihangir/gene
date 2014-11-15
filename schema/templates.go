@@ -7,15 +7,17 @@ import (
 )
 
 var Helpers = template.FuncMap{
-	"AsComment":         stringext.AsComment,
-	"JSONTag":           stringext.JSONTag,
-	"Params":            Params,
-	"Args":              Args,
-	"Values":            Values,
-	"goType":            goType,
-	"GenerateValidator": generateValidator,
-	"ToLowerFirst":      stringext.ToLowerFirst,
-	"ToUpperFirst":      stringext.ToUpperFirst,
+	"AsComment":               stringext.AsComment,
+	"JSONTag":                 stringext.JSONTag,
+	"Params":                  Params,
+	"Args":                    Args,
+	"Values":                  Values,
+	"goType":                  goType,
+	"GenerateValidator":       generateValidator,
+	"ToLowerFirst":            stringext.ToLowerFirst,
+	"ToUpperFirst":            stringext.ToUpperFirst,
+	"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
+	"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
 }
 
 func generateValidator(s *Schema) string {
@@ -29,31 +31,31 @@ func init() {
 	templates = template.Must(Parse(templates))
 }
 
-var tmpls = map[string]string{"field.tmpl": `{{ToUpperFirst .Name}} {{.Type}} {{JSONTag .Name .Required}} {{AsComment .Definition.Description}}
+var tmpls = map[string]string{"field.tmpl": `{{DepunctWithInitialUpper .Name}} {{.Type}} {{JSONTag .Name .Required}} {{AsComment .Definition.Description}}
 `,
 	"funcs.tmpl": `{{$Name := .Name}}
 {{$Def := .Definition}}
 {{range .Definition.Links}}
   {{if eq .Rel "update" "create" }}
-   type {{printf "%s-%s-Opts" $Name .Title | ToUpperFirst}} {{.GoType}}
+   type {{printf "%s-%s-Opts" $Name .Title | DepunctWithInitialUpper}} {{.GoType}}
   {{end}}
 
   {{AsComment .Description}}
-  func (s *Service) {{printf "%s-%s" $Name .Title | ToUpperFirst}}({{Params .}}) ({{Values $Name $Def .}}) {
+  func (s *Service) {{printf "%s-%s" $Name .Title | DepunctWithInitialUpper}}({{Params .}}) ({{Values $Name $Def .}}) {
     {{if eq .Rel "destroy"}}
       return s.Delete(fmt.Sprintf("{{.HRef}}", {{Args .HRef}}))
     {{else if eq .Rel "self"}}
-      {{$Var := ToLowerFirst $Name}}var {{$Var}} {{ToUpperFirst $Name}}
+      {{$Var := ToLowerFirst $Name}}var {{$Var}} {{DepunctWithInitialUpper $Name}}
       return {{if $Def.IsCustomType}}&{{end}}{{$Var}}, s.Get(&{{$Var}}, fmt.Sprintf("{{.HRef}}", {{Args .HRef}}), nil)
     {{else if eq .Rel "instances"}}
       {{$Var := printf "%s-%s" $Name "List" | ToLowerFirst}}
-      var {{$Var}} []*{{ToUpperFirst $Name}}
+      var {{$Var}} []*{{DepunctWithInitialUpper $Name}}
       return {{$Var}}, s.Get(&{{$Var}}, fmt.Sprintf("{{.HRef}}", {{Args .HRef}}), lr)
     {{else if eq .Rel "empty"}}
-      return s.{{ToUpperFirst .Method}}(fmt.Sprintf("{{.HRef}}", {{Args .HRef}}))
+      return s.{{DepunctWithInitialUpper .Method}}(fmt.Sprintf("{{.HRef}}", {{Args .HRef}}))
     {{else}}
-      {{$Var := ToLowerFirst $Name}}var {{$Var}} {{ToUpperFirst $Name}}
-      return {{if $Def.IsCustomType}}&{{end}}{{$Var}}, s.{{ToUpperFirst .Method}}(&{{$Var}}, fmt.Sprintf("{{.HRef}}", {{Args .HRef}}), o)
+      {{$Var := ToLowerFirst $Name}}var {{$Var}} {{DepunctWithInitialUpper $Name}}
+      return {{if $Def.IsCustomType}}&{{end}}{{$Var}}, s.{{DepunctWithInitialUpper .Method}}(&{{$Var}}, fmt.Sprintf("{{.HRef}}", {{Args .HRef}}), o)
     {{end}}
   }
 {{end}}

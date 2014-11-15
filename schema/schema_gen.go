@@ -383,7 +383,7 @@ func Params(l *Link) string {
 	var p []string
 	order, Params := l.Parameters()
 	for _, n := range order {
-		p = append(p, fmt.Sprintf("%s %s", stringext.ToLowerFirst(n), Params[n]))
+		p = append(p, fmt.Sprintf("%s %s", stringext.DepunctWithInitialLower(n), Params[n]))
 	}
 	return strings.Join(p, ", ")
 }

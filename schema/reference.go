@@ -106,7 +106,7 @@ func (h *HRef) Resolve(r *Schema) {
 			panic(err)
 		}
 		parts := strings.Split(u, "/")
-		name := stringext.ToLowerFirst(fmt.Sprintf("%s-%s", parts[len(parts)-3], parts[len(parts)-1]))
+		name := stringext.DepunctWithInitialLower(fmt.Sprintf("%s-%s", parts[len(parts)-3], parts[len(parts)-1]))
 		h.Order = append(h.Order, name)
 		h.Schemas[name] = Reference(u).Resolve(r)
 	}

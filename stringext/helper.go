@@ -70,6 +70,14 @@ func Contains(n string, r []string) bool {
 	return false
 }
 
+func DepunctWithInitialUpper(ident string) string {
+	return Depunct(ident, true)
+}
+
+func DepunctWithInitialLower(ident string) string {
+	return Depunct(ident, false)
+}
+
 func Depunct(ident string, initialCap bool) string {
 	matches := camelcase.Split(ident, -1)
 	for i, m := range matches {
