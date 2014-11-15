@@ -23,7 +23,7 @@ func TestGenerateModel(t *testing.T) {
 	}
 
 	folders.EnsureFolders("/tmp/", folders.FolderStucture)
-	fileName := "./gene/models/" + s.Title + ".go"
+	fileName := "/tmp/gene/models/" + s.Title + ".go"
 
 	err = writers.WriteFormattedFile(fileName, model)
 	if err != nil {
