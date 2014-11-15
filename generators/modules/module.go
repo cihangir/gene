@@ -55,6 +55,7 @@ var moduleFolderStucture = []string{
 	"gene/modules/%[1]s/api",
 	"gene/modules/%[1]s/%[1]s",
 	"gene/modules/%[1]s/cmd",
+	"gene/modules/%[1]s/cmd/%[1]s",
 	"gene/modules/%[1]s/tests",
 	"gene/modules/%[1]s/errors",
 	"gene/modules/%[1]s/handlers",
