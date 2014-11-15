@@ -12,59 +12,6 @@ import (
 	"bitbucket.org/cihangirsavas/gene/writers"
 )
 
-// Generate model according to the schema.
-func (s *Schema) GenerateModel() ([]byte, error) {
-	var buf bytes.Buffer
-
-	packageLine, err := s.GeneratePackage()
-	if err != nil {
-		return nil, err
-	}
-
-	schema, err := s.GenerateSchema()
-	if err != nil {
-		return nil, err
-	}
-
-	validators, err := s.GenerateValidators()
-	if err != nil {
-		return nil, err
-	}
-
-	buf.WriteString(string(packageLine))
-	buf.WriteString(string(schema))
-	buf.WriteString(string(validators))
-
-	return writers.Clear(buf)
-}
-
-// Generate imports according to the schema.
-func (s *Schema) GeneratePackage() ([]byte, error) {
-	var buf bytes.Buffer
-
-	name := strings.ToLower(strings.Split(s.Title, " ")[0])
-	templates.ExecuteTemplate(&buf, "package.tmpl", name)
-
-	return buf.Bytes(), nil
-}
-
-// Generate schema according to the schema.
-func (s *Schema) GenerateSchema() ([]byte, error) {
-	var buf bytes.Buffer
-
-	context := struct {
-		Name       string
-		Definition *Schema
-	}{
-		Name:       s.Title,
-		Definition: s,
-	}
-
-	templates.ExecuteTemplate(&buf, "struct.tmpl", context)
-
-	return writers.Clear(buf)
-}
-
 // Generate validators according to the schema.
 func (s *Schema) GenerateFunctions() ([]byte, error) {
 	var buf bytes.Buffer
@@ -75,23 +22,6 @@ func (s *Schema) GenerateFunctions() ([]byte, error) {
 	}); err != nil {
 		return nil, err
 	}
-
-	return writers.Clear(buf)
-}
-
-// Generate functions according to the schema.
-func (s *Schema) GenerateValidators() ([]byte, error) {
-	var buf bytes.Buffer
-
-	context := struct {
-		Name       string
-		Definition *Schema
-	}{
-		Name:       s.Title,
-		Definition: s,
-	}
-
-	templates.ExecuteTemplate(&buf, "validators.tmpl", context)
 
 	return writers.Clear(buf)
 }
