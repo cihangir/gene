@@ -5,6 +5,7 @@ import (
 
 	"bitbucket.org/cihangirsavas/gene/generators/folders"
 	"bitbucket.org/cihangirsavas/gene/generators/handlers"
+	"bitbucket.org/cihangirsavas/gene/generators/models"
 	"bitbucket.org/cihangirsavas/gene/schema"
 
 	"bitbucket.org/cihangirsavas/gene/stringext"
@@ -36,6 +37,10 @@ func (m *Module) Create() error {
 			m.schema.Title,
 		)),
 	); err != nil {
+		return err
+	}
+
+	if err := models.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
 
