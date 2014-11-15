@@ -15,6 +15,7 @@ func TestCreateModuleStructure(t *testing.T) {
 		"gene/modules/name/api",
 		"gene/modules/name/name",
 		"gene/modules/name/cmd",
+		"gene/modules/name/cmd/name",
 		"gene/modules/name/tests",
 		"gene/modules/name/errors",
 		"gene/modules/name/handlers",
@@ -43,5 +44,9 @@ func TestCreateModule(t *testing.T) {
 	}
 
 	m := NewModule(&s)
-	m.Create()
+	err := m.Create()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
 }
