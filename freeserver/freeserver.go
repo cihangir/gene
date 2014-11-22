@@ -3,18 +3,24 @@ package freeserver
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/cenkalti/backoff"
 	"github.com/facebookgo/freeport"
+	"github.com/koding/logging"
 	"github.com/rcrowley/go-tigertonic"
 )
 
 // Initer is for initializing the api endpoints for a module
 type Initer interface {
 	Init(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux
+}
+
+type LoggerHolder interface {
+	Logger() logging.Logger
 }
 
 type Server struct {
@@ -24,6 +30,9 @@ type Server struct {
 	// App handles all the required information about the application
 	// eg. database connections, singletons etc
 	App interface{}
+
+	// DebugEnabled holds the status of the server's debug level
+	DebugEnabled bool
 }
 
 func New(app interface{}) *Server {
@@ -104,7 +113,26 @@ func (s *Server) startListening() (*tigertonic.Server, error) {
 		}
 	}
 
-	handler := tigertonic.WithContext(s.Mux, s.App)
+	var handler http.Handler
+
+	handler = tigertonic.WithContext(s.Mux, s.App)
+
+	if s.DebugEnabled {
+		// TODO make second param configurable
+		h := tigertonic.Logged(handler, nil)
+
+		var l logging.Logger
+
+		// if App doesnt have any logger, create a new one
+		if logHolder, ok := s.App.(LoggerHolder); ok {
+			l = logHolder.Logger()
+		} else {
+			l = logging.NewLogger("gene")
+		}
+
+		h.Logger = NewTigerTonicLogger(l)
+		handler = h
+	}
 
 	server := tigertonic.NewServer(
 		fmt.Sprintf("0.0.0.0:%d", s.Port),
