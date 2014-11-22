@@ -21,14 +21,25 @@ type Server struct {
 	Mux    *tigertonic.TrieServeMux
 	Port   int
 	Server *tigertonic.Server
+	// App handles all the required information about the application
+	// // eg. database connections, singletons etc
+	App interface{}
 }
 
-func New(api Initer) *Server {
+func New(app interface{}) *Server {
 	s := &Server{
 		Mux: tigertonic.NewTrieServeMux(),
+		App: app,
 	}
 
-	s.Mux = api.Init(s.Mux)
+	return s
+}
+
+func (s *Server) InitWith(initers ...Initer) *Server {
+	for _, initer := range initers {
+		s.Mux = initer.Init(s.Mux)
+	}
+
 	return s
 }
 
@@ -46,8 +57,17 @@ func (s *Server) Listen() error {
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
 	log.Println(<-ch)
-	s.Server.Close()
-	fmt.Println("closed")
+	err = s.Close()
+
+	fmt.Println("server closed succesfully:", err == nil)
+
+	return err
+}
+
+func (s *Server) Close() error {
+	if s.Server != nil {
+		return s.Server.Close()
+	}
 
 	return nil
 }
@@ -84,9 +104,11 @@ func (s *Server) startListening() (*tigertonic.Server, error) {
 		}
 	}
 
+	handler := tigertonic.WithContext(s.Mux, s.App)
+
 	server := tigertonic.NewServer(
 		fmt.Sprintf("0.0.0.0:%d", s.Port),
-		s.Mux,
+		handler,
 	)
 
 	go func() {
