@@ -62,8 +62,9 @@ var (
 )
 
 func main() {
-	err := freeserver.New({{ToLower .Title}}api.New()).Listen()
-	if err != nil {
+	var c struct{}
+	server := freeserver.New(c).InitWith({{ToLower .Title}}api.New())
+	if err := server.Listen(); err != nil {
 		fmt.Println(err.Error)
 	}
 }
