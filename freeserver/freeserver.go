@@ -22,7 +22,7 @@ type Server struct {
 	Port   int
 	Server *tigertonic.Server
 	// App handles all the required information about the application
-	// // eg. database connections, singletons etc
+	// eg. database connections, singletons etc
 	App interface{}
 }
 
