@@ -8,3 +8,6 @@ package gene
 // http://clipperhouse.github.io/gen/#List
 
 // Configuration change management
+
+// Host Pooling
+// https://github.com/bitly/go-hostpool
