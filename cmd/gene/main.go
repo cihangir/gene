@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"bitbucket.org/cihangirsavas/gene/generators/modules"
@@ -23,5 +22,10 @@ func main() {
 	}
 
 	m.TargetFolderName = *flagFolder
-	fmt.Println("m-->", m.Create())
+	if err := m.Create(); err != nil {
+		log.Fatalf(err.Error())
+		return
+	}
+
+	log.Println("module created with success")
 }
