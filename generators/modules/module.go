@@ -1,26 +1,46 @@
 package modules
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"bitbucket.org/cihangirsavas/gene/generators/folders"
 	"bitbucket.org/cihangirsavas/gene/generators/handlers"
 	"bitbucket.org/cihangirsavas/gene/generators/models"
+	"bitbucket.org/cihangirsavas/gene/helpers"
 	"bitbucket.org/cihangirsavas/gene/schema"
 
 	"bitbucket.org/cihangirsavas/gene/stringext"
 )
 
 type Module struct {
-	schema *schema.Schema
+	schema           *schema.Schema
+	TargetFolderName string
 }
 
 func NewModule(s *schema.Schema) *Module {
-	return &Module{schema: s}
+	return &Module{
+		schema:           s,
+		TargetFolderName: "./",
+	}
+}
+
+func NewFromFile(path string) (*Module, error) {
+	fileContent, err := helpers.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var s schema.Schema
+	if err := json.Unmarshal(fileContent, &s); err != nil {
+		return nil, err
+	}
+
+	return NewModule(&s), nil
 }
 
 func (m *Module) Create() error {
-	rootPath := "./"
+	rootPath := m.TargetFolderName
 
 	// first ensure that we have the correct folder structure for our system
 	if err := folders.EnsureFolders(
