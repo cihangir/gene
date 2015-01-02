@@ -18,7 +18,7 @@ type {{.}} struct{}
 //  return db.MustGetDB(ctx).ByIds(models.New{{.}}(), ids, res)
 // }
 
-func (m *{{.}}) One(ctx context.Context, req *request.{{.}}, res *models.{{.}}) error {
+func (m *{{.}}) One(ctx context.Context, req *models.{{.}}, res *models.{{.}}) error {
     return db.MustGetDB(ctx).One(models.New{{.}}(), req, res)
 }
 
