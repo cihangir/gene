@@ -1,5 +1,7 @@
 package db
 
+import "golang.org/x/net/context"
+
 type DB interface {
 	One(interface{}, interface{}, interface{}) error
 	Create(interface{}, interface{}, interface{}) error
@@ -7,8 +9,6 @@ type DB interface {
 	Delete(interface{}, interface{}, interface{}) error
 	Some(interface{}, interface{}, interface{}) error
 }
-
-type DB struct{}
 
 const DBKEY = "gene_db"
 
@@ -18,14 +18,14 @@ func MustGetDB(ctx context.Context) DB {
 		panic("db is not set")
 	}
 
-	db, ok = val.(*DB)
+	d, ok := val.(DB)
 	if !ok {
 		panic("db is not set")
 	}
 
-	return db
+	return d
 }
 
-func SetDB(ctx context.Context, db DB) context.Context {
-	return context.WithValue(ctx, DBKEY, db)
+func SetDB(ctx context.Context, d DB) context.Context {
+	return context.WithValue(ctx, DBKEY, d)
 }
