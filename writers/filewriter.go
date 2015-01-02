@@ -6,7 +6,7 @@ import (
 	"os"
 	"regexp"
 
-	"code.google.com/p/go.tools/imports"
+	"golang.org/x/tools/imports"
 )
 
 func WriteFormattedFile(fileName string, model []byte) error {
