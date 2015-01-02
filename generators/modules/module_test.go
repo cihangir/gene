@@ -13,7 +13,6 @@ func TestCreateModuleStructure(t *testing.T) {
 	expected := []string{
 		"workers/name",
 		"workers/name/api",
-		"workers/name/name",
 		"workers/name/cmd",
 		"workers/name/cmd/name",
 		"workers/name/tests",

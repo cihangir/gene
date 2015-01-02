@@ -30,7 +30,7 @@ func (m *{{.}}) Update(ctx context.Context, req *models.{{.}}, res *models.{{.}}
     return db.MustGetDB(ctx).Update(models.New{{.}}(), req, req)
 }
 
-func (m *{{.}}) Delete(ctx context.Context, req *request.{{.}}, res *models.{{.}}) error {
+func (m *{{.}}) Delete(ctx context.Context, req *models.{{.}}, res *models.{{.}}) error {
     return db.MustGetDB(ctx).Delete(models.New{{.}}(), req, req)
 }
 
