@@ -15,7 +15,8 @@ func Generate(rootPath string, name string) error {
 		return err
 	}
 
-	return GenerateHandlers(rootPath, name)
+	return nil
+	// return GenerateHandlers(rootPath, name)
 
 }
 
