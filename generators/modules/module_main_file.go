@@ -19,9 +19,10 @@ func (m *Module) GenerateMainFile(rootPath string) error {
 	)
 
 	mainFilePath := fmt.Sprintf(
-		"%s%s/main.go",
+		"%s%s/cmd/%s/main.go",
 		rootPath,
 		fmt.Sprintf(moduleFolderStucture[0], moduleName),
+		moduleName,
 	)
 
 	f, err := generateMainFile(m.schema)
@@ -56,16 +57,39 @@ func generateMainFile(s *schema.Schema) ([]byte, error) {
 var MainFileTemplate string = `
 package main
 
+import (
+	"fmt"
+	"net/http"
+	"github.com/youtube/vitess/go/rpcplus"
+	"github.com/youtube/vitess/go/rpcplus/jsonrpc"
+	"github.com/youtube/vitess/go/rpcwrap"
+)
+
 var (
 	Name    = "{{.Title}}"
 	VERSION string
 )
 
 func main() {
-	var c struct{}
-	server := freeserver.New(c).InitWith({{ToLower .Title}}api.New())
-	if err := server.Listen(); err != nil {
-		fmt.Println(err.Error)
+	{{ToLower .Title}} := new({{ToLower .Title}}api.{{.Title}})
+
+	server := rpcplus.NewServer()
+	server.Register({{ToLower .Title}})
+
+	mux := http.NewServeMux()
+
+	contextCreator := func(req *http.Request) context.Context {
+		return context.Background()
 	}
-}
-`
+
+	rpcwrap.ServeHTTPRPC(
+		mux,                    // httpmuxer
+		server,                 // rpcserver
+		"json",                 // codec name
+		jsonrpc.NewServerCodec, // jsoncodec
+		contextCreator,         // contextCreator
+	)
+
+	fmt.Println("Server listening on 3000")
+	http.ListenAndServe("localhost:3000", mux)
+}`
