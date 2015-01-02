@@ -38,8 +38,9 @@ func GenerateAPI(rootPath string, name string) error {
 	}
 
 	path := fmt.Sprintf(
-		"%sgene/modules/%s/api/%s.go",
+		"%sworkers/%s/%sapi/%s.go",
 		rootPath,
+		stringext.ToLowerFirst(name),
 		stringext.ToLowerFirst(name),
 		stringext.ToLowerFirst(name),
 	)
@@ -66,7 +67,7 @@ func GenerateHandlers(rootPath string, name string) error {
 	}
 
 	path := fmt.Sprintf(
-		"%sgene/modules/%s/handlers/%s.go",
+		"%sworkers/%s/handlers/%s.go",
 		rootPath,
 		stringext.ToLowerFirst(name),
 		stringext.ToLowerFirst(name),

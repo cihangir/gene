@@ -75,14 +75,14 @@ func (m *Module) Create() error {
 }
 
 var moduleFolderStucture = []string{
-	"gene/modules/%[1]s",
-	"gene/modules/%[1]s/api",
-	"gene/modules/%[1]s/%[1]s",
-	"gene/modules/%[1]s/cmd",
-	"gene/modules/%[1]s/cmd/%[1]s",
-	"gene/modules/%[1]s/tests",
-	"gene/modules/%[1]s/errors",
-	"gene/modules/%[1]s/handlers",
+	"workers/%[1]s",
+	"workers/%[1]s/%[1]sapi",
+	"workers/%[1]s/%[1]s",
+	"workers/%[1]s/cmd",
+	"workers/%[1]s/cmd/%[1]s",
+	"workers/%[1]s/tests",
+	"workers/%[1]s/errors",
+	// "workers/%[1]s/handlers",
 }
 
 func createModuleStructure(name string) []string {

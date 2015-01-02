@@ -11,14 +11,14 @@ import (
 
 func TestCreateModuleStructure(t *testing.T) {
 	expected := []string{
-		"gene/modules/name",
-		"gene/modules/name/api",
-		"gene/modules/name/name",
-		"gene/modules/name/cmd",
-		"gene/modules/name/cmd/name",
-		"gene/modules/name/tests",
-		"gene/modules/name/errors",
-		"gene/modules/name/handlers",
+		"workers/name",
+		"workers/name/api",
+		"workers/name/name",
+		"workers/name/cmd",
+		"workers/name/cmd/name",
+		"workers/name/tests",
+		"workers/name/errors",
+		"workers/name/handlers",
 	}
 
 	structure := createModuleStructure("name")

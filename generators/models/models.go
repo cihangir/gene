@@ -17,7 +17,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 	)
 
 	modelFilePath := fmt.Sprintf(
-		"%sgene/models/%s.go",
+		"%smodels/%s.go",
 		rootPath,
 		moduleName,
 	)

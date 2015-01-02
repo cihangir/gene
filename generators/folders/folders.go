@@ -6,11 +6,10 @@ import (
 )
 
 var FolderStucture = []string{
-	"gene",
-	"gene/modules",
-	"gene/modules/",
-	"gene/models",
-	"gene/app",
+	"workers",
+	"workers/",
+	"models",
+	"app",
 }
 
 func EnsureFolders(root string, folderStucture []string) error {
