@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/handlers"
 	"github.com/cihangir/gene/generators/models"
@@ -64,6 +65,10 @@ func (m *Module) Create() error {
 	}
 
 	if err := handlers.Generate(rootPath, m.schema.Title); err != nil {
+		return err
+	}
+
+	if err := errors.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
 
