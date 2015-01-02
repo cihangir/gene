@@ -15,8 +15,9 @@ func ({{Pointerize .Name}} *{{.Name}}) Validate() error {
 }
 `
 
-var FunctionsTemplate = `{{range .}}
-    func (s *{{.}}){{.}}() {
+var FunctionsTemplate = `{{$Name := .Name}}
+{{range .Funcs}}
+    func ({{Pointerize $Name}} *{{$Name}}){{.}}() {
 
     }
 {{end}}
