@@ -189,6 +189,9 @@ func (s *Schema) goType(required bool, force bool) (goType string) {
 					Type:       prop.goType(req, force),
 				})
 			}
+
+			// TODO there is a better way for injecting this context
+			// buf.WriteString("app Context")
 			buf.WriteString("}")
 			goType = buf.String()
 		case "null":
