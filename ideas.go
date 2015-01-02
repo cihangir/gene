@@ -11,3 +11,7 @@ package gene
 
 // Host Pooling
 // https://github.com/bitly/go-hostpool
+// https://github.com/strava/go.serversets
+
+// Throttling
+// https://github.com/PuerkitoBio/throttled
