@@ -3,7 +3,7 @@ package schema
 import (
 	"text/template"
 
-	"bitbucket.org/cihangirsavas/gene/stringext"
+	"github.com/cihangir/gene/stringext"
 )
 
 var Helpers = template.FuncMap{

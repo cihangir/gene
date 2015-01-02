@@ -7,9 +7,9 @@ import (
 
 	"bytes"
 
-	"bitbucket.org/cihangirsavas/gene/schema"
-	"bitbucket.org/cihangirsavas/gene/stringext"
-	"bitbucket.org/cihangirsavas/gene/writers"
+	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/gene/writers"
 )
 
 func (m *Module) GenerateMainFile(rootPath string) error {

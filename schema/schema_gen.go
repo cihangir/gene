@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"bitbucket.org/cihangirsavas/gene/stringext"
+	"github.com/cihangir/gene/stringext"
 )
 
 // Generate generates code according to the schema.

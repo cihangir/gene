@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"text/template"
 
-	"bitbucket.org/cihangirsavas/gene/generators/validators"
-	"bitbucket.org/cihangirsavas/gene/schema"
-	"bitbucket.org/cihangirsavas/gene/stringext"
-	"bitbucket.org/cihangirsavas/gene/writers"
+	"github.com/cihangir/gene/generators/validators"
+	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/gene/writers"
 )
 
 func Generate(rootPath string, s *schema.Schema) error {

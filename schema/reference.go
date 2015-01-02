@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"bitbucket.org/cihangirsavas/gene/stringext"
+	"github.com/cihangir/gene/stringext"
 )
 
 const (

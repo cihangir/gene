@@ -3,8 +3,8 @@ package modules
 import (
 	"encoding/json"
 
-	"bitbucket.org/cihangirsavas/gene/schema"
-	"bitbucket.org/cihangirsavas/gene/testdata"
+	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/gene/testdata"
 
 	"testing"
 )

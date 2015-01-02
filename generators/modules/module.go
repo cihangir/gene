@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"bitbucket.org/cihangirsavas/gene/generators/folders"
-	"bitbucket.org/cihangirsavas/gene/generators/handlers"
-	"bitbucket.org/cihangirsavas/gene/generators/models"
-	"bitbucket.org/cihangirsavas/gene/helpers"
-	"bitbucket.org/cihangirsavas/gene/schema"
-
-	"bitbucket.org/cihangirsavas/gene/stringext"
+	"github.com/cihangir/gene/generators/folders"
+	"github.com/cihangir/gene/generators/handlers"
+	"github.com/cihangir/gene/generators/models"
+	"github.com/cihangir/gene/helpers"
+	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/gene/stringext"
 )
 
 type Module struct {

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"bitbucket.org/cihangirsavas/gene/generators/modules"
+	"github.com/cihangir/gene/generators/modules"
 )
 
 var (

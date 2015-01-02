@@ -6,10 +6,10 @@ import (
 
 	"testing"
 
-	"bitbucket.org/cihangirsavas/gene/generators/folders"
-	"bitbucket.org/cihangirsavas/gene/schema"
-	"bitbucket.org/cihangirsavas/gene/testdata"
-	"bitbucket.org/cihangirsavas/gene/writers"
+	"github.com/cihangir/gene/generators/folders"
+	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/gene/testdata"
+	"github.com/cihangir/gene/writers"
 )
 
 func TestGenerateModel(t *testing.T) {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"text/template"
 
-	"bitbucket.org/cihangirsavas/gene/stringext"
-	"bitbucket.org/cihangirsavas/gene/writers"
+	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/gene/writers"
 )
 
 func Generate(rootPath string, name string) error {

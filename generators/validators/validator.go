@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"bitbucket.org/cihangirsavas/gene/schema"
-	"bitbucket.org/cihangirsavas/gene/stringext"
+	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/gene/stringext"
 )
 
 func GenerateValidator(p *schema.Schema) string {
