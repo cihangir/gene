@@ -2,47 +2,40 @@ package handlers
 
 var APITemplate = `package {{ToLowerFirst .}}api
 
-// New creates a new local api handler
-func New() gene.Initer { return &api{} }
+// New creates a new local {{.}} handler
+func New() *{{.}} { return &{{.}}{} }
 
-// api is for holding the interface functions, nothing more
-type api struct{}
+// {{.}} is for holding the api functions
+type {{.}} struct{}
 
-func (api) Init(mux *tigertonic.TrieServeMux) *tigertonic.TrieServeMux {
+// generate this for all indexes
+// func (m *{{.}}) ById(ctx context.Context, id *int64, res *models.{{.}}) error {
+//  return db.MustGetDB(ctx).ById(models.New{{.}}(), id, res)
+// }
 
-    // Updates {{ToLowerFirst .}} by it's ID
-    mux.Handle("POST", "/{{ToLowerFirst .}}/{id}", handler.Wrapper(
-        handler.Router{
-            Handler: {{ToLowerFirst .}}handlers.Update,
-            Name: "{{ToLowerFirst .}}-update",
-        },
-    ))
+// generate this for all indexes
+// func (m *{{.}}) ByIds(ctx context.Context, ids *[]int64, res *[]*models.{{.}}) error {
+//  return db.MustGetDB(ctx).ByIds(models.New{{.}}(), ids, res)
+// }
 
-    // Deletes {{ToLowerFirst .}} by it's ID
-    mux.Handle("DELETE", "/{{ToLowerFirst .}}/{id}", handler.Wrapper(
-        handler.Router{
-            Handler:        {{ToLowerFirst .}}handlers.Delete,
-            Name:           "{{ToLowerFirst .}}-delete",
-        },
-    ))
+func (m *{{.}}) One(ctx context.Context, req *request.{{.}}, res *models.{{.}}) error {
+    return db.MustGetDB(ctx).One(models.New{{.}}(), req, res)
+}
 
-    // Creates a new {{ToLowerFirst .}} and returns it
-    mux.Handle("POST", "/{{ToLowerFirst .}}", handler.Wrapper(
-        handler.Router{
-            Handler:        {{ToLowerFirst .}}handlers.Create,
-            Name:           "{{ToLowerFirst .}}-create",
-        },
-    ))
+func (m *{{.}}) Create(ctx context.Context, req *models.{{.}}, res *models.{{.}}) error {
+    return db.MustGetDB(ctx).Create(models.New{{.}}(), req, res)
+}
 
-    // Get an existing {{ToLowerFirst .}}
-    mux.Handle("GET", "/{{ToLowerFirst .}}/{id}", handler.Wrapper(
-        handler.Router{
-            Handler:        {{ToLowerFirst .}}handlers.Get,
-            Name:           "{{ToLowerFirst .}}-get",
-        },
-    ))
+func (m *{{.}}) Update(ctx context.Context, req *models.{{.}}, res *models.{{.}}) error {
+    return db.MustGetDB(ctx).Update(models.New{{.}}(), req, req)
+}
 
-    return mux
+func (m *{{.}}) Delete(ctx context.Context, req *request.{{.}}, res *models.{{.}}) error {
+    return db.MustGetDB(ctx).Delete(models.New{{.}}(), req, req)
+}
+
+func (m *{{.}}) Some(ctx context.Context, req *request.Options, res *[]*models.{{.}}) error {
+    return db.MustGetDB(ctx).Some(models.New{{.}}(), req, req)
 }`
 
 var HandlersTemplate = `package {{ToLowerFirst .}}handlers
