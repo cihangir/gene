@@ -86,6 +86,7 @@ var moduleFolderStucture = []string{
 	"workers/%[1]s/cmd/%[1]s",
 	"workers/%[1]s/tests",
 	"workers/%[1]s/errors",
+	"workers/%[1]s/clients",
 	// "workers/%[1]s/handlers",
 }
 

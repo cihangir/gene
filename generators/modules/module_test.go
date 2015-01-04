@@ -18,6 +18,7 @@ func TestCreateModuleStructure(t *testing.T) {
 		"workers/name/tests",
 		"workers/name/errors",
 		"workers/name/handlers",
+		"workers/name/clients",
 	}
 
 	structure := createModuleStructure("name")
