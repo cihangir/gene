@@ -77,10 +77,12 @@ var ContextCreator = func(req *http.Request) context.Context {
 var Mux = http.NewServeMux()
 
 func main() {
-	{{ToLower .Title}} := new({{ToLower .Title}}api.{{.Title}})
 
+	{{$Name := .Title}}
 	server := rpcplus.NewServer()
-	server.Register({{ToLower .Title}})
+	{{range $key, $value := .Definitions}}
+	server.Register(new({{ToLower $Name}}api.{{$key}}))
+	{{end}}
 
 	mux := http.NewServeMux()
 

@@ -12,22 +12,26 @@ import (
 )
 
 func Generate(rootPath string, s *schema.Schema) error {
-	moduleName := stringext.ToLowerFirst(
-		s.Title,
-	)
 
-	modelFilePath := fmt.Sprintf(
-		"%smodels/%s.go",
-		rootPath,
-		moduleName,
-	)
+	for _, def := range s.Definitions {
+		moduleName := stringext.ToLowerFirst(def.Title)
 
-	f, err := GenerateModel(s)
-	if err != nil {
-		return err
+		modelFilePath := fmt.Sprintf(
+			"%smodels/%s.go",
+			rootPath,
+			moduleName,
+		)
+
+		f, err := GenerateModel(def)
+		if err != nil {
+			return err
+		}
+
+		if err := writers.WriteFormattedFile(modelFilePath, f); err != nil {
+			return err
+		}
 	}
-
-	return writers.WriteFormattedFile(modelFilePath, f)
+	return nil
 }
 
 func GenerateModel(s *schema.Schema) ([]byte, error) {
