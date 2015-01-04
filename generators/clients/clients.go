@@ -3,6 +3,7 @@ package clients
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/cihangir/gene/generators/validators"
@@ -14,28 +15,39 @@ import (
 func Generate(rootPath string, s *schema.Schema) error {
 	moduleName := stringext.ToLowerFirst(s.Title)
 
-	path := fmt.Sprintf(
-		"%sworkers/%s/clients/%s.go",
-		rootPath,
-		moduleName,
-		moduleName,
-	)
+	for _, def := range s.Definitions {
 
-	f, err := generateClient(s)
-	if err != nil {
-		return err
+		path := fmt.Sprintf(
+			"%sworkers/%s/clients/%s.go",
+			rootPath,
+			moduleName,
+			stringext.ToLowerFirst(def.Title),
+		)
+
+		f, err := generateClient(moduleName, def)
+		if err != nil {
+			return err
+		}
+
+		err = writers.WriteFormattedFile(path, f)
+		if err != nil {
+			return err
+		}
+
 	}
 
-	return writers.WriteFormattedFile(path, f)
+	return nil
 }
 
 // Generate functions according to the schema.
-func generateClient(s *schema.Schema) ([]byte, error) {
+func generateClient(moduleName string, s *schema.Schema) ([]byte, error) {
 	temp := template.New("clients.tmpl")
 	temp.Funcs(template.FuncMap{
 		"GenerateValidator": validators.GenerateValidator,
 		"Pointerize":        stringext.Pointerize,
 		"ToLowerFirst":      stringext.ToLowerFirst,
+		"ToLower":           strings.ToLower,
+		"ToUpperFirst":      stringext.ToUpperFirst,
 	})
 
 	_, err := temp.Parse(ClientsTemplate)
@@ -45,7 +57,15 @@ func generateClient(s *schema.Schema) ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "clients.tmpl", s.Title)
+	data := struct {
+		Name       string
+		ModuleName string
+	}{
+		Name:       stringext.ToLowerFirst(s.Title),
+		ModuleName: moduleName,
+	}
+
+	err = temp.ExecuteTemplate(&buf, "clients.tmpl", data)
 	if err != nil {
 		return nil, err
 	}
