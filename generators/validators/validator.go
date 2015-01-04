@@ -37,6 +37,7 @@ func GenerateValidator(p *schema.Schema) string {
 				validators = append(validators, validator)
 			}
 
+			// TODO impplement this one
 			switch property.Format {
 			case "date-time":
 				// _, err := time.Parse(time.RFC3339, s)
@@ -44,17 +45,17 @@ func GenerateValidator(p *schema.Schema) string {
 				validators = append(validators, validator)
 			}
 
-		case "integer":
+		case "integer", "number":
 
 			// todo implement exclusive min/max
 
 			if property.Minimum != 0 {
-				validator := fmt.Sprintf("validator.Minimum(float64(%s.%s), %f)", schemaFirstChar, key, property.Minimum)
+				validator := fmt.Sprintf("validator.Min(float64(%s.%s), %f)", schemaFirstChar, key, property.Minimum)
 				validators = append(validators, validator)
 			}
 
 			if property.Maximum != 0 {
-				validator := fmt.Sprintf("validator.Maximum(float64(%s.%s), %f)", schemaFirstChar, key, property.Maximum)
+				validator := fmt.Sprintf("validator.Max(float64(%s.%s), %f)", schemaFirstChar, key, property.Maximum)
 				validators = append(validators, validator)
 			}
 
