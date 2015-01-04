@@ -43,10 +43,10 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	// validators, err := GenerateValidators(s)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	validators, err := GenerateValidators(s)
+	if err != nil {
+		return nil, err
+	}
 
 	// funcs, err := GenerateFunctions(s)
 	// if err != nil {
@@ -55,7 +55,7 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 
 	buf.WriteString(string(packageLine))
 	buf.WriteString(string(schema))
-	// buf.WriteString(string(validators))
+	buf.WriteString(string(validators))
 	// buf.WriteString(string(funcs))
 
 	return writers.Clear(buf)
