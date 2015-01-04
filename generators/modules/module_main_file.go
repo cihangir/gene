@@ -70,6 +70,12 @@ var (
 	VERSION string
 )
 
+var ContextCreator = func(req *http.Request) context.Context {
+	return context.Background()
+}
+
+var Mux = http.NewServeMux()
+
 func main() {
 	{{ToLower .Title}} := new({{ToLower .Title}}api.{{.Title}})
 
@@ -78,16 +84,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	contextCreator := func(req *http.Request) context.Context {
-		return context.Background()
-	}
-
 	rpcwrap.ServeHTTPRPC(
-		mux,                    // httpmuxer
+		Mux,                    // httpmuxer
 		server,                 // rpcserver
 		"json",                 // codec name
 		jsonrpc.NewServerCodec, // jsoncodec
-		contextCreator,         // contextCreator
+		ContextCreator,         // contextCreator
 	)
 
 	fmt.Println("Server listening on 3000")
