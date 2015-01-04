@@ -3,27 +3,32 @@ package handlers
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
+	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
 )
 
-func Generate(rootPath string, name string) error {
-	err := GenerateAPI(rootPath, name)
-	if err != nil {
-		return err
+func Generate(rootPath string, s *schema.Schema) error {
+	for _, def := range s.Definitions {
+		err := GenerateAPI(rootPath, s.Title, def.Title)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 	// return GenerateHandlers(rootPath, name)
-
 }
 
-func GenerateAPI(rootPath string, name string) error {
+func GenerateAPI(rootPath string, moduleName string, name string) error {
 	temp := template.New("api.tmpl")
 	temp.Funcs(template.FuncMap{
 		"ToLowerFirst": stringext.ToLowerFirst,
+		"ToLower":      strings.ToLower,
+		"ToUpperFirst": stringext.ToUpperFirst,
 	})
 
 	_, err := temp.Parse(APITemplate)
@@ -33,7 +38,15 @@ func GenerateAPI(rootPath string, name string) error {
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "api.tmpl", name)
+	data := struct {
+		Name       string
+		ModuleName string
+	}{
+		Name:       name,
+		ModuleName: moduleName,
+	}
+
+	err = temp.ExecuteTemplate(&buf, "api.tmpl", data)
 	if err != nil {
 		return err
 	}
@@ -41,8 +54,8 @@ func GenerateAPI(rootPath string, name string) error {
 	path := fmt.Sprintf(
 		"%sworkers/%s/%sapi/%s.go",
 		rootPath,
-		stringext.ToLowerFirst(name),
-		stringext.ToLowerFirst(name),
+		moduleName,
+		moduleName,
 		stringext.ToLowerFirst(name),
 	)
 
