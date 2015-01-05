@@ -9,6 +9,7 @@ var FolderStucture = []string{
 	"workers",
 	"workers/",
 	"models",
+	"tests",
 	"app",
 }
 
