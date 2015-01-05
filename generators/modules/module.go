@@ -9,6 +9,7 @@ import (
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/handlers"
 	"github.com/cihangir/gene/generators/models"
+	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
@@ -78,6 +79,10 @@ func (m *Module) Create() error {
 	}
 
 	if err := clients.Generate(rootPath, m.schema); err != nil {
+		return err
+	}
+
+	if err := tests.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
 
