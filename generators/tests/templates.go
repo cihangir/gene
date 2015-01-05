@@ -96,4 +96,32 @@ func Test{{$Name}}One(t *testing.T) {
         err := c.One(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
         tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.One")
     })
+}
+
+func Test{{$Name}}Create(t *testing.T) {
+    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
+        err := c.Create(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
+        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Create")
+    })
+}
+
+func Test{{$Name}}Update(t *testing.T) {
+    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
+        err := c.Update(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
+        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Update")
+    })
+}
+
+func Test{{$Name}}Delete(t *testing.T) {
+    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
+        err := c.Delete(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
+        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Delete")
+    })
+}
+
+func Test{{$Name}}Some(t *testing.T) {
+    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
+        err := c.Some(context.Background(), request.Options{}, make(*[]*models.{{$Name}}{},0))
+        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Some")
+    })
 }`
