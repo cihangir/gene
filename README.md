@@ -16,8 +16,12 @@ test
 ├── app
 ├── models
 │   └── command.go
+├── tests
+│   └── testfuncs.go
 └── workers
     └── command
+        ├── clients
+        │   └── command.go
         ├── cmd
         │   └── command
         │       └── main.go
@@ -26,6 +30,8 @@ test
         ├── errors
         │   └── command.go
         └── tests
+            ├── command_test.go
+            └── common_test.go
 
-9 directories, 4 files
+11 directories, 8 files
 ```
