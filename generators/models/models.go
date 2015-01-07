@@ -122,8 +122,7 @@ func GenerateFunctions(s *schema.Schema) ([]byte, error) {
 
 	temp := template.New("functions.tmpl")
 	temp.Funcs(template.FuncMap{
-		"GenerateValidator": validators.GenerateValidator,
-		"Pointerize":        stringext.Pointerize,
+		"Pointerize": stringext.Pointerize,
 	})
 
 	_, err := temp.Parse(FunctionsTemplate)
