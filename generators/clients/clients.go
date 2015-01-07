@@ -43,11 +43,10 @@ func Generate(rootPath string, s *schema.Schema) error {
 func generateClient(moduleName string, s *schema.Schema) ([]byte, error) {
 	temp := template.New("clients.tmpl")
 	temp.Funcs(template.FuncMap{
-		"GenerateValidator": validators.GenerateValidator,
-		"Pointerize":        stringext.Pointerize,
-		"ToLowerFirst":      stringext.ToLowerFirst,
-		"ToLower":           strings.ToLower,
-		"ToUpperFirst":      stringext.ToUpperFirst,
+		"Pointerize":   stringext.Pointerize,
+		"ToLowerFirst": stringext.ToLowerFirst,
+		"ToLower":      strings.ToLower,
+		"ToUpperFirst": stringext.ToUpperFirst,
 	})
 
 	_, err := temp.Parse(ClientsTemplate)
