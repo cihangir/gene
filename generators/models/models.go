@@ -47,7 +47,7 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	validators, err := GenerateValidators(s)
+	validators, err := validators.Generate(s)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,10 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 
 	buf.WriteString(string(packageLine))
 	buf.WriteString(string(schema))
-	buf.WriteString(string(validators))
+	if validators != nil {
+		buf.WriteString(string(validators))
+	}
+
 	// buf.WriteString(string(funcs))
 
 	return writers.Clear(buf)
@@ -110,34 +113,6 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return writers.Clear(buf)
-}
-
-// Generate functions according to the schema.
-func GenerateValidators(s *schema.Schema) ([]byte, error) {
-	temp := template.New("validators.tmpl")
-	temp.Funcs(template.FuncMap{
-		"GenerateValidator": validators.GenerateValidator,
-		"Pointerize":        stringext.Pointerize,
-	})
-
-	_, err := temp.Parse(ValidatorsTemplate)
-	if err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-
-	context := struct {
-		Name       string
-		Definition *schema.Schema
-	}{
-		Name:       s.Title,
-		Definition: s,
-	}
-
-	temp.ExecuteTemplate(&buf, "validators.tmpl", context)
 
 	return writers.Clear(buf)
 }
