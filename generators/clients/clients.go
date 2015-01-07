@@ -6,7 +6,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
@@ -16,6 +15,14 @@ func Generate(rootPath string, s *schema.Schema) error {
 	moduleName := stringext.ToLowerFirst(s.Title)
 
 	for _, def := range s.Definitions {
+
+		if def.Type != nil {
+			if t, ok := def.Type.(string); ok {
+				if t != "object" {
+					continue
+				}
+			}
+		}
 
 		path := fmt.Sprintf(
 			"%sworkers/%s/clients/%s.go",
