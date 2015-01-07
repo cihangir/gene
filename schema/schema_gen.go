@@ -164,7 +164,7 @@ func (s *Schema) goType(required bool, force bool) (goType string) {
 			} else {
 				goType = "[]interface{}"
 			}
-		case "object":
+		case "object", "config":
 			// Check if patternProperties exists.
 			if s.PatternProperties != nil {
 				for _, prop := range s.PatternProperties {
