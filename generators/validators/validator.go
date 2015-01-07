@@ -3,6 +3,7 @@ package validators
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/cihangir/gene/schema"
@@ -75,14 +76,17 @@ func Generate(s *schema.Schema) ([]byte, error) {
 	templ := `
 // Validate validates the struct
 func (%s *%s) Validate() error {
-validator.Multi(%s)
-}
-`
+	return validator.NewMulti(%s)
+}`
+
+	sslice := sort.StringSlice(validators)
+	sslice.Sort()
+
 	res := fmt.Sprintf(
 		templ,
 		stringext.Pointerize(s.Title),
 		s.Title,
-		strings.Join(validators, ",\n"),
+		strings.Join(sslice, ",\n"),
 	)
 
 	// fmt.Println("res-->", res)

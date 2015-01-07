@@ -7,8 +7,10 @@ import (
 	"testing"
 
 	"github.com/cihangir/gene/generators/folders"
+	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/testdata"
+
 	"github.com/cihangir/gene/writers"
 )
 
@@ -79,7 +81,7 @@ func (m *Message) Validate() error {
 		validator.Pattern(m.Body, "^(/[^/]+)+$"))
 }`
 
-	code, err := GenerateValidators(&s)
+	code, err := validators.Generate(&s)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
