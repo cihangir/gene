@@ -1,20 +1,21 @@
 package validators
 
 import (
+	"bytes"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/gene/writers"
 )
 
-func GenerateValidator(p *schema.Schema) string {
+func Generate(s *schema.Schema) ([]byte, error) {
 	validators := make([]string, 0)
 	// schemaName := p.Title
-	schemaFirstChar := stringext.Pointerize(p.Title)
+	schemaFirstChar := stringext.Pointerize(s.Title)
 
-	for key, property := range p.Properties {
+	for key, property := range s.Properties {
 		switch property.Type {
 		case "string":
 			if property.MinLength != 0 {
@@ -67,10 +68,23 @@ func GenerateValidator(p *schema.Schema) string {
 		}
 	}
 
-	// keep the order of validators in same with every call
-	sslice := sort.StringSlice(validators)
-	sslice.Sort()
-	validatorsStr := strings.Join(sslice, ",\n")
-	a := fmt.Sprintf("return validator.NewMulti(%s)", validatorsStr)
-	return a
+	if len(validators) == 0 {
+		return nil, nil
+	}
+
+	templ := `
+// Validate validates the struct
+func (%s *%s) Validate() error {
+validator.Multi(%s)
+}
+`
+	res := fmt.Sprintf(
+		templ,
+		stringext.Pointerize(s.Title),
+		s.Title,
+		strings.Join(validators, ",\n"),
+	)
+
+	// fmt.Println("res-->", res)
+	return writers.Clear(*bytes.NewBufferString(res))
 }
