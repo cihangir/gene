@@ -38,6 +38,11 @@ func JSONTag(n string, required bool) string {
 	return fmt.Sprintf("`json:\"%s\"`", strings.Join(tags, ","))
 }
 
+// Equal check if given two strings are same, used in templates
+func Equal(a, b string) bool {
+	return a == b
+}
+
 func AsComment(c string) string {
 	var buf bytes.Buffer
 	const maxLen = 70
