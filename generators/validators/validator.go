@@ -35,7 +35,12 @@ func Generate(s *schema.Schema) ([]byte, error) {
 			}
 
 			if len(property.Enum) > 0 {
-				validator := fmt.Sprintf("validator.OneOf(%s.%s, []string{\"%s\"})", schemaFirstChar, key, strings.Join(property.Enum, "\",\""))
+				generatedEnums := make([]string, len(property.Enum))
+				for i, enum := range property.Enum {
+					k := stringext.DepunctWithInitialUpper(key)
+					generatedEnums[i] = k + "." + stringext.DepunctWithInitialUpper(enum)
+				}
+				validator := fmt.Sprintf("validator.OneOf(%s.%s, []string{\n%s,\n})", schemaFirstChar, key, strings.Join(generatedEnums, ",\n"))
 				validators = append(validators, validator)
 			}
 
