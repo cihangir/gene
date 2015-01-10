@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"text/template"
 
+	"github.com/cihangir/gene/generators/constants"
 	"github.com/cihangir/gene/generators/constructors"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/schema"
@@ -43,6 +44,11 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	consts, err := constants.Generate(s)
+	if err != nil {
+		return nil, err
+	}
+
 	schema, err := GenerateSchema(s)
 	if err != nil {
 		return nil, err
@@ -58,19 +64,13 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	// funcs, err := GenerateFunctions(s)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	buf.WriteString(string(packageLine))
+	buf.WriteString(string(consts))
 	buf.WriteString(string(schema))
 	buf.WriteString(string(constructor))
 	if validators != nil {
 		buf.WriteString(string(validators))
 	}
-
-	// buf.WriteString(string(funcs))
 
 	return writers.Clear(buf)
 }
