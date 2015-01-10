@@ -77,7 +77,10 @@ func (m *Message) Validate() error {
 		validator.Max(float64(m.Age), 100.000000),
 		validator.MaxLength(m.Body, 3),
 		validator.MinLength(m.Body, 2),
-		validator.OneOf(m.StatusConstant, []string{"active", "deleted"}),
+		validator.OneOf(m.StatusConstant, []string{
+			StatusConstant.Active,
+			StatusConstant.Deleted,
+		}),
 		validator.Pattern(m.Body, "^(/[^/]+)+$"))
 }`
 
