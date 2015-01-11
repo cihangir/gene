@@ -43,11 +43,7 @@ func Pointerize(ident string) string {
 //  	or
 //  becomes "Id" if it is in the middle of the string
 func JSONTag(n string, required bool) string {
-	modified := ToLowerFirst(
-		Normalize(
-			DepunctWithInitialLower(n),
-		),
-	)
+	modified := ToLowerFirst(Normalize(n))
 
 	tags := []string{modified}
 	if !required {
