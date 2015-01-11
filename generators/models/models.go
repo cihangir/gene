@@ -7,6 +7,7 @@ import (
 
 	"github.com/cihangir/gene/generators/constants"
 	"github.com/cihangir/gene/generators/constructors"
+	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
@@ -64,6 +65,11 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	statements, err := statements.Generate(s)
+	if err != nil {
+		return nil, err
+	}
+
 	buf.WriteString(string(packageLine))
 	buf.WriteString(string(consts))
 	buf.WriteString(string(schema))
@@ -71,6 +77,8 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 	if validators != nil {
 		buf.WriteString(string(validators))
 	}
+
+	buf.WriteString(string(statements))
 
 	return writers.Clear(buf)
 }
