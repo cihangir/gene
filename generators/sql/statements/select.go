@@ -14,7 +14,7 @@ func GenerateSelect(s *schema.Schema) ([]byte, error) {
 		"Pointerize":              stringext.Pointerize,
 		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
 		"Equal":                   stringext.Equal,
-		"ToSnake":                 stringext.ToSnake,
+		"ToFieldName":             stringext.ToFieldName,
 		"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
 	})
 
@@ -49,24 +49,24 @@ func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateSelectSQL() (strin
             {{/* strings can have special formatting */}}
             {{if Equal "date-time" $value.Format}}
             if !{{$title}}.{{DepunctWithInitialUpper $key}}.IsZero(){
-                columns = append(columns, "{{ToSnake $key}} = ?")
+                columns = append(columns, "{{ToFieldName $key}} = ?")
                 values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
             }
             {{else}}
             if {{$title}}.{{DepunctWithInitialUpper $key}} != "" {
-                columns = append(columns, "{{ToSnake $key}} = ?")
+                columns = append(columns, "{{ToFieldName $key}} = ?")
                 values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
             }
             {{end}}
 
         {{else if Equal "boolean" $value.Type}}
             if {{$title}}.{{DepunctWithInitialUpper $key}} != false {
-                columns = append(columns, "{{ToSnake $key}} = ?")
+                columns = append(columns, "{{ToFieldName $key}} = ?")
                 values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
             }
         {{else if Equal "number" $value.Type}}
             if float64({{$title}}.{{DepunctWithInitialUpper $key}}) != float64(0) {
-                columns = append(columns, "{{ToSnake $key}} = ?")
+                columns = append(columns, "{{ToFieldName $key}} = ?")
                 values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
             }
         {{end}}

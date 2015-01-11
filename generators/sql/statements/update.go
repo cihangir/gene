@@ -14,7 +14,7 @@ func GenerateUpdate(s *schema.Schema) ([]byte, error) {
 		"Pointerize":              stringext.Pointerize,
 		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
 		"Equal":                   stringext.Equal,
-		"ToSnake":                 stringext.ToSnake,
+		"ToFieldName":             stringext.ToFieldName,
 		"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
 	})
 
@@ -46,26 +46,26 @@ func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateUpdateSQL() (strin
             {{/* strings can have special formatting */}}
             {{if Equal "date-time" $value.Format}}
             if !{{$title}}.{{DepunctWithInitialUpper $key}}.IsZero(){
-                psql = psql.Set("{{ToSnake $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
             }
             {{else}}
             if {{$title}}.{{DepunctWithInitialUpper $key}} != "" {
-                psql = psql.Set("{{ToSnake $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
             }
             {{end}}
 
         {{else if Equal "boolean" $value.Type}}
             if {{$title}}.{{DepunctWithInitialUpper $key}} != false {
-                psql = psql.Set("{{ToSnake $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
             }
         {{else if Equal "number" $value.Type}}
             if float64({{$title}}.{{DepunctWithInitialUpper $key}}) != float64(0) {
-                psql = psql.Set("{{ToSnake $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
             }
         {{end}}
     {{end}}
 
     {{/* TODO get this ID section from the primary key*/}}
-    return psql.Where("{{ToSnake "Id"}} = ?", {{$title}}.{{DepunctWithInitialUpper "ID"}}).ToSql()
+    return psql.Where("{{ToFieldName "Id"}} = ?", {{$title}}.{{DepunctWithInitialUpper "ID"}}).ToSql()
 }
 `

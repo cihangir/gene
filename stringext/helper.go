@@ -12,6 +12,7 @@ import (
 var (
 	camelcase = regexp.MustCompile(`(?m)[-.$/:_{}\s]`)
 	acronyms  = regexp.MustCompile(`(Url|Http|Id|Io|Uuid|Api|Uri|Ssl|Cname|Oauth|Otp)$`)
+	acronymsi = regexp.MustCompile(`(URL|HTTP|ID|IO|UUID|API|URI|SSL|CNAME|OAUTH|OTP)`)
 )
 
 func ToLowerFirst(ident string) string {
@@ -38,13 +39,23 @@ func JSONTag(n string, required bool) string {
 	return fmt.Sprintf("`json:\"%s\"`", strings.Join(tags, ","))
 }
 
-func ToSnake(u string) string {
-	if r := acronyms.FindString(u); r != "" {
-		return strings.ToLower(u)
-	}
+func Normalize(s string) string {
+	return acronymsi.ReplaceAllStringFunc(s, func(c string) string {
+		return ToUpperFirst(strings.ToLower(c))
+	})
+}
 
+// ToFieldName handles field names, if the given string is one of the
+// `acronymsi` it is lowercasing it
+//
+// given "URL" as parameter converted to "url"
+// given "ProfileURL" as parameter converted to "profile_url"
+// given "Profile" as parameter converted to "profile"
+// given "ProfileName" as parameter converted to "profile_name"
+//
+func ToFieldName(u string) string {
 	buf := bytes.NewBufferString("")
-	for i, v := range u {
+	for i, v := range Normalize(u) {
 		if i > 0 && v >= 'A' && v <= 'Z' {
 			buf.WriteRune('_')
 		}
