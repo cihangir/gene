@@ -92,6 +92,30 @@ var testData = []struct {
 		DepunctWithInitialUpper: "DynoAll",
 		DepunctWithInitialLower: "DynoAll",
 	},
+	{
+		Value:                   "providerId",
+		ToLowerFirst:            "providerId",
+		ToUpperFirst:            "ProviderId",
+		Pointerize:              "p",
+		JSONTag:                 "`json:\"providerId,omitempty\"`",
+		JSONTagRequired:         "`json:\"providerId\"`",
+		Normalize:               "providerId",
+		ToFieldName:             "provider_id",
+		DepunctWithInitialUpper: "ProviderID",
+		DepunctWithInitialLower: "providerID",
+	},
+	{
+		Value:                   "Id",
+		ToLowerFirst:            "id",
+		ToUpperFirst:            "Id",
+		Pointerize:              "i",
+		JSONTag:                 "`json:\"id,omitempty\"`",
+		JSONTagRequired:         "`json:\"id\"`",
+		Normalize:               "Id",
+		ToFieldName:             "id",
+		DepunctWithInitialUpper: "ID",
+		DepunctWithInitialLower: "ID",
+	},
 }
 
 func TestToLowerFirst(t *testing.T) {
