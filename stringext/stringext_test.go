@@ -172,19 +172,48 @@ func TestDepunctWithInitialLower(t *testing.T) {
 	}
 }
 
-// func TestInitialCap(t *testing.T) {
-// 	for i, ict := range initialCapTests {
-// 		depuncted := Depunct(ict.Ident, true)
-// 		if depuncted != ict.Depuncted {
-// 			t.Errorf("%d: wants %v, got %v", i, ict.Depuncted, depuncted)
-// 		}
-// 	}
-// }
-
 func equals(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		fmt.Printf("\033[31m%s:%d:\n\n\texp: %#v\n\n\tgot: %#v\033[39m\n\n", filepath.Base(file), line, exp, act)
 		tb.Fail()
 	}
+}
+
+func TestAsComment(t *testing.T) {
+	const data = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+	const res = `// Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
+// doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
+// veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
+// ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
+// consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque
+// porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
+// adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et
+// dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis
+// nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex
+// ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea
+// voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem
+// eum fugiat quo voluptas nulla pariatur?
+`
+	equals(t, AsComment(data), res)
+
+	const utfData = "Mesela karışık beyaz depo erkek çirkin. Taraftar dur acil dana bundan but manyak çünkü. Sürücü bugün ayna dört bacak ondan gidilmez eşşek yapılmaz portakal sarı. Ekran dün salı araç git eğlence kırk mor koç. Dün petrol abaküs felaket afet milyon niçin doğa tatlı resim şu dalga. Askı yeşil düzeysiz balya politika esinti dükkan pazar deniz plastik. Demokrasi sekiz ahenk çay civa bagaj düşün ehliyet meslek disiplin depo ne. Garanti dosya geri han."
+	const utfRes = `// Mesela karışık beyaz depo erkek çirkin. Taraftar dur acil dana bundan but
+// manyak çünkü. Sürücü bugün ayna dört bacak ondan gidilmez eşşek
+// yapılmaz portakal sarı. Ekran dün salı araç git eğlence kırk mor koç.
+// Dün petrol abaküs felaket afet milyon niçin doğa tatlı resim şu dalga.
+// Askı yeşil düzeysiz balya politika esinti dükkan pazar deniz plastik.
+// Demokrasi sekiz ahenk çay civa bagaj düşün ehliyet meslek disiplin depo
+// ne. Garanti dosya geri han.
+`
+	equals(t, AsComment(utfData), utfRes)
+}
+
+func TestContains(t *testing.T) {
+	d := []string{"foo", "bar", "zaa"}
+	equals(t, Contains("foo", d), true)
+	equals(t, Contains("bar", d), true)
+	equals(t, Contains("zaa", d), true)
+	equals(t, Contains("qux", d), false)
+
 }

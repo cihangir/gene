@@ -118,9 +118,11 @@ func Equal(a, b string) bool {
 	return a == b
 }
 
+// AsComment formats the given string as if it is a Go Comment, breaks lines
+// every 78 lines
 func AsComment(c string) string {
 	var buf bytes.Buffer
-	const maxLen = 70
+	const maxLen = 78
 	removeNewlines := func(s string) string {
 		return strings.Replace(s, "\n", "\n// ", -1)
 	}
@@ -145,6 +147,7 @@ func AsComment(c string) string {
 	return buf.String()
 }
 
+// Contains checks if the given string is in given string slice
 func Contains(n string, r []string) bool {
 	for _, r := range r {
 		if r == n {
