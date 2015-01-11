@@ -12,16 +12,8 @@ import (
 )
 
 func Generate(rootPath string, s *schema.Schema) error {
-	})
-
-	_, err := temp.Parse(ErrorsTemplate)
+	data, err := generate(s)
 	if err != nil {
-		return err
-	}
-
-	var buf bytes.Buffer
-
-	if err := temp.ExecuteTemplate(&buf, "errors.tmpl", s); err != nil {
 		return err
 	}
 
@@ -32,5 +24,21 @@ func Generate(rootPath string, s *schema.Schema) error {
 		stringext.ToLowerFirst(s.Title),
 	)
 
-	return writers.WriteFormattedFile(path, buf.Bytes())
+	return writers.WriteFormattedFile(path, data)
+}
+
+func generate(s *schema.Schema) ([]byte, error) {
+	temp := template.New("errors.tmpl").Funcs(common.TemplateFuncs)
+	_, err := temp.Parse(ErrorsTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+
+	if err := temp.ExecuteTemplate(&buf, "errors.tmpl", s); err != nil {
+		return nil, err
+	}
+
+	return writers.Clear(buf)
 }
