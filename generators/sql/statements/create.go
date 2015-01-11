@@ -8,7 +8,7 @@ import (
 	"github.com/cihangir/gene/stringext"
 )
 
-func Generate(s *schema.Schema) ([]byte, error) {
+func GenerateCreate(s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_statement.tmpl")
 
 	temp.Funcs(template.FuncMap{
