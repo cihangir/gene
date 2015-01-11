@@ -3,9 +3,11 @@ package clients
 import (
 	"bytes"
 	"fmt"
-	"strings"
 	"text/template"
 
+	"go/format"
+
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
@@ -31,7 +33,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 			stringext.ToLowerFirst(def.Title),
 		)
 
-		f, err := generateClient(moduleName, def)
+		f, err := generate(moduleName, def)
 		if err != nil {
 			return err
 		}
@@ -71,5 +73,5 @@ func generate(moduleName string, s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
