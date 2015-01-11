@@ -37,6 +37,29 @@ func Generate(rootPath string, s *schema.Schema) error {
 	return nil
 }
 
+func GenerateStatements(rootPath string, s *schema.Schema) error {
+
+	for _, def := range s.Definitions {
+		moduleName := stringext.ToLowerFirst(def.Title)
+
+		modelFilePath := fmt.Sprintf(
+			"%smodels/%s_statements.go",
+			rootPath,
+			moduleName,
+		)
+
+		f, err := GenerateModelStatements(def)
+		if err != nil {
+			return err
+		}
+
+		if err := writers.WriteFormattedFile(modelFilePath, f); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func GenerateModel(s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -65,11 +88,6 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	statements, err := statements.Generate(s)
-	if err != nil {
-		return nil, err
-	}
-
 	buf.WriteString(string(packageLine))
 	buf.WriteString(string(consts))
 	buf.WriteString(string(schema))
@@ -78,7 +96,43 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		buf.WriteString(string(validators))
 	}
 
-	buf.WriteString(string(statements))
+	return writers.Clear(buf)
+}
+
+func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
+	var buf bytes.Buffer
+
+	packageLine, err := GeneratePackage(s)
+	if err != nil {
+		return nil, err
+	}
+
+	createStatements, err := statements.GenerateCreate(s)
+	if err != nil {
+		return nil, err
+	}
+
+	updateStatements, err := statements.GenerateUpdate(s)
+	if err != nil {
+		return nil, err
+	}
+
+	deleteStatements, err := statements.GenerateDelete(s)
+	if err != nil {
+		return nil, err
+	}
+
+	selectStatements, err := statements.GenerateSelect(s)
+	if err != nil {
+		return nil, err
+	}
+
+	buf.WriteString(string(packageLine))
+	buf.WriteString(string(createStatements))
+	buf.WriteString(string(updateStatements))
+	buf.WriteString(string(updateStatements))
+	buf.WriteString(string(deleteStatements))
+	buf.WriteString(string(selectStatements))
 
 	return writers.Clear(buf)
 }
