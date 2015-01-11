@@ -6,6 +6,7 @@ import (
 
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/gene/writers"
 )
 
 func Generate(s *schema.Schema) ([]byte, error) {
@@ -27,7 +28,7 @@ func Generate(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return writers.Clear(buf)
 }
 
 var ConstructorsTemplate = `
