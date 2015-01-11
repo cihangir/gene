@@ -94,6 +94,5 @@ func (%s *%s) Validate() error {
 		strings.Join(sslice, ",\n"),
 	)
 
-	// fmt.Println("res-->", res)
 	return writers.Clear(*bytes.NewBufferString(res))
 }

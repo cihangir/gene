@@ -71,7 +71,6 @@ func TestConstructors(t *testing.T) {
 
 	a, err := generate("test", &s)
 	equals(t, nil, err)
-	fmt.Println("string(a)-->", string(a))
 	equals(t, expected, string(a))
 }
 
