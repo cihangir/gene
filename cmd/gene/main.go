@@ -5,6 +5,11 @@ import (
 	"log"
 
 	"github.com/cihangir/gene/generators/modules"
+
+	_ "github.com/koding/logging"
+	_ "github.com/koding/multiconfig"
+	_ "github.com/lann/squirrel"
+	_ "golang.org/x/net/context"
 )
 
 var (
