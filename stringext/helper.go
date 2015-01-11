@@ -39,6 +39,10 @@ func JSONTag(n string, required bool) string {
 }
 
 func ToSnake(u string) string {
+	if r := acronyms.FindString(u); r != "" {
+		return strings.ToLower(u)
+	}
+
 	buf := bytes.NewBufferString("")
 	for i, v := range u {
 		if i > 0 && v >= 'A' && v <= 'Z' {
