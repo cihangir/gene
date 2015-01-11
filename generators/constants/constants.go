@@ -4,16 +4,13 @@ import (
 	"bytes"
 	"text/template"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 )
 
 func Generate(s *schema.Schema) ([]byte, error) {
-	temp := template.New("constants.tmpl")
+	temp := template.New("constants.tmpl").Funcs(common.TemplateFuncs)
 
-	temp.Funcs(template.FuncMap{
-		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
-	})
 	_, err := temp.Parse(ConstantsTemplate)
 	if err != nil {
 		return nil, err

@@ -5,16 +5,13 @@ import (
 	"fmt"
 	"text/template"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
 )
 
 func Generate(rootPath string, s *schema.Schema) error {
-	temp := template.New("errors.tmpl")
-
-	temp.Funcs(template.FuncMap{
-		"Pointerize": stringext.Pointerize,
 	})
 
 	_, err := temp.Parse(ErrorsTemplate)

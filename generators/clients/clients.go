@@ -47,14 +47,9 @@ func Generate(rootPath string, s *schema.Schema) error {
 }
 
 // Generate functions according to the schema.
-func generateClient(moduleName string, s *schema.Schema) ([]byte, error) {
+func generate(moduleName string, s *schema.Schema) ([]byte, error) {
 	temp := template.New("clients.tmpl")
-	temp.Funcs(template.FuncMap{
-		"Pointerize":   stringext.Pointerize,
-		"ToLowerFirst": stringext.ToLowerFirst,
-		"ToLower":      strings.ToLower,
-		"ToUpperFirst": stringext.ToUpperFirst,
-	})
+	temp.Funcs(common.TemplateFuncs)
 
 	_, err := temp.Parse(ClientsTemplate)
 	if err != nil {

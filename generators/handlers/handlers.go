@@ -6,6 +6,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
@@ -25,11 +26,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 
 func GenerateAPI(rootPath string, moduleName string, name string) error {
 	temp := template.New("api.tmpl")
-	temp.Funcs(template.FuncMap{
-		"ToLowerFirst": stringext.ToLowerFirst,
-		"ToLower":      strings.ToLower,
-		"ToUpperFirst": stringext.ToUpperFirst,
-	})
+	temp.Funcs(common.TemplateFuncs)
 
 	_, err := temp.Parse(APITemplate)
 	if err != nil {
