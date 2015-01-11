@@ -66,6 +66,10 @@ func (m *Module) Create() error {
 		return err
 	}
 
+	if err := models.GenerateStatements(rootPath, m.schema); err != nil {
+		return err
+	}
+
 	if err := handlers.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
