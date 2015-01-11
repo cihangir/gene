@@ -38,6 +38,18 @@ func JSONTag(n string, required bool) string {
 	return fmt.Sprintf("`json:\"%s\"`", strings.Join(tags, ","))
 }
 
+func ToSnake(u string) string {
+	buf := bytes.NewBufferString("")
+	for i, v := range u {
+		if i > 0 && v >= 'A' && v <= 'Z' {
+			buf.WriteRune('_')
+		}
+		buf.WriteRune(v)
+	}
+
+	return strings.ToLower(buf.String())
+}
+
 // Equal check if given two strings are same, used in templates
 func Equal(a, b string) bool {
 	return a == b
