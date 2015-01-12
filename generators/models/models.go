@@ -127,12 +127,17 @@ func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	tableName, err := statements.GenerateTableName(s)
+	if err != nil {
+		return nil, err
+	}
+
 	buf.WriteString(string(packageLine))
 	buf.WriteString(string(createStatements))
 	buf.WriteString(string(updateStatements))
-	buf.WriteString(string(updateStatements))
 	buf.WriteString(string(deleteStatements))
 	buf.WriteString(string(selectStatements))
+	buf.WriteString(string(tableName))
 
 	return writers.Clear(buf)
 }
