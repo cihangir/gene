@@ -36,8 +36,7 @@ var CreateStatementTemplate = `
 // GenerateCreateSQL generates plain sql for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateCreateSQL() (string, []interface{}, error) {
-    psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-    psql = psql.Insert({{$title}}.TableName())
+    psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Insert({{$title}}.TableName())
     columns := make([]string, 0)
     values := make([]interface{}, 0)
 

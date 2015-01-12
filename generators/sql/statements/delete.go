@@ -37,8 +37,7 @@ var DeleteStatementTemplate = `
 // GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateDeleteSQL() (string, []interface{}, error) {
-    psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-    psql = psql.Delete({{$title}}.TableName())
+    psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Delete({{$title}}.TableName())
 
     columns := make([]string, 0)
     values := make([]interface{}, 0)

@@ -37,8 +37,7 @@ var UpdateStatementTemplate = `
 // GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateUpdateSQL() (string, []interface{}, error) {
-    psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-    psql = psql.Update({{$title}}.TableName())
+    psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update({{$title}}.TableName())
 
     {{range $key, $value := .Properties}}
         {{/* handle strings */}}
