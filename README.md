@@ -14,6 +14,15 @@ required folder, files, configs, api function, endpoints, clients, tests etc...
 
 This package aims to ease that pain
 
+## What is JSON-Schema?
+
+JSON Schema specifies a JSON-based format to define the structure of your data
+for various cases, like validation, documentation, and interaction control.  A
+JSON Schema provides a contract for the JSON data required by a given
+application, and how that data can be modified.
+
+TLDR: here is an example [account.json](https://github.com/cihangir/gene/blob/master/example/account.json)
+
 ## Features
 
 #### Models
