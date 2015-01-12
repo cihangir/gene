@@ -12,20 +12,20 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
-func (m *Module) GenerateMainFile(rootPath string) error {
+func (m *Module) GenerateRPCMainFile(rootPath string) error {
 
 	moduleName := stringext.ToLowerFirst(
 		m.schema.Title,
 	)
 
 	mainFilePath := fmt.Sprintf(
-		"%s%s/cmd/%s/main.go",
+		"%s%s/cmd/%srpc/main.go",
 		rootPath,
 		fmt.Sprintf(moduleFolderStucture[0], moduleName),
 		moduleName,
 	)
 
-	f, err := generateMainFile(m.schema)
+	f, err := generateRPCMainFile(m.schema)
 	if err != nil {
 		return err
 	}
@@ -33,13 +33,13 @@ func (m *Module) GenerateMainFile(rootPath string) error {
 	return writers.WriteFormattedFile(mainFilePath, f)
 }
 
-func generateMainFile(s *schema.Schema) ([]byte, error) {
+func generateRPCMainFile(s *schema.Schema) ([]byte, error) {
 	const templateName = "mainfile.tmpl"
 	temp := template.New(templateName)
 	temp.Funcs(template.FuncMap{
 		"ToLower": strings.ToLower,
 	})
-	_, err := temp.Parse(MainFileTemplate)
+	_, err := temp.Parse(MainRPCFileTemplate)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func generateMainFile(s *schema.Schema) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-var MainFileTemplate string = `
+var MainRPCFileTemplate string = `
 package main
 
 import (
@@ -86,12 +86,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	rpcwrap.ServeHTTPRPC(
-		Mux,                    // httpmuxer
-		server,                 // rpcserver
-		"json",                 // codec name
-		jsonrpc.NewServerCodec, // jsoncodec
-		ContextCreator,         // contextCreator
+	rpcwrap.ServeCustomRPC(
+		mux,
+		server,
+		false,  // use auth
+		"json", // codec name
+		jsonrpc.NewServerCodec,
 	)
 
 	fmt.Println("Server listening on 3000")
