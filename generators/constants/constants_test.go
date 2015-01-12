@@ -15,7 +15,7 @@ import (
 
 const expected = `
 	// StatusConstant holds the predefined enums
-	const StatusConstant = struct {
+	var StatusConstant = struct {
 		Active  string
 		Deleted string
 	}{

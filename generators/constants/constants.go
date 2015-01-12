@@ -31,7 +31,7 @@ var ConstantsTemplate = `
 {{range $key, $value := .Properties}}
     {{if len $value.Enum}}
         // {{DepunctWithInitialUpper $key}} holds the predefined enums
-        const {{DepunctWithInitialUpper $key}}  = struct {
+        var {{DepunctWithInitialUpper $key}}  = struct {
         {{range $defKey, $val := $value.Enum}}
             {{DepunctWithInitialUpper $val}} string
         {{end}}
