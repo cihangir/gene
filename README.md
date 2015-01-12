@@ -70,7 +70,6 @@ Pass schema flag for your base json-schema, and target as the existing path for 
 
 ```
 gene -schema ./command.json -target ./test/
-
 ```
 
 For now, it is generating the following folder/file structure
