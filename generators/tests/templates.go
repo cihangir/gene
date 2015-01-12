@@ -63,14 +63,14 @@ func createClient(tb testing.TB) *rpcplus.Client {
         time.Second*10,         // timeout
         nil,                    // TLS config
     )
-    tests.Assert(tb, err != nil, "Err while creating the client")
+    tests.Assert(tb, err == nil, "Err while creating the client")
     return client
 }
 
 {{range $defKey, $def := .Definitions}}
 
 func with{{$defKey}}Client(tb testing.TB, f func(*{{$ModuleName}}client.{{$defKey}})) {
-    client := createClient()
+    client := createClient(tb)
     defer client.Close()
 
     f({{$ModuleName}}client.New{{$defKey}}(client))
@@ -94,34 +94,35 @@ import (
 func Test{{$Name}}One(t *testing.T) {
     with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
         err := c.One(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.One")
+        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.One")
     })
 }
 
 func Test{{$Name}}Create(t *testing.T) {
     with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
         err := c.Create(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Create")
+        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Create")
     })
 }
 
 func Test{{$Name}}Update(t *testing.T) {
     with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
         err := c.Update(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Update")
+        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Update")
     })
 }
 
 func Test{{$Name}}Delete(t *testing.T) {
     with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
         err := c.Delete(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Delete")
+        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Delete")
     })
 }
 
 func Test{{$Name}}Some(t *testing.T) {
     with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
-        err := c.Some(context.Background(), request.Options{}, make(*[]*models.{{$Name}}{},0))
-        tests.Assert(t, err != nil, "Err should be nil while testing {{$Name}}.Some")
+        res := make([]*models.{{$Name}}, 0)
+        err := c.Some(context.Background(), &request.Options{}, &res)
+        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Some")
     })
 }`
