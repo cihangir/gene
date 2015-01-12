@@ -16,7 +16,8 @@ func Generate(s *schema.Schema) ([]byte, error) {
 	// schemaName := p.Title
 	schemaFirstChar := stringext.Pointerize(s.Title)
 
-	for key, property := range s.Properties {
+	for k, property := range s.Properties {
+		key := stringext.DepunctWithInitialUpper(k)
 		switch property.Type {
 		case "string":
 			if property.MinLength != 0 {
@@ -81,7 +82,7 @@ func Generate(s *schema.Schema) ([]byte, error) {
 	templ := `
 // Validate validates the struct
 func (%s *%s) Validate() error {
-	return validator.NewMulti(%s)
+	return validator.NewMulti(%s).Validate()
 }`
 
 	sslice := sort.StringSlice(validators)
