@@ -16,7 +16,7 @@ This package aims to ease that pain
 
 ## Features
 
-### Models
+#### Models
 * Creating Models from json-schema definitions
 * Creating Validations for Models from json-schema definitions
 * Creating Constants for Model properties from json-schema definitions
@@ -24,27 +24,27 @@ This package aims to ease that pain
 * Adding golint-ed Documentations to the Models, Functions and Exported Variables
 * Creating Constructor Functions for Models with their default values from json-schema definitions
 
-### SQL
+#### SQL
 * Creating Insert, Update, Delete, Select sql.DB.* compatible plain SQL statements without any reflection
 
-### Tests
+#### Tests
 * Providing simple Assert, Ok, Equals test functions for the app
 
-### Workers
+#### Workers
 
-### API
+#### API
 * Creating rpc api endpoints for Create, Update, Select, Delete operations for every definition in json-schema
 
-### Client
+#### Client
 * Creating Client code for communication with your endpoints
 
-### CMD
+#### CMD
 * Creating basic cli for the worker
 
-### Errors
+#### Errors
 * Creating idiomatic Go Errors for the api, validations etc.
 
-### Tests
+#### Tests
 * Creating tests for the generated api endpoints
 
 ## Install
