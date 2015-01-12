@@ -81,7 +81,7 @@ func (m *Message) Validate() error {
 			StatusConstant.Active,
 			StatusConstant.Deleted,
 		}),
-		validator.Pattern(m.Body, "^(/[^/]+)+$"))
+		validator.Pattern(m.Body, "^(/[^/]+)+$")).Validate()
 }`
 
 	code, err := validators.Generate(&s)
