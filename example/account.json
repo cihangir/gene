@@ -1,0 +1,258 @@
+
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://savas.io/Account",
+  "type": "object",
+  "additionalProperties": true,
+  "title": "Account",
+  "description": "Account module handles all the operations regarding Account management.",
+  "properties": {},
+  "definitions": {
+    "Config": {
+      "id": "http: //savas.io/Account/Profile",
+      "type": "config",
+      "additionalProperties": true,
+      "title": "Config",
+      "description": "Config represents the required options for this module to work",
+      "definitions": {},
+      "properties": {
+        "Postgres": {
+          "id": "http://savas.io/Config/Postgres",
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Postgres",
+          "description": "Postgres holds the all credentials for postgres db connection.",
+          "properties": {
+            "Port": {
+              "id": "http: //savas.io/Account/Config/Postgres/Port",
+              "description": "The port number for postgres config",
+              "type": "number",
+              "format": "int64",
+              "minimum": 1024
+            },
+            "Host": {
+              "id": "http: //savas.io/Account/Config/Postgres/Host",
+              "description": "Host holds the hostname for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Username": {
+              "id": "http: //savas.io/Account/Config/Postgres/Username",
+              "description": "Username holds the username for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Password": {
+              "id": "http: //savas.io/Account/Config/Postgres/Password",
+              "description": "Password holds the password for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "DBName": {
+              "id": "http: //savas.io/Account/Config/Postgres/DBName",
+              "description": "DBName holds the database name for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            }
+          },
+          "definitions": {}
+        },
+        "Mongo": {
+          "id": "http://savas.io/Config/Mongo",
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Mongo",
+          "description": "Mongo holds the all credentials for Mongo db connection.",
+          "properties": {
+            "Port": {
+              "id": "http: //savas.io/Account/Config/Mongo/Port",
+              "description": "The port number for Mongo config",
+              "type": "number",
+              "format": "int64",
+              "minimum": 1024
+            },
+            "Host": {
+              "id": "http: //savas.io/Account/Config/Mongo/Host",
+              "description": "Host holds the hostname for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Username": {
+              "id": "http: //savas.io/Account/Config/Mongo/Username",
+              "description": "Username holds the username for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Password": {
+              "id": "http: //savas.io/Account/Config/Mongo/Password",
+              "description": "Password holds the password for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "DBName": {
+              "id": "http: //savas.io/Account/Config/Mongo/DBName",
+              "description": "DBName holds the database name for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            }
+          },
+          "definitions": {}
+        }
+      }
+    },
+    "Profile": {
+      "id": "http: //savas.io/Account/Profile",
+      "type": "object",
+      "additionalProperties": true,
+      "title": "Profile",
+      "description": "Profile represents a registered Account's Public Info",
+      "properties": {
+        "Id": {
+          "id": "http: //savas.io/Account/Profile/Id",
+          "description": "The unique identifier for a Account's Profile",
+          "type": "number",
+          "format": "int64",
+          "minimum": 1
+        },
+        "Nick": {
+          "id": "http: //savas.io/Account/Profile/Nick",
+          "description": "Nick is the unique name for the Accounts",
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 24
+        },
+        "FirstName": {
+          "id": "http: //savas.io/Account/Profile/FirstName",
+          "description": "First Name of the Account",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "LastName": {
+          "id": "http: //savas.io/Account/Profile/LastName",
+          "description": "Last Name of the Account",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "AvatarURL": {
+          "id": "http: //savas.io/Account/Profile/AvatarURL",
+          "description": "URL of the Account's Avatar",
+          "type": "string"
+        },
+        "CreatedAt": {
+          "id": "http: //savas.io/Account/Profile/CreatedAt",
+          "description": "Profile's creation time",
+          "type": "string",
+          "format": "date-time",
+          "default": "now()"
+        }
+      },
+      "required": [
+        "Nick"
+      ]
+    },
+    "Account": {
+      "id": "http: //savas.io/Account/Account",
+      "type": "object",
+      "additionalProperties": true,
+      "title": "Account",
+      "description": "Account represents a registered User",
+      "properties": {
+        "Id": {
+          "id": "http: //savas.io/Account/Account/Id",
+          "description": "The unique identifier for a Account's Profile",
+          "type": "number",
+          "format": "int64",
+          "minimum": 1
+        },
+        "ProfileId": {
+          "$ref": "http: //savas.io/Account/Profile/Id",
+          "type": "number"
+        },
+        "Password": {
+          "id": "http: //savas.io/Account/Account/Password",
+          "description": "Salted Password of the Account",
+          "type": "string",
+          "minLength": 6
+        },
+        "URLName": {
+          "id": "http: //savas.io/Account/Account/Password",
+          "description": "Salted Password of the Account",
+          "type": "string",
+          "minLength": 6
+        },
+        "URL": {
+          "id": "http: //savas.io/Account/Account/Password",
+          "description": "Salted Password of the Account",
+          "type": "string",
+          "minLength": 6
+        },
+        "PasswordStatusConstant": {
+          "id": "http: //savas.io/Account/Profile/StatusConstant",
+          "description": "Status of the Account's Password",
+          "type": "string",
+          "enum": [
+            "valid",
+            "needsReset",
+            "generated"
+          ],
+          "default": "valid"
+        },
+        "Salt": {
+          "id": "http: //savas.io/Account/Account/Salt",
+          "description": "Salt used to hash Password of the Account",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "EmailAddress": {
+          "id": "http: //savas.io/Account/Account/EmailAddress",
+          "description": "Email Address of the Account",
+          "type": "string",
+          "format": "email"
+        },
+        "EmailStatusConstant": {
+          "id": "http: //savas.io/Account/Profile/StatusConstant",
+          "description": "Status of the Account's Email",
+          "type": "string",
+          "enum": [
+            "verified",
+            "notVerified"
+          ],
+          "default": "notVerified"
+        },
+        "StatusConstant": {
+          "id": "http: //savas.io/Account/Profile/StatusConstant",
+          "description": "Status of the Account",
+          "type": "string",
+          "enum": [
+            "registered",
+            "unregistered",
+            "needsManualVerification"
+          ],
+          "default": "registered"
+        },
+        "CreatedAt": {
+          "id": "http: //savas.io/Account/Profile/CreatedAt",
+          "description": "Profile's creation time",
+          "type": "string",
+          "format": "date-time",
+          "default": "now()"
+        }
+      },
+      "required": [
+        "Password",
+        "EmailAddress"
+      ]
+    }
+  }
+}
