@@ -88,12 +88,12 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	buf.WriteString(string(packageLine))
-	buf.WriteString(string(consts))
-	buf.WriteString(string(schema))
-	buf.WriteString(string(constructor))
+	buf.Write(packageLine)
+	buf.Write(consts)
+	buf.Write(schema)
+	buf.Write(constructor)
 	if validators != nil {
-		buf.WriteString(string(validators))
+		buf.Write(validators)
 	}
 
 	return writers.Clear(buf)
@@ -132,12 +132,12 @@ func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	buf.WriteString(string(packageLine))
-	buf.WriteString(string(createStatements))
-	buf.WriteString(string(updateStatements))
-	buf.WriteString(string(deleteStatements))
-	buf.WriteString(string(selectStatements))
-	buf.WriteString(string(tableName))
+	buf.Write(packageLine)
+	buf.Write(createStatements)
+	buf.Write(updateStatements)
+	buf.Write(deleteStatements)
+	buf.Write(selectStatements)
+	buf.Write(tableName)
 
 	return writers.Clear(buf)
 }
