@@ -4,18 +4,13 @@ import (
 	"bytes"
 	"text/template"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
 )
 
 func Generate(s *schema.Schema) ([]byte, error) {
-	temp := template.New("constructors.tmpl")
-
-	temp.Funcs(template.FuncMap{
-		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
-		"Equal":                   stringext.Equal,
-	})
+	temp := template.New("constructors.tmpl").Funcs(common.TemplateFuncs)
 	_, err := temp.Parse(ConstructorsTemplate)
 	if err != nil {
 		return nil, err

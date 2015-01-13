@@ -9,9 +9,10 @@ import (
 
 var TemplateFuncs = template.FuncMap{
 	"Pointerize":              stringext.Pointerize,
-	"ToLowerFirst":            stringext.ToLowerFirst,
 	"ToLower":                 strings.ToLower,
+	"ToLowerFirst":            stringext.ToLowerFirst,
 	"ToUpperFirst":            stringext.ToUpperFirst,
 	"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
 	"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
+	"Equal":                   stringext.Equal,
 }
