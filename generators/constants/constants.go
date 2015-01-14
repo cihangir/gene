@@ -1,3 +1,4 @@
+// Package constants generates the constant variables for a model/schema
 package constants
 
 import (
@@ -9,18 +10,15 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// Generate generates the constants for given schema/model
 func Generate(s *schema.Schema) ([]byte, error) {
 	temp := template.New("constants.tmpl").Funcs(common.TemplateFuncs)
-
-	_, err := temp.Parse(ConstantsTemplate)
-	if err != nil {
+	if _, err := temp.Parse(ConstantsTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
-
-	err = temp.ExecuteTemplate(&buf, "constants.tmpl", s)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "constants.tmpl", s); err != nil {
 		return nil, err
 	}
 

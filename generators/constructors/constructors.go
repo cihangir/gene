@@ -1,3 +1,4 @@
+// Package constructors generates the constructors for given schema/model
 package constructors
 
 import (
@@ -9,23 +10,24 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// Generate generates the constructors for given schema/model
 func Generate(s *schema.Schema) ([]byte, error) {
 	temp := template.New("constructors.tmpl").Funcs(common.TemplateFuncs)
-	_, err := temp.Parse(ConstructorsTemplate)
-	if err != nil {
+
+	if _, err := temp.Parse(ConstructorsTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "constructors.tmpl", s)
-	if err != nil {
+	if err = temp.ExecuteTemplate(&buf, "constructors.tmpl", s); err != nil {
 		return nil, err
 	}
 
 	return writers.Clear(buf)
 }
 
+// ConstructorsTemplate provides the template for constructors of models
 var ConstructorsTemplate = `
 func New{{DepunctWithInitialUpper .Title}}() *{{DepunctWithInitialUpper .Title}} {
     return &{{DepunctWithInitialUpper .Title}}{

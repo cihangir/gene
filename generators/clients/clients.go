@@ -13,6 +13,9 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+var PathForClient = "%sworkers/%s/clients/%s.go"
+
+// Generate generates the client package for given schema
 func Generate(rootPath string, s *schema.Schema) error {
 	moduleName := stringext.ToLowerFirst(s.Title)
 
@@ -26,20 +29,16 @@ func Generate(rootPath string, s *schema.Schema) error {
 			}
 		}
 
-		path := fmt.Sprintf(
-			"%sworkers/%s/clients/%s.go",
-			rootPath,
-			moduleName,
-			stringext.ToLowerFirst(def.Title),
-		)
-
 		f, err := generate(moduleName, def)
 		if err != nil {
 			return err
 		}
 
-		err = writers.WriteFormattedFile(path, f)
-		if err != nil {
+		path := fmt.Sprintf(PathForClient, rootPath, moduleName,
+			stringext.ToLower(def.Title),
+		)
+
+		if err := writers.WriteFormattedFile(path, f); err != nil {
 			return err
 		}
 
@@ -48,13 +47,10 @@ func Generate(rootPath string, s *schema.Schema) error {
 	return nil
 }
 
-// Generate functions according to the schema.
 func generate(moduleName string, s *schema.Schema) ([]byte, error) {
-	temp := template.New("clients.tmpl")
-	temp.Funcs(common.TemplateFuncs)
-
-	_, err := temp.Parse(ClientsTemplate)
-	if err != nil {
+	// create a template to process the clients
+	temp := template.New("clients.tmpl").Funcs(common.TemplateFuncs)
+	if _, err := temp.Parse(ClientsTemplate); err != nil {
 		return nil, err
 	}
 
@@ -68,8 +64,7 @@ func generate(moduleName string, s *schema.Schema) ([]byte, error) {
 		ModuleName: moduleName,
 	}
 
-	err = temp.ExecuteTemplate(&buf, "clients.tmpl", data)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "clients.tmpl", data); err != nil {
 		return nil, err
 	}
 
