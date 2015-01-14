@@ -102,6 +102,9 @@ func Pattern(data string, pattern string) Validator {
 		},
 	}
 }
+
+// OneOf creates a validator to check if the given value is one of the element
+// of given string slice
 func OneOf(data string, enums []string) Validator {
 	return &valide{
 		f: func() error {
@@ -116,6 +119,8 @@ func OneOf(data string, enums []string) Validator {
 	}
 }
 
+// Min creates a validator to check if the given value is greater than the given
+// value
 func Min(data float64, min float64) Validator {
 	return &valide{
 		f: func() error {
@@ -127,6 +132,9 @@ func Min(data float64, min float64) Validator {
 		},
 	}
 }
+
+// Max creates a validator to check if the given value is lower than the given
+// value
 func Max(data float64, max float64) Validator {
 	return &valide{
 		f: func() error {
@@ -139,6 +147,8 @@ func Max(data float64, max float64) Validator {
 	}
 }
 
+// MultipleOf creates a validator to check if the check value is multiple of the
+// given value
 func MultipleOf(data float64, multipleOf float64) Validator {
 	return &valide{
 		f: func() error {
@@ -151,6 +161,7 @@ func MultipleOf(data float64, multipleOf float64) Validator {
 	}
 }
 
+// Date creates a validator to check if the given date is not zero date
 func Date(data time.Time) Validator {
 	return &valide{
 		f: func() error {
@@ -163,6 +174,7 @@ func Date(data time.Time) Validator {
 	}
 }
 
+// NewMulti creates a multi validator, it stops the execution with the first error if error happens while validating
 func NewMulti(v ...Validator) Validator {
 	return &valide{
 		f: func() error {

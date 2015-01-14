@@ -1,4 +1,4 @@
-// Package client generates clients for the generated api
+// Package clients generates clients for the generated api
 package clients
 
 import (

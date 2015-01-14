@@ -1,3 +1,4 @@
+// Package handlers creates the handlers for the gene
 package handlers
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// Generate commands the handler generation
 func Generate(rootPath string, s *schema.Schema) error {
 	for _, def := range s.Definitions {
 		err := GenerateAPI(rootPath, s.Title, def.Title)
@@ -24,6 +26,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 	return nil
 }
 
+// GenerateAPI generates and writes the api files
 func GenerateAPI(rootPath string, moduleName string, name string) error {
 	api, err := generate(moduleName, name)
 	if err != nil {

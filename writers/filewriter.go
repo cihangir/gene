@@ -1,3 +1,4 @@
+//Package writers handles the file write operations
 package writers
 
 import (
@@ -9,6 +10,8 @@ import (
 	"golang.org/x/tools/imports"
 )
 
+// WriteFormattedFile formats the code with goimports and writes the result to
+// the given file, if file doesnt exists, it creates it
 func WriteFormattedFile(fileName string, model []byte) error {
 	dest, err := imports.Process("", model, nil)
 	if err != nil {
@@ -22,16 +25,18 @@ func WriteFormattedFile(fileName string, model []byte) error {
 
 	defer f.Close()
 
-	_, err = f.Write(dest)
-	if err != nil {
+	if _, err = f.Write(dest); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// NewLinesRegex holds the regex to remove newlines from given bytes.Buffer
 var NewLinesRegex = regexp.MustCompile(`(?m:\s*$)`)
 
+// Clear formats the given source with predefined operations, it removes the
+// new lines too
 func Clear(buf bytes.Buffer) ([]byte, error) {
 	bytes := NewLinesRegex.ReplaceAll(buf.Bytes(), []byte(""))
 

@@ -1,3 +1,4 @@
+// Package models creates the models for the modules
 package models
 
 import (
@@ -14,6 +15,7 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// Generate creates the models and write them to the required paths
 func Generate(rootPath string, s *schema.Schema) error {
 
 	for _, def := range s.Definitions {
@@ -37,6 +39,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 	return nil
 }
 
+// GenerateStatements generates the basic CRUD statements for the models
 func GenerateStatements(rootPath string, s *schema.Schema) error {
 
 	for _, def := range s.Definitions {
@@ -60,6 +63,7 @@ func GenerateStatements(rootPath string, s *schema.Schema) error {
 	return nil
 }
 
+// GenerateModel generates the model itself
 func GenerateModel(s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -99,6 +103,7 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 	return writers.Clear(buf)
 }
 
+// GenerateModelStatements generates the CRUD statements for the model struct
 func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -142,7 +147,8 @@ func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 	return writers.Clear(buf)
 }
 
-// Generate imports according to the schema.
+// GeneratePackage generates the imports according to the schema.
+// TODO remove this function
 func GeneratePackage(s *schema.Schema) ([]byte, error) {
 	temp := template.New("package.tmpl")
 	_, err := temp.Parse(PackageTemplate)
@@ -162,7 +168,7 @@ func GeneratePackage(s *schema.Schema) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Generate schema according to the schema.
+// GenerateSchema generates the schema.
 func GenerateSchema(s *schema.Schema) ([]byte, error) {
 
 	temp := template.New("schema.tmpl")
@@ -191,7 +197,7 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 	return writers.Clear(buf)
 }
 
-// Generate functions according to the schema.
+// GenerateFunctions generates the functions according to the schema.
 func GenerateFunctions(s *schema.Schema) ([]byte, error) {
 
 	temp := template.New("functions.tmpl")

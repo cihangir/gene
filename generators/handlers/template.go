@@ -1,5 +1,6 @@
 package handlers
 
+// APITemplate holds the template for the handlers
 var APITemplate = `package {{ToLower .ModuleName}}api
 
 // New creates a new local {{ToUpperFirst .Name}} handler
@@ -37,22 +38,3 @@ func (m *{{ToUpperFirst .Name}}) Delete(ctx context.Context, req *models.{{ToUpp
 func (m *{{ToUpperFirst .Name}}) Some(ctx context.Context, req *request.Options, res *[]*models.{{ToUpperFirst .Name}}) error {
     return db.MustGetDB(ctx).Some(models.New{{ToUpperFirst .Name}}(), req, req)
 }`
-
-var HandlersTemplate = `package {{ToLowerFirst .}}handlers
-
-func Update(u *url.URL, h http.Header, m *models.{{ToUpperFirst .Name}}, c *models.Context) (int, http.Header, interface{}, error) {
-    return 200, nil, nil, nil
-}
-
-func Delete(u *url.URL, h http.Header, m *models.{{ToUpperFirst .Name}}, c *models.Context) (int, http.Header, interface{}, error) {
-    return 200, nil, nil, nil
-}
-
-func Create(u *url.URL, h http.Header, m *models.{{ToUpperFirst .Name}}, c *models.Context) (int, http.Header, interface{}, error) {
-    return 200, nil, nil, nil
-}
-
-func Get(u *url.URL, h http.Header, _ interface{}, c *models.Context) (int, http.Header, interface{}, error) {
-    return 200, nil, nil, nil
-}
-`

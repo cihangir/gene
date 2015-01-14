@@ -1,3 +1,4 @@
+// Package folders creates required folders for module system
 package folders
 
 import (
@@ -13,6 +14,7 @@ var FolderStucture = []string{
 	"app",
 }
 
+// EnsureFolders checks and creates the folders for the modules
 func EnsureFolders(root string, folderStucture []string) error {
 	for _, folder := range folderStucture {
 		path := path.Join(root, folder)
