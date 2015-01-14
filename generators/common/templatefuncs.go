@@ -7,6 +7,7 @@ import (
 	"github.com/cihangir/gene/stringext"
 )
 
+// TemplateFuncs provides utility functions for template operations
 var TemplateFuncs = template.FuncMap{
 	"Pointerize":              stringext.Pointerize,
 	"ToLower":                 strings.ToLower,

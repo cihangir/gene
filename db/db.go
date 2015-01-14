@@ -1,7 +1,9 @@
+// Package db provides a simple interface for the db operations
 package db
 
 import "golang.org/x/net/context"
 
+// DB holds the basic operation interfaces
 type DB interface {
 	One(interface{}, interface{}, interface{}) error
 	Create(interface{}, interface{}, interface{}) error

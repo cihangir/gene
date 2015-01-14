@@ -1,3 +1,4 @@
+// Package main provides cli for gene package
 package main
 
 import (
