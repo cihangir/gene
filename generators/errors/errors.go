@@ -4,11 +4,11 @@ package errors
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
 )
 
@@ -22,8 +22,8 @@ func Generate(rootPath string, s *schema.Schema) error {
 	path := fmt.Sprintf(
 		"%sworkers/%s/errors/%s.go",
 		rootPath,
-		stringext.ToLower(s.Title),
-		stringext.ToLower(s.Title),
+		strings.ToLower(s.Title),
+		strings.ToLower(s.Title),
 	)
 
 	return writers.WriteFormattedFile(path, data)

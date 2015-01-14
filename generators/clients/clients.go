@@ -4,6 +4,7 @@ package clients
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"go/format"
@@ -37,7 +38,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 		}
 
 		path := fmt.Sprintf(PathForClient, rootPath, moduleName,
-			stringext.ToLower(def.Title),
+			strings.ToLower(def.Title),
 		)
 
 		if err := writers.WriteFormattedFile(path, f); err != nil {
