@@ -25,6 +25,7 @@ func Generate(s *schema.Schema) ([]byte, error) {
 	return writers.Clear(buf)
 }
 
+// ConstantsTemplate holds the template for the constant generation
 var ConstantsTemplate = `
 {{range $key, $value := .Properties}}
     {{if len $value.Enum}}

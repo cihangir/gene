@@ -1,3 +1,4 @@
+// Package client generates clients for the generated api
 package clients
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// PathForClient holds the to be formatted string for the path of the client
 var PathForClient = "%sworkers/%s/clients/%s.go"
 
 // Generate generates the client package for given schema

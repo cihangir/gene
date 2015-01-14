@@ -1,5 +1,6 @@
 package errors
 
+// ErrorsTemplate holds the template for the errors package
 var ErrorsTemplate = `
 package errs
 var (

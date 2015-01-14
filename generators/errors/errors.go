@@ -1,3 +1,4 @@
+// Package errors generates the common errors for the modules
 package errors
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// Generate generates and writes the errors of the schema
 func Generate(rootPath string, s *schema.Schema) error {
 	data, err := generate(s)
 	if err != nil {
@@ -20,8 +22,8 @@ func Generate(rootPath string, s *schema.Schema) error {
 	path := fmt.Sprintf(
 		"%sworkers/%s/errors/%s.go",
 		rootPath,
-		stringext.ToLowerFirst(s.Title),
-		stringext.ToLowerFirst(s.Title),
+		stringext.ToLower(s.Title),
+		stringext.ToLower(s.Title),
 	)
 
 	return writers.WriteFormattedFile(path, data)

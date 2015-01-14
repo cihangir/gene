@@ -1,5 +1,6 @@
 package clients
 
+// ClientsTemplate holds the template for the clients packages
 var ClientsTemplate = `package {{ToLower .ModuleName}}client
 
 import (

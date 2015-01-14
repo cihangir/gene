@@ -12,8 +12,10 @@ type DB interface {
 	Some(interface{}, interface{}, interface{}) error
 }
 
+// DBKEY holds the key for the db value in net.Context
 const DBKEY = "gene_db"
 
+// MustGetDB returns the DB from context, if db not found with it's key, panics
 func MustGetDB(ctx context.Context) DB {
 	val := ctx.Value(DBKEY)
 	if val == nil {
@@ -28,6 +30,7 @@ func MustGetDB(ctx context.Context) DB {
 	return d
 }
 
+// SetDB sets the db into context and returns the modified context
 func SetDB(ctx context.Context, d DB) context.Context {
 	return context.WithValue(ctx, DBKEY, d)
 }

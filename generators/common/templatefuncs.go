@@ -1,3 +1,4 @@
+// Package common provides common operation helpers to the generators
 package common
 
 import (
