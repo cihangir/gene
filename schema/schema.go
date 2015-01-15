@@ -1,3 +1,4 @@
+// Package schema provides json-schema reading, validation, support
 package schema
 
 // Schema represents a JSON Schema.

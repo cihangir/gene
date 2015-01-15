@@ -3,7 +3,6 @@ package schema
 import (
 	"bytes"
 	"fmt"
-	"go/format"
 	"regexp"
 	"sort"
 	"strings"
@@ -11,61 +10,61 @@ import (
 	"github.com/cihangir/gene/stringext"
 )
 
-// Generate generates code according to the schema.
-func (s *Schema) Generate() ([]byte, error) {
-	var buf bytes.Buffer
+// // Generate generates code according to the schema.
+// func (s *Schema) Generate() ([]byte, error) {
+// 	var buf bytes.Buffer
 
-	s.Resolve(nil)
+// 	s.Resolve(nil)
 
-	name := strings.ToLower(strings.Split(s.Title, " ")[0])
-	templates.ExecuteTemplate(&buf, "package.tmpl", name)
+// 	name := strings.ToLower(strings.Split(s.Title, " ")[0])
+// 	templates.ExecuteTemplate(&buf, "package.tmpl", name)
 
-	// TODO: Check if we need time.
-	templates.ExecuteTemplate(&buf, "imports.tmpl", []string{
-		"encoding/json", "fmt", "io", "reflect",
-		"net/http", "runtime", "time", "bytes",
-	})
-	templates.ExecuteTemplate(&buf, "service.tmpl", struct {
-		Name    string
-		URL     string
-		Version string
-	}{
-		Name:    name,
-		URL:     s.URL(),
-		Version: s.Version,
-	})
+// 	// TODO: Check if we need time.
+// 	templates.ExecuteTemplate(&buf, "imports.tmpl", []string{
+// 		"encoding/json", "fmt", "io", "reflect",
+// 		"net/http", "runtime", "time", "bytes",
+// 	})
+// 	templates.ExecuteTemplate(&buf, "service.tmpl", struct {
+// 		Name    string
+// 		URL     string
+// 		Version string
+// 	}{
+// 		Name:    name,
+// 		URL:     s.URL(),
+// 		Version: s.Version,
+// 	})
 
-	for _, name := range SortedKeys(s.Properties) {
-		schema := s.Properties[name]
-		// Skipping definitions because there is no links, nor properties.
-		if schema.Links == nil && schema.Properties == nil {
-			continue
-		}
+// 	for _, name := range sortedKeys(s.Properties) {
+// 		schema := s.Properties[name]
+// 		// Skipping definitions because there is no links, nor properties.
+// 		if schema.Links == nil && schema.Properties == nil {
+// 			continue
+// 		}
 
-		context := struct {
-			Name       string
-			Definition *Schema
-		}{
-			Name:       name,
-			Definition: schema,
-		}
+// 		context := struct {
+// 			Name       string
+// 			Definition *Schema
+// 		}{
+// 			Name:       name,
+// 			Definition: schema,
+// 		}
 
-		templates.ExecuteTemplate(&buf, "struct.tmpl", context)
-		templates.ExecuteTemplate(&buf, "funcs.tmpl", context)
-	}
+// 		templates.ExecuteTemplate(&buf, "struct.tmpl", context)
+// 		templates.ExecuteTemplate(&buf, "funcs.tmpl", context)
+// 	}
 
-	// Remove blank lines added by text/template
-	bytes := NewLinesRegex.ReplaceAll(buf.Bytes(), []byte(""))
+// 	// Remove blank lines added by text/template
+// 	bytes := newLinesRegex.ReplaceAll(buf.Bytes(), []byte(""))
 
-	// Format sources
-	clean, err := format.Source(bytes)
-	if err != nil {
-		return buf.Bytes(), err
-	}
-	return clean, nil
-}
+// 	// Format sources
+// 	clean, err := format.Source(bytes)
+// 	if err != nil {
+// 		return buf.Bytes(), err
+// 	}
+// 	return clean, nil
+// }
 
-var NewLinesRegex = regexp.MustCompile(`(?m:\s*$)`)
+var newLinesRegex = regexp.MustCompile(`(?m:\s*$)`)
 
 // Resolve resolves reference inside the schema.
 func (s *Schema) Resolve(r *Schema) *Schema {
@@ -174,7 +173,7 @@ func (s *Schema) goType(required bool, force bool) (goType string) {
 				continue
 			}
 			buf := bytes.NewBufferString("struct {")
-			for _, name := range SortedKeys(s.Properties) {
+			for _, name := range sortedKeys(s.Properties) {
 				prop := s.Properties[name]
 				req := stringext.Contains(name, s.Required) || force
 				templates.ExecuteTemplate(buf, "field.tmpl", struct {
@@ -274,7 +273,7 @@ func (l *Link) GoType() string {
 	return l.Schema.goType(true, false)
 }
 
-func SortedKeys(m map[string]*Schema) (keys []string) {
+func sortedKeys(m map[string]*Schema) (keys []string) {
 	for key := range m {
 		keys = append(keys, key)
 	}
@@ -282,19 +281,23 @@ func SortedKeys(m map[string]*Schema) (keys []string) {
 	return
 }
 
+// Args creates arguments string
 func Args(h *HRef) string {
 	return strings.Join(h.Order, ", ")
 }
 
+// Values creates the value string
 func Values(n string, s *Schema, l *Link) string {
 	v := s.Values(n, l)
 	return strings.Join(v, ", ")
 }
 
+// Required checks if the given n is a required property
 func Required(n string, def *Schema) bool {
 	return stringext.Contains(n, def.Required)
 }
 
+// Params creates the parameter string for the given link
 func Params(l *Link) string {
 	var p []string
 	order, Params := l.Parameters()

@@ -6,6 +6,7 @@ import (
 	"github.com/cihangir/gene/stringext"
 )
 
+// Helpers holds helpers for templates
 var Helpers = template.FuncMap{
 	"AsComment":               stringext.AsComment,
 	"JSONTag":                 stringext.JSONTag,
