@@ -1,3 +1,4 @@
+// Package modules handle module creation for the given json-schema
 package modules
 
 import (
@@ -15,18 +16,23 @@ import (
 	"github.com/cihangir/gene/stringext"
 )
 
+// Module holds the required parameters for a module
 type Module struct {
-	schema           *schema.Schema
+	schema *schema.Schema
+
+	// TargetFolderName holds the folder name for the module
 	TargetFolderName string
 }
 
+// NewModule creates a new module with the given Schema
 func NewModule(s *schema.Schema) *Module {
 	return &Module{
-		schema:           s,
+		schema:           s.Resolve(nil),
 		TargetFolderName: "./",
 	}
 }
 
+// NewFromFile reads the given file and creates a new module out of it
 func NewFromFile(path string) (*Module, error) {
 	fileContent, err := helpers.ReadFile(path)
 	if err != nil {
@@ -41,6 +47,8 @@ func NewFromFile(path string) (*Module, error) {
 	return NewModule(&s), nil
 }
 
+// Create creates the module. While creating the module it handles models,
+// handlers, errors, servers, clients and tests generation
 func (m *Module) Create() error {
 	rootPath := m.TargetFolderName
 
@@ -106,7 +114,6 @@ var moduleFolderStucture = []string{
 	"workers/%[1]s/tests",
 	"workers/%[1]s/errors",
 	"workers/%[1]s/clients",
-	// "workers/%[1]s/handlers",
 }
 
 func createModuleStructure(name string) []string {

@@ -2,16 +2,20 @@ package modules
 
 import (
 	"fmt"
-	"strings"
 	"text/template"
 
 	"bytes"
 
+	"go/format"
+
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
 )
 
+// GenerateRPCMainFile handles the main file generation for persistent
+// connection rpc server
 func (m *Module) GenerateRPCMainFile(rootPath string) error {
 
 	moduleName := stringext.ToLowerFirst(
@@ -35,26 +39,23 @@ func (m *Module) GenerateRPCMainFile(rootPath string) error {
 
 func generateRPCMainFile(s *schema.Schema) ([]byte, error) {
 	const templateName = "mainfile.tmpl"
-	temp := template.New(templateName)
-	temp.Funcs(template.FuncMap{
-		"ToLower": strings.ToLower,
-	})
-	_, err := temp.Parse(MainRPCFileTemplate)
-	if err != nil {
+	temp := template.New(templateName).Funcs(common.TemplateFuncs)
+
+	if _, err := temp.Parse(MainRPCFileTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, templateName, s)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, templateName, s); err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
 
-var MainRPCFileTemplate string = `
+// MainRPCFileTemplate holds the template for the main file generation
+var MainRPCFileTemplate = `
 package main
 
 import (
