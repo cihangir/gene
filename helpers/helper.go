@@ -1,3 +1,4 @@
+// Package helpers provides helper functions for other subpackages
 package helpers
 
 import (
@@ -15,6 +16,8 @@ var (
 	ErrFileNotFound = errors.New("file not found")
 )
 
+// ReadFile reads the given file, first it tries to read with relative path,
+// then tries with exact given path
 func ReadFile(path string) ([]byte, error) {
 	filePath, err := getExactPath(path)
 	if err != nil {

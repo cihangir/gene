@@ -1,3 +1,5 @@
+// Package stringext adds extra power to the strings package with helper
+// functions
 package stringext
 
 import (
@@ -89,7 +91,7 @@ func DepunctWithInitialUpper(ident string) string {
 	return Depunct(ident, true)
 }
 
-// DepunctWithInitialUpper does special operations to the given string, while
+// DepunctWithInitialLower does special operations to the given string, while
 // operating lowercases the special words
 func DepunctWithInitialLower(ident string) string {
 	return Depunct(ident, false)
