@@ -11,6 +11,7 @@ import (
 	"github.com/cihangir/gene/writers"
 )
 
+// Generate generates the validators for the the given schema
 func Generate(s *schema.Schema) ([]byte, error) {
 	validators := make([]string, 0)
 	// schemaName := p.Title

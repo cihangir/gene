@@ -1,5 +1,6 @@
 package tests
 
+// TestFuncs holds the template for the test functions
 var TestFuncs = `// package testfunc contains various helpers to be used in tests. Included
 // from: https://github.com/benbjohnson/testing
 package tests
@@ -39,6 +40,7 @@ func Equals(tb testing.TB, exp, act interface{}) {
     }
 }`
 
+// MainTestsTemplate holds the test file template
 var MainTestsTemplate = `
 {{$ModuleName := ToLower .Title}}
 
@@ -79,6 +81,7 @@ func with{{$defKey}}Client(tb testing.TB, f func(*{{$ModuleName}}client.{{$defKe
 {{end}}
 `
 
+// TestsTemplate holds the template for the test files
 var TestsTemplate = `
 {{$Name := ToUpperFirst .Name}}
 {{$ModuleName := ToLower .ModuleName}}

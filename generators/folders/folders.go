@@ -6,6 +6,8 @@ import (
 	"path"
 )
 
+// FolderStucture holds all the required paths to be created while setting up a
+// new module
 var FolderStucture = []string{
 	"workers",
 	"workers/",

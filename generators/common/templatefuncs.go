@@ -17,4 +17,5 @@ var TemplateFuncs = template.FuncMap{
 	"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
 	"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
 	"Equal":                   stringext.Equal,
+	"ToFieldName":             stringext.ToFieldName,
 }
