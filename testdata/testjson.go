@@ -1,5 +1,7 @@
+// Package testdata provides test data to the other packages
 package testdata
 
+//  JSON1 holds a primitive json
 const JSON1 = `
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
@@ -50,7 +52,9 @@ const JSON1 = `
   ]
 }
 `
-const JSON_WITH_MODULE = `{
+
+// JSONWithModule holds a json with module support
+const JSONWithModule = `{
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://savas.io/account",
   "type": "object",
