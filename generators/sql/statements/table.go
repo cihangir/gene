@@ -20,7 +20,7 @@ func GenerateTableName(s *schema.Schema) ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	if err = temp.ExecuteTemplate(&buf, "table_name_statement.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "table_name_statement.tmpl", s); err != nil {
 		return nil, err
 	}
 

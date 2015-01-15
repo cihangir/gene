@@ -76,7 +76,7 @@ func GenerateMainTestFileForModule(s *schema.Schema) ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	if err = temp.ExecuteTemplate(&buf, "mainTestFile.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "mainTestFile.tmpl", s); err != nil {
 		return nil, err
 	}
 
@@ -94,7 +94,7 @@ func GenerateTestFuncs(s *schema.Schema) ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	if err = temp.ExecuteTemplate(&buf, "testFuncs.tmpl", nil); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "testFuncs.tmpl", nil); err != nil {
 		return nil, err
 	}
 
@@ -119,7 +119,7 @@ func GenerateTests(moduleName string, name string) ([]byte, error) {
 		ModuleName: moduleName,
 	}
 
-	if err = temp.ExecuteTemplate(&buf, "tests.tmpl", data); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "tests.tmpl", data); err != nil {
 		return nil, err
 	}
 
