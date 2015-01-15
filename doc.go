@@ -1,5 +1,9 @@
+// Package gene helps you with creating the required folder, files, configs, api
+// function, endpoints, clients, tests etc...
 package gene
 
+// IDEAS
+//
 // Doc generation
 // http://beego.me/docs/advantage/docs.md
 // https://github.com/yvasiyarov/swagger
