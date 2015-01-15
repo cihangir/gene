@@ -4,35 +4,30 @@ import (
 	"bytes"
 	"text/template"
 
+	"go/format"
+
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 )
 
+// GenerateDelete generates the delete sql statement for the given schema
 func GenerateDelete(s *schema.Schema) ([]byte, error) {
-	temp := template.New("delete_statement.tmpl")
-	temp.Funcs(template.FuncMap{
-		"Pointerize":              stringext.Pointerize,
-		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
-		"Equal":                   stringext.Equal,
-		"ToFieldName":             stringext.ToFieldName,
-		"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
-	})
+	temp := template.New("delete_statement.tmpl").Funcs(common.TemplateFuncs)
 
-	_, err := temp.Parse(DeleteStatementTemplate)
-	if err != nil {
+	if _, err := temp.Parse(DeleteStatementTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "delete_statement.tmpl", s)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "delete_statement.tmpl", s); err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
 
+// DeleteStatementTemplate holds the template for the delete sql statement generator
 var DeleteStatementTemplate = `
 // GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}

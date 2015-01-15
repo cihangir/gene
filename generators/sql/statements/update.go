@@ -4,35 +4,30 @@ import (
 	"bytes"
 	"text/template"
 
+	"go/format"
+
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 )
 
+// GenerateUpdate generates the update sql statement for the given schema
 func GenerateUpdate(s *schema.Schema) ([]byte, error) {
-	temp := template.New("update_statement.tmpl")
-	temp.Funcs(template.FuncMap{
-		"Pointerize":              stringext.Pointerize,
-		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
-		"Equal":                   stringext.Equal,
-		"ToFieldName":             stringext.ToFieldName,
-		"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
-	})
+	temp := template.New("update_statement.tmpl").Funcs(common.TemplateFuncs)
 
-	_, err := temp.Parse(UpdateStatementTemplate)
-	if err != nil {
+	if _, err := temp.Parse(UpdateStatementTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "update_statement.tmpl", s)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "update_statement.tmpl", s); err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
 
+// UpdateStatementTemplate holds the template for the update sql statement generator
 var UpdateStatementTemplate = `
 // GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}

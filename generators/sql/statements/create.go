@@ -4,34 +4,30 @@ import (
 	"bytes"
 	"text/template"
 
+	"go/format"
+
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 )
 
+// GenerateCreate generates the create sql statement for the given schema
 func GenerateCreate(s *schema.Schema) ([]byte, error) {
-	temp := template.New("create_statement.tmpl")
+	temp := template.New("create_statement.tmpl").Funcs(common.TemplateFuncs)
 
-	temp.Funcs(template.FuncMap{
-		"Pointerize":              stringext.Pointerize,
-		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
-		"Equal":                   stringext.Equal,
-		"ToFieldName":             stringext.ToFieldName,
-	})
-	_, err := temp.Parse(CreateStatementTemplate)
-	if err != nil {
+	if _, err := temp.Parse(CreateStatementTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "create_statement.tmpl", s)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "create_statement.tmpl", s); err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
 
+// CreateStatementTemplate holds the template for the create sql statement generator
 var CreateStatementTemplate = `
 // GenerateCreateSQL generates plain sql for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}

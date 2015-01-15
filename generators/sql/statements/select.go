@@ -4,37 +4,32 @@ import (
 	"bytes"
 	"text/template"
 
+	"go/format"
+
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 )
 
+// GenerateSelect generates the select sql statement for the given schema
 func GenerateSelect(s *schema.Schema) ([]byte, error) {
-	temp := template.New("select_statement.tmpl")
-	temp.Funcs(template.FuncMap{
-		"Pointerize":              stringext.Pointerize,
-		"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
-		"Equal":                   stringext.Equal,
-		"ToFieldName":             stringext.ToFieldName,
-		"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
-	})
+	temp := template.New("select_statement.tmpl").Funcs(common.TemplateFuncs)
 
-	_, err := temp.Parse(SelectStatementTemplate)
-	if err != nil {
+	if _, err := temp.Parse(SelectStatementTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	err = temp.ExecuteTemplate(&buf, "select_statement.tmpl", s)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "select_statement.tmpl", s); err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return format.Source(buf.Bytes())
 }
 
+// SelectStatementTemplate holds the template for the select sql statement generator
 var SelectStatementTemplate = `
-// GenerateSelectSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Title}}
+// GenerateSelectSQL generates plain select sql statement for the given {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateSelectSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("*").From({{$title}}.TableName())
