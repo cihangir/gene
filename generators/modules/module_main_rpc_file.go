@@ -23,7 +23,7 @@ func (m *Module) GenerateRPCMainFile(rootPath string) error {
 	)
 
 	mainFilePath := fmt.Sprintf(
-		"%s%s/cmd/%srpc/main.go",
+		"%s/%s%srpc/main.go",
 		rootPath,
 		fmt.Sprintf(moduleFolderStucture[0], moduleName),
 		moduleName,

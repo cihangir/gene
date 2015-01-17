@@ -23,7 +23,7 @@ func (m *Module) GenerateHTTPMainFile(rootPath string) error {
 	)
 
 	mainFilePath := fmt.Sprintf(
-		"%s%s/cmd/%shttp/main.go",
+		"%s/%s%shttp/main.go",
 		rootPath,
 		fmt.Sprintf(moduleFolderStucture[0], moduleName),
 		moduleName,
