@@ -73,15 +73,15 @@ func TestGenerateValidators(t *testing.T) {
 	result := `
 // Validate validates the struct
 func (m *Message) Validate() error {
-	return validator.NewMulti(validator.Date(m.CreatedAt),
-		validator.Max(float64(m.Age), 100.000000),
-		validator.MaxLength(m.Body, 3),
-		validator.MinLength(m.Body, 2),
-		validator.OneOf(m.StatusConstant, []string{
+	return govalidator.NewMulti(govalidator.Date(m.CreatedAt),
+		govalidator.Max(float64(m.Age), 100.000000),
+		govalidator.MaxLength(m.Body, 3),
+		govalidator.MinLength(m.Body, 2),
+		govalidator.OneOf(m.StatusConstant, []string{
 			StatusConstant.Active,
 			StatusConstant.Deleted,
 		}),
-		validator.Pattern(m.Body, "^(/[^/]+)+$")).Validate()
+		govalidator.Pattern(m.Body, "^(/[^/]+)+$")).Validate()
 }`
 
 	code, err := validators.Generate(&s)
