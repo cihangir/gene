@@ -13,7 +13,7 @@ import (
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/stringext"
 )
 
 // Module holds the required parameters for a module

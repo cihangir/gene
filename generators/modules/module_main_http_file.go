@@ -10,8 +10,8 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/stringext"
 )
 
 // GenerateHTTPMainFile handles the main file generation for browser request-

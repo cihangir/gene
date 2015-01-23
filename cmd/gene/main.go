@@ -8,6 +8,7 @@ import (
 	"github.com/cihangir/gene/generators/modules"
 
 	_ "github.com/cihangir/govalidator"
+	_ "github.com/cihangir/stringext"
 	_ "github.com/koding/logging"
 	_ "github.com/koding/multiconfig"
 	_ "github.com/lann/squirrel"

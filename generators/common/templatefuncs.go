@@ -5,7 +5,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/stringext"
 )
 
 // TemplateFuncs provides utility functions for template operations

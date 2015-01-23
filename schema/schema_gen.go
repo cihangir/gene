@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/stringext"
 )
 
 // // Generate generates code according to the schema.

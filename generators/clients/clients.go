@@ -11,8 +11,8 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/stringext"
 )
 
 // PathForClient holds the to be formatted string for the path of the client

@@ -11,8 +11,8 @@ import (
 	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/stringext"
 )
 
 // Generate creates the models and write them to the required paths

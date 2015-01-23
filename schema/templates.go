@@ -3,7 +3,7 @@ package schema
 import (
 	"text/template"
 
-	"github.com/cihangir/gene/stringext"
+	"github.com/cihangir/stringext"
 )
 
 // Helpers holds helpers for templates

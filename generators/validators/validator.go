@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/cihangir/gene/schema"
-	"github.com/cihangir/gene/stringext"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/stringext"
 )
 
 // Generate generates the validators for the the given schema
