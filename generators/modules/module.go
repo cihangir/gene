@@ -28,7 +28,7 @@ type Module struct {
 // NewModule creates a new module with the given Schema
 func NewModule(s *schema.Schema) *Module {
 	return &Module{
-		schema:           s.Resolve(nil),
+		schema:           s.Resolve(s),
 		TargetFolderName: "./",
 	}
 }
@@ -100,6 +100,10 @@ func (m *Module) Create() error {
 	}
 
 	if err := tests.Generate(rootPath, m.schema); err != nil {
+		return err
+	}
+
+	if err := functions.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
 
