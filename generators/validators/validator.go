@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
 )
 
