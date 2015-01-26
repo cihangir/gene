@@ -3,6 +3,7 @@ package functions
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"go/format"
@@ -10,7 +11,6 @@ import (
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // Generate generates and writes the errors of the schema
@@ -18,7 +18,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 	keys := schema.SortedKeys(s.Definitions)
 	for _, key := range keys {
 		def := s.Definitions[key]
-		if err := GenerateAPI(rootPath, s.Title, def); err != nil {
+		if err := GenerateAPI(rootPath, strings.ToLower(s.Title), def); err != nil {
 			return err
 		}
 	}
@@ -38,7 +38,7 @@ func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) error {
 		rootPath,
 		moduleName,
 		moduleName,
-		stringext.ToLowerFirst(s.Title),
+		strings.ToLower(s.Title),
 	)
 
 	return writers.WriteFormattedFile(path, api)
