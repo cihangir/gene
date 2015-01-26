@@ -12,7 +12,6 @@ import (
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // Generate generates the tests for the schema
@@ -54,8 +53,8 @@ func Generate(rootPath string, s *schema.Schema) error {
 		path = fmt.Sprintf(
 			"%sworkers/%s/tests/%s_test.go",
 			rootPath,
-			s.Title,
-			stringext.ToLowerFirst(def.Title),
+			strings.ToLower(s.Title),
+			strings.ToLower(def.Title),
 		)
 
 		return writers.WriteFormattedFile(path, testFile)
