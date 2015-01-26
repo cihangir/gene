@@ -8,8 +8,8 @@ import (
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/schema"
 )
 
 // Generate generates and writes the errors of the schema

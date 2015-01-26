@@ -9,8 +9,8 @@ import (
 
 	"testing"
 
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/testdata"
+	"github.com/cihangir/schema"
 )
 
 const expected = `package errs

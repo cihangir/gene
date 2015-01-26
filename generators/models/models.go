@@ -10,8 +10,8 @@ import (
 	"github.com/cihangir/gene/generators/constructors"
 	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/validators"
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
 )
 
