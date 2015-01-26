@@ -20,46 +20,36 @@ import (
 	"golang.org/x/net/context"
 )
 
-// New creates a new {message test} rpc client
-func NewMessage(client *rpcplus.Client) *Message {
-	return &Message{
+// New creates a new {account test} rpc client
+func NewAccount(client *rpcplus.Client) *Account {
+	return &Account{
 		client: client,
 	}
 }
 
-// Message is for holding the api functions
-type Message struct {
+// Account is for holding the api functions
+type Account struct {
 	client *rpcplus.Client
 }
 
-// generate this for all indexes
-// func (m *Message) ById(ctx context.Context, id *int64, res *models.Message) error {
-//   return m.client.Call(ctx, "Message.ById", id, res)
-// }
-
-// generate this for all indexes
-// func (m *Message) ByIds(ctx context.Context, ids *[]int64, res *[]*models.Message) error {
-//   return m.client.Call(ctx, "Message.ByIds", id, res)
-// }
-
-func (m *Message) One(ctx context.Context, req *models.Message, res *models.Message) error {
-	return m.client.Call(ctx, "Message.One", req, res)
+func (a *Account) One(ctx context.Context, req *models.Account, res *models.Account) error {
+	return m.client.Call(ctx, "Account.One", req, res)
 }
 
-func (m *Message) Create(ctx context.Context, req *models.Message, res *models.Message) error {
-	return m.client.Call(ctx, "Message.Create", req, res)
+func (a *Account) Create(ctx context.Context, req *models.Account, res *models.Account) error {
+	return m.client.Call(ctx, "Account.Create", req, res)
 }
 
-func (m *Message) Update(ctx context.Context, req *models.Message, res *models.Message) error {
-	return m.client.Call(ctx, "Message.Update", req, res)
+func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {
+	return m.client.Call(ctx, "Account.Update", req, res)
 }
 
-func (m *Message) Delete(ctx context.Context, req *models.Message, res *models.Message) error {
-	return m.client.Call(ctx, "Message.Delete", req, res)
+func (a *Account) Delete(ctx context.Context, req *models.Account, res *models.Account) error {
+	return m.client.Call(ctx, "Account.Delete", req, res)
 }
 
-func (m *Message) Some(ctx context.Context, req *request.Options, res *[]*models.Message) error {
-	return m.client.Call(ctx, "Message.Some", req, res)
+func (a *Account) Some(ctx context.Context, req *models.Account, res *[]*models.Account) error {
+	return m.client.Call(ctx, "Account.Some", req, res)
 }
 `
 
