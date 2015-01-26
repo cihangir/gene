@@ -6,8 +6,8 @@ import (
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/schema"
 )
 
 // Generate generates the constants for given schema/model

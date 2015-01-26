@@ -5,6 +5,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
 )
 
@@ -18,4 +19,5 @@ var TemplateFuncs = template.FuncMap{
 	"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
 	"Equal":                   stringext.Equal,
 	"ToFieldName":             stringext.ToFieldName,
+	"Argumentize":             schema.Argumentize,
 }
