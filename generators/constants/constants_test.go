@@ -54,7 +54,6 @@ func TestConstants(t *testing.T) {
 	s = s.Resolve(nil)
 
 	a, err := Generate(s.Definitions["Account"])
-	fmt.Println("string(a)-->", string(a))
 	equals(t, nil, err)
 	equals(t, expected, string(a))
 }
