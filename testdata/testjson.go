@@ -5,52 +5,365 @@ package testdata
 const JSON1 = `
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Message",
-  "description": "Message represents a simple post",
   "type": "object",
-  "properties": {
-    "Id": {
-      "description": "The unique identifier for a message",
-      "type": "number",
-      "format":"int64"
+  "additionalProperties": true,
+  "title": "Account",
+  "description": "Account module handles all the operations regarding Account management.",
+  "properties": {},
+  "definitions": {
+    "Config": {
+      "type": "config",
+      "additionalProperties": true,
+      "title": "Config",
+      "description": "Config represents the required options for this module to work",
+      "properties": {
+        "Postgres": {
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Postgres",
+          "description": "Postgres holds the all credentials for postgres db connection.",
+          "properties": {
+            "Port": {
+              "description": "The port number for postgres config",
+              "type": "number",
+              "format": "int64",
+              "minimum": 1024
+            },
+            "Host": {
+              "description": "Host holds the hostname for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Username": {
+              "description": "Username holds the username for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Password": {
+              "description": "Password holds the password for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "DBName": {
+              "description": "DBName holds the database name for the postgres",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            }
+          },
+          "definitions": {}
+        },
+        "Mongo": {
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Mongo",
+          "description": "Mongo holds the all credentials for Mongo db connection.",
+          "properties": {
+            "Port": {
+              "description": "The port number for Mongo config",
+              "type": "number",
+              "format": "int64",
+              "minimum": 1024
+            },
+            "Host": {
+              "description": "Host holds the hostname for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Username": {
+              "description": "Username holds the username for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "Password": {
+              "description": "Password holds the password for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            },
+            "DBName": {
+              "description": "DBName holds the database name for the Mongo",
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 24
+            }
+          },
+          "definitions": {}
+        }
+      }
     },
-    "Token": {
-      "description": "The token for a message security",
-      "type": "string"
-    },
-    "Body": {
-      "description": "The body for a message",
-      "type": "string",
-      "pattern": "^(/[^/]+)+$",
-      "minLength": 2,
-      "maxLength": 3
-    },
-    "Age": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 100,
-      "exclusiveMaximum": true
-    },
-    "Enabled": {
-      "type": "boolean"
-    },
-    "StatusConstant": {
-      "type": "string",
-      "enum": [
-        "active",
-        "deleted"
+    "Profile": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "Profile",
+      "description": "Profile represents a registered Account's Public Info",
+      "properties": {
+        "Id": {
+          "description": "The unique identifier for a Account's Profile",
+          "type": "number",
+          "format": "int64",
+          "minimum": 1
+        },
+        "Nick": {
+          "description": "Nick is the unique name for the Accounts",
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 24
+        },
+        "FirstName": {
+          "description": "First Name of the Account",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "LastName": {
+          "description": "Last Name of the Account",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "AvatarURL": {
+          "description": "URL of the Account's Avatar",
+          "type": "string"
+        },
+        "CreatedAt": {
+          "description": "Profile's creation time",
+          "type": "string",
+          "format": "date-time",
+          "default": "now()"
+        }
+      },
+      "functions": {
+        "One": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Profile"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        },
+        "Create": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Profile"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        },
+        "Update": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Profile"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        },
+        "Delete": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Profile"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        },
+        "Some": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Profile"
+            },
+            "outgoing": {
+              "type": "array",
+              "items": [
+                {
+                  "$ref": "#/definitions/Profile"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "Nick"
       ]
     },
-    "CreatedAt": {
-      "type": "string",
-      "format":"date-time"
+    "Account": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "Account",
+      "description": "Account represents a registered User",
+      "properties": {
+        "Id": {
+          "description": "The unique identifier for a Account's Profile",
+          "type": "number",
+          "format": "int64",
+          "minimum": 1
+        },
+        "ProfileId": {
+          "description": "The unique identifier for a Account's Profile",
+          "type": "number",
+          "format": "int64",
+          "minimum": 1
+        },
+        "Password": {
+          "description": "Salted Password of the Account",
+          "type": "string",
+          "minLength": 6
+        },
+        "URLName": {
+          "description": "Salted Password of the Account",
+          "type": "string",
+          "minLength": 6
+        },
+        "URL": {
+          "description": "Salted Password of the Account",
+          "type": "string",
+          "minLength": 6
+        },
+        "PasswordStatusConstant": {
+          "description": "Status of the Account's Password",
+          "type": "string",
+          "enum": [
+            "valid",
+            "needsReset",
+            "generated"
+          ],
+          "default": "valid"
+        },
+        "Salt": {
+          "description": "Salt used to hash Password of the Account",
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 255
+        },
+        "EmailAddress": {
+          "description": "Email Address of the Account",
+          "type": "string",
+          "format": "email"
+        },
+        "EmailStatusConstant": {
+          "description": "Status of the Account's Email",
+          "type": "string",
+          "enum": [
+            "verified",
+            "notVerified"
+          ],
+          "default": "notVerified"
+        },
+        "StatusConstant": {
+          "description": "Status of the Account",
+          "type": "string",
+          "enum": [
+            "registered",
+            "unregistered",
+            "needsManualVerification"
+          ],
+          "default": "registered"
+        },
+        "CreatedAt": {
+          "description": "Profile's creation time",
+          "type": "string",
+          "format": "date-time",
+          "default": "now()"
+        }
+      },
+      "functions": {
+        "One": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Account"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        },
+        "Create": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Account"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        },
+        "Update": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Account"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        },
+        "Delete": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Account"
+            },
+            "outgoing": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        },
+        "Some": {
+          "type": "object",
+          "title": "One",
+          "properties": {
+            "incoming": {
+              "$ref": "#/definitions/Account"
+            },
+            "outgoing": {
+              "type": "array",
+              "items": [
+                {
+                  "$ref": "#/definitions/Account"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "Password",
+        "EmailAddress"
+      ]
     }
-  },
-  "required": [
-    "id",
-    "body"
-  ]
+  }
 }
+
 `
 
 // JSONWithModule holds a json with module support

@@ -5,44 +5,85 @@ import (
 	"fmt"
 	"text/template"
 
+	"go/format"
+
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
+	"github.com/cihangir/stringext"
 )
 
 // Generate generates and writes the errors of the schema
 func Generate(rootPath string, s *schema.Schema) error {
-	a, err := generate(s)
-	fmt.Println("string(a), err-->", string(a), err)
+	keys := schema.SortedKeys(s.Definitions)
+	for _, key := range keys {
+		def := s.Definitions[key]
+		if err := GenerateAPI(rootPath, s.Title, def); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
 
-// ConstructorsTemplate provides the template for constructors of models
-var ConstructorsTemplate = `
-{{$title := .Title}}
-{{range $defKey, $defValue := .Definitions}}
-    {{range $funcKey, $funcValue := $defValue.Functions}}
-    func ({{Pointerize $title}} *{{$title}}) {{$funcKey}}(req *{{Argumentize $funcValue.Properties.incoming}}, res *{{Argumentize $funcValue.Properties.outgoing}}) error {
+// GenerateAPI generates and writes the api files
+func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) error {
+	api, err := generate(moduleName, s)
+	if err != nil {
+		return err
+	}
 
-    }
-    {{end}}
+	path := fmt.Sprintf(
+		"%sworkers/%s/%sapi/%s.go",
+		rootPath,
+		moduleName,
+		moduleName,
+		stringext.ToLowerFirst(s.Title),
+	)
+
+	return writers.WriteFormattedFile(path, api)
+}
+
+// FunctionsTemplate provides the template for constructors of models
+var FunctionsTemplate = `
+{{$schema := .Schema}}
+{{$title := $schema.Title}}
+
+package {{ToLower .ModuleName}}api
+
+// New creates a new local {{ToUpperFirst $title}} handler
+func New{{ToUpperFirst $title}}() *{{ToUpperFirst $title}} { return &{{ToUpperFirst $title}}{} }
+
+// {{ToUpperFirst $title}} is for holding the api functions
+type {{ToUpperFirst $title}} struct{}
+
+{{range $funcKey, $funcValue := $schema.Functions}}
+func ({{Pointerize $title}} *{{$title}}) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}, res *{{Argumentize $funcValue.Properties.outgoing}}) error {
+    return db.MustGetDB(ctx).{{$funcKey}}(models.New{{ToUpperFirst $title}}(), req, res)
+}
 {{end}}
 `
 
 // Generate generates the constructors for given schema/model
-func generate(s *schema.Schema) ([]byte, error) {
+func generate(moduleName string, s *schema.Schema) ([]byte, error) {
 	temp := template.New("constructors.tmpl").Funcs(common.TemplateFuncs)
 
-	if _, err := temp.Parse(ConstructorsTemplate); err != nil {
+	if _, err := temp.Parse(FunctionsTemplate); err != nil {
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "constructors.tmpl", s); err != nil {
-		return nil, err
+	data := struct {
+		ModuleName string
+		Schema     *schema.Schema
+	}{
+		ModuleName: moduleName,
+		Schema:     s,
 	}
 
-	return writers.Clear(buf)
+	if err := temp.ExecuteTemplate(&buf, "constructors.tmpl", data); err != nil {
+		return nil, err
+	}
+	return format.Source(buf.Bytes())
 }
