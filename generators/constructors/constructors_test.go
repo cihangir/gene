@@ -14,8 +14,8 @@ import (
 )
 
 const expected = `
-func NewMessage() *Message {
-	return &Message{}
+func NewAccount() *Account {
+	return &Account{}
 }`
 
 func TestConstructors(t *testing.T) {
