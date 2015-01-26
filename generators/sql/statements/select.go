@@ -7,7 +7,7 @@ import (
 	"go/format"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/schema"
 )
 
 // GenerateSelect generates the select sql statement for the given schema

@@ -7,7 +7,7 @@ import (
 	"go/format"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/schema"
 )
 
 // GenerateUpdate generates the update sql statement for the given schema

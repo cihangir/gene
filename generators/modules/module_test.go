@@ -3,8 +3,8 @@ package modules
 import (
 	"encoding/json"
 
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/testdata"
+	"github.com/cihangir/schema"
 
 	"testing"
 )

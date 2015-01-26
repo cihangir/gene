@@ -10,8 +10,8 @@ import (
 	"go/format"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/schema"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
 )
 

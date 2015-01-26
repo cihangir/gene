@@ -8,11 +8,12 @@ import (
 	"github.com/cihangir/gene/generators/clients"
 	"github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
+	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/handlers"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/helpers"
-	"github.com/cihangir/gene/schema"
+	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
 )
 
