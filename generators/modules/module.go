@@ -9,7 +9,6 @@ import (
 	"github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/functions"
-	"github.com/cihangir/gene/generators/handlers"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/helpers"
@@ -76,10 +75,6 @@ func (m *Module) Create() error {
 	}
 
 	if err := models.GenerateStatements(rootPath, m.schema); err != nil {
-		return err
-	}
-
-	if err := handlers.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
 

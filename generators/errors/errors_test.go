@@ -15,7 +15,27 @@ import (
 
 const expected = `package errs
 
-var ()
+var (
+	ErrAccountCreatedAtNotSet              = errors.New("Account.CreatedAt not set")
+	ErrAccountEmailAddressNotSet           = errors.New("Account.EmailAddress not set")
+	ErrAccountEmailStatusConstantNotSet    = errors.New("Account.EmailStatusConstant not set")
+	ErrAccountIdNotSet                     = errors.New("Account.Id not set")
+	ErrAccountPasswordNotSet               = errors.New("Account.Password not set")
+	ErrAccountPasswordStatusConstantNotSet = errors.New("Account.PasswordStatusConstant not set")
+	ErrAccountProfileIdNotSet              = errors.New("Account.ProfileId not set")
+	ErrAccountSaltNotSet                   = errors.New("Account.Salt not set")
+	ErrAccountStatusConstantNotSet         = errors.New("Account.StatusConstant not set")
+	ErrAccountURLNotSet                    = errors.New("Account.URL not set")
+	ErrAccountURLNameNotSet                = errors.New("Account.URLName not set")
+	ErrConfigMongoNotSet                   = errors.New("Config.Mongo not set")
+	ErrConfigPostgresNotSet                = errors.New("Config.Postgres not set")
+	ErrProfileAvatarURLNotSet              = errors.New("Profile.AvatarURL not set")
+	ErrProfileCreatedAtNotSet              = errors.New("Profile.CreatedAt not set")
+	ErrProfileFirstNameNotSet              = errors.New("Profile.FirstName not set")
+	ErrProfileIdNotSet                     = errors.New("Profile.Id not set")
+	ErrProfileLastNameNotSet               = errors.New("Profile.LastName not set")
+	ErrProfileNickNotSet                   = errors.New("Profile.Nick not set")
+)
 `
 
 func TestConstructors(t *testing.T) {

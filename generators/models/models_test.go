@@ -36,25 +36,29 @@ func TestGenerateModel(t *testing.T) {
 }
 
 func TestGenerateSchema(t *testing.T) {
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
+	s := &schema.Schema{}
+	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
 		t.Fatal(err.Error())
 	}
 
 	// replace "~" with "`"
 	result := strings.Replace(`
-// Message represents a simple post
-type Message struct {
-	Age            int       ~json:"age"~
-	Body           string    ~json:"body"~ // The body for a message
-	CreatedAt      time.Time ~json:"createdAt"~
-	Enabled        bool      ~json:"enabled"~
-	ID             int64     ~json:"id"~ // The unique identifier for a message
-	StatusConstant string    ~json:"statusConstant"~
-	Token          string    ~json:"token"~ // The token for a message security
+// Account represents a registered User
+type Account struct {
+	CreatedAt              time.Time ~json:"createdAt"~              // Profile's creation time
+	EmailAddress           string    ~json:"emailAddress"~           // Email Address of the Account
+	EmailStatusConstant    string    ~json:"emailStatusConstant"~    // Status of the Account's Email
+	ID                     int64     ~json:"id"~                     // The unique identifier for a Account's Profile
+	Password               string    ~json:"password"~               // Salted Password of the Account
+	PasswordStatusConstant string    ~json:"passwordStatusConstant"~ // Status of the Account's Password
+	ProfileID              int64     ~json:"profileId"~              // The unique identifier for a Account's Profile
+	Salt                   string    ~json:"salt"~                   // Salt used to hash Password of the Account
+	StatusConstant         string    ~json:"statusConstant"~         // Status of the Account
+	URL                    string    ~json:"url"~                    // Salted Password of the Account
+	URLName                string    ~json:"urlName"~                // Salted Password of the Account
 }`, "~", "`", -1)
 
-	code, err := GenerateSchema(&s)
+	code, err := GenerateSchema(s.Definitions["Account"])
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -66,25 +70,37 @@ type Message struct {
 }
 
 func TestGenerateValidators(t *testing.T) {
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
+	s := &schema.Schema{}
+	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
 		t.Fatal(err.Error())
 	}
 	result := `
 // Validate validates the struct
-func (m *Message) Validate() error {
-	return govalidator.NewMulti(govalidator.Date(m.CreatedAt),
-		govalidator.Max(float64(m.Age), 100.000000),
-		govalidator.MaxLength(m.Body, 3),
-		govalidator.MinLength(m.Body, 2),
-		govalidator.OneOf(m.StatusConstant, []string{
-			StatusConstant.Active,
-			StatusConstant.Deleted,
+func (a *Account) Validate() error {
+	return govalidator.NewMulti(govalidator.Date(a.CreatedAt),
+		govalidator.MaxLength(a.Salt, 255),
+		govalidator.Min(float64(a.ID), 1.000000),
+		govalidator.Min(float64(a.ProfileID), 1.000000),
+		govalidator.MinLength(a.Password, 6),
+		govalidator.MinLength(a.URL, 6),
+		govalidator.MinLength(a.URLName, 6),
+		govalidator.OneOf(a.EmailStatusConstant, []string{
+			EmailStatusConstant.Verified,
+			EmailStatusConstant.NotVerified,
 		}),
-		govalidator.Pattern(m.Body, "^(/[^/]+)+$")).Validate()
+		govalidator.OneOf(a.PasswordStatusConstant, []string{
+			PasswordStatusConstant.Valid,
+			PasswordStatusConstant.NeedsReset,
+			PasswordStatusConstant.Generated,
+		}),
+		govalidator.OneOf(a.StatusConstant, []string{
+			StatusConstant.Registered,
+			StatusConstant.Unregistered,
+			StatusConstant.NeedsManualVerification,
+		})).Validate()
 }`
 
-	code, err := validators.Generate(&s)
+	code, err := validators.Generate(s.Definitions["Account"])
 	if err != nil {
 		t.Fatal(err.Error())
 	}

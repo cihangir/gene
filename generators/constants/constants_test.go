@@ -14,22 +14,46 @@ import (
 )
 
 const expected = `
+	// EmailStatusConstant holds the predefined enums
+	var EmailStatusConstant = struct {
+		Verified    string
+		NotVerified string
+	}{
+		Verified:    "verified",
+		NotVerified: "notVerified",
+	}
+
+	// PasswordStatusConstant holds the predefined enums
+	var PasswordStatusConstant = struct {
+		Valid      string
+		NeedsReset string
+		Generated  string
+	}{
+		Valid:      "valid",
+		NeedsReset: "needsReset",
+		Generated:  "generated",
+	}
+
 	// StatusConstant holds the predefined enums
 	var StatusConstant = struct {
-		Active  string
-		Deleted string
+		Registered              string
+		Unregistered            string
+		NeedsManualVerification string
 	}{
-		Active:  "active",
-		Deleted: "deleted",
+		Registered:              "registered",
+		Unregistered:            "unregistered",
+		NeedsManualVerification: "needsManualVerification",
 	}`
 
 func TestConstants(t *testing.T) {
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
+	s := &schema.Schema{}
+	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
 		t.Fatal(err.Error())
 	}
 
-	a, err := Generate(&s)
+	s = s.Resolve(nil)
+
+	a, err := Generate(s.Definitions["Account"])
 	equals(t, nil, err)
 	equals(t, expected, string(a))
 }

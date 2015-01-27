@@ -15,7 +15,7 @@ import (
 
 func TestGenerateMainTestFileForModule(t *testing.T) {
 
-	const expected = `package messagetests
+	const expected = `package accounttests
 
 import (
 	"net/http"
@@ -38,6 +38,27 @@ func createClient(tb testing.TB) *rpcplus.Client {
 	)
 	tests.Assert(tb, err == nil, "Err while creating the client")
 	return client
+}
+
+func withAccountClient(tb testing.TB, f func(*accountclient.Account)) {
+	client := createClient(tb)
+	defer client.Close()
+
+	f(accountclient.NewAccount(client))
+}
+
+func withConfigClient(tb testing.TB, f func(*accountclient.Config)) {
+	client := createClient(tb)
+	defer client.Close()
+
+	f(accountclient.NewConfig(client))
+}
+
+func withProfileClient(tb testing.TB, f func(*accountclient.Profile)) {
+	client := createClient(tb)
+	defer client.Close()
+
+	f(accountclient.NewProfile(client))
 }
 `
 	var s schema.Schema
@@ -103,55 +124,59 @@ func Equals(tb testing.TB, exp, act interface{}) {
 
 func TestGenerateTests(t *testing.T) {
 
-	const expected = `// package testfunc contains various helpers to be used in tests. Included
-// from: https://github.com/benbjohnson/testing
-package tests
+	const expected = `package accounttests
 
 import (
-	"fmt"
-	"path/filepath"
-	"reflect"
-	"runtime"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
-// Assert fails the test if the condition is false.
-func Assert(tb testing.TB, condition bool, msg string, v ...interface{}) {
-	if !condition {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("\033[31m%s:%d: "+msg+"\033[39m\n\n", append([]interface{}{filepath.Base(file), line}, v...)...)
-		tb.FailNow()
-	}
+func TestAccountOne(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		err := c.One(context.Background(), models.NewAccount(), models.NewAccount())
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.One")
+	})
 }
 
-// Ok fails the test if an err is not nil.
-func Ok(tb testing.TB, err error) {
-	if err != nil {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("\033[31m%s:%d: unexpected error: %s\033[39m\n\n", filepath.Base(file), line, err.Error())
-		tb.FailNow()
-	}
+func TestAccountCreate(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		err := c.Create(context.Background(), models.NewAccount(), models.NewAccount())
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.Create")
+	})
 }
 
-// Equals fails the test if exp is not equal to act.
-func Equals(tb testing.TB, exp, act interface{}) {
-	if !reflect.DeepEqual(exp, act) {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("\033[31m%s:%d:\n\n\texp: %#v\n\n\tgot: %#v\033[39m\n\n", filepath.Base(file), line, exp, act)
-		tb.FailNow()
-	}
+func TestAccountUpdate(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		err := c.Update(context.Background(), models.NewAccount(), models.NewAccount())
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.Update")
+	})
+}
+
+func TestAccountDelete(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		err := c.Delete(context.Background(), models.NewAccount(), models.NewAccount())
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.Delete")
+	})
+}
+
+func TestAccountSome(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		res := make([]*models.Account, 0)
+		err := c.Some(context.Background(), &request.Options{}, &res)
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.Some")
+	})
 }
 `
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
+	s := &schema.Schema{}
+	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
 		t.Fatal(err.Error())
 	}
 
-	for _, def := range s.Definitions {
-		a, err := GenerateTests(s.Title, def.Title)
-		equals(t, nil, err)
-		equals(t, expected, string(a))
-	}
+	s = s.Resolve(nil).Definitions["Account"]
+	a, err := GenerateTests("Account", s.Title)
+	equals(t, nil, err)
+	equals(t, expected, string(a))
 }
 
 func equals(tb testing.TB, exp, act interface{}) {
