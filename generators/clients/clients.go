@@ -12,7 +12,6 @@ import (
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // PathForClient holds the to be formatted string for the path of the client
@@ -20,9 +19,11 @@ var PathForClient = "%sworkers/%s/clients/%s.go"
 
 // Generate generates the client package for given schema
 func Generate(rootPath string, s *schema.Schema) error {
-	moduleName := stringext.ToLowerFirst(s.Title)
+	moduleName := strings.ToLower(s.Title)
+	keys := schema.SortedKeys(s.Definitions)
 
-	for _, def := range s.Definitions {
+	for _, key := range keys {
+		def := s.Definitions[key]
 
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
@@ -60,11 +61,11 @@ func generate(moduleName string, s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
 	data := struct {
-		Name       string
 		ModuleName string
+		Schema     *schema.Schema
 	}{
-		Name:       stringext.ToLowerFirst(s.Title),
 		ModuleName: moduleName,
+		Schema:     s,
 	}
 
 	if err := temp.ExecuteTemplate(&buf, "clients.tmpl", data); err != nil {

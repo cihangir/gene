@@ -20,7 +20,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-// New creates a new {account test} rpc client
+// New creates a new local Account rpc client
 func NewAccount(client *rpcplus.Client) *Account {
 	return &Account{
 		client: client,
@@ -32,34 +32,36 @@ type Account struct {
 	client *rpcplus.Client
 }
 
-func (a *Account) One(ctx context.Context, req *models.Account, res *models.Account) error {
-	return m.client.Call(ctx, "Account.One", req, res)
-}
-
 func (a *Account) Create(ctx context.Context, req *models.Account, res *models.Account) error {
 	return m.client.Call(ctx, "Account.Create", req, res)
-}
-
-func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {
-	return m.client.Call(ctx, "Account.Update", req, res)
 }
 
 func (a *Account) Delete(ctx context.Context, req *models.Account, res *models.Account) error {
 	return m.client.Call(ctx, "Account.Delete", req, res)
 }
 
+func (a *Account) One(ctx context.Context, req *models.Account, res *models.Account) error {
+	return m.client.Call(ctx, "Account.One", req, res)
+}
+
 func (a *Account) Some(ctx context.Context, req *models.Account, res *[]*models.Account) error {
 	return m.client.Call(ctx, "Account.Some", req, res)
+}
+
+func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {
+	return m.client.Call(ctx, "Account.Update", req, res)
 }
 `
 
 func TestConstructors(t *testing.T) {
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
+	s := &schema.Schema{}
+	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
 		t.Fatal(err.Error())
 	}
 
-	a, err := generate("test", &s)
+	s = s.Resolve(nil)
+
+	a, err := generate("test", s.Definitions["Account"])
 	equals(t, nil, err)
 	equals(t, expected, string(a))
 }
