@@ -83,10 +83,13 @@ func with{{$defKey}}Client(tb testing.TB, f func(*{{$ModuleName}}client.{{$defKe
 
 // TestsTemplate holds the template for the test files
 var TestsTemplate = `
-{{$Name := ToUpperFirst .Name}}
+{{$schema := .Schema}}
+{{$title := $schema.Title}}
+
+{{$StructName := ToUpperFirst $title}}
 {{$ModuleName := ToLower .ModuleName}}
 
-package {{ToLower .ModuleName}}tests
+package {{$ModuleName}}tests
 
 import (
     "testing"
@@ -94,38 +97,15 @@ import (
     "golang.org/x/net/context"
 )
 
-func Test{{$Name}}One(t *testing.T) {
-    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
-        err := c.One(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.One")
+{{range $funcKey, $funcValue := $schema.Functions}}
+func Test{{$StructName}}{{$funcKey}}(t *testing.T) {
+    with{{$StructName}}Client(t, func(c *{{$ModuleName}}client.{{$StructName}}){
+        req := &{{Argumentize $funcValue.Properties.incoming}}{}
+        res := &{{Argumentize $funcValue.Properties.outgoing}}{}
+        ctx := context.Background()
+        err := c.{{$funcKey}}(ctx, req, res)
+        tests.Assert(t, err == nil, "Err should be nil while testing {{$StructName}}.{{$funcKey}}")
     })
 }
-
-func Test{{$Name}}Create(t *testing.T) {
-    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
-        err := c.Create(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Create")
-    })
-}
-
-func Test{{$Name}}Update(t *testing.T) {
-    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
-        err := c.Update(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Update")
-    })
-}
-
-func Test{{$Name}}Delete(t *testing.T) {
-    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
-        err := c.Delete(context.Background(), models.New{{$Name}}(), models.New{{$Name}}())
-        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Delete")
-    })
-}
-
-func Test{{$Name}}Some(t *testing.T) {
-    with{{$Name}}Client(t, func(c *{{$ModuleName}}client.{{$Name}}){
-        res := make([]*models.{{$Name}}, 0)
-        err := c.Some(context.Background(), &request.Options{}, &res)
-        tests.Assert(t, err == nil, "Err should be nil while testing {{$Name}}.Some")
-    })
-}`
+{{end}}
+`

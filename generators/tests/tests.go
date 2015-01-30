@@ -46,7 +46,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 
 	// generate tests for the schema
 	for _, def := range s.Definitions {
-		testFile, err := GenerateTests(s.Title, def.Title)
+		testFile, err := GenerateTests(s.Title, def)
 		if err != nil {
 			return err
 		}
@@ -101,7 +101,7 @@ func GenerateTestFuncs(s *schema.Schema) ([]byte, error) {
 }
 
 // GenerateTests generates the actual tests for the schema
-func GenerateTests(moduleName string, name string) ([]byte, error) {
+func GenerateTests(moduleName string, s *schema.Schema) ([]byte, error) {
 	temp := template.New("tests.tmpl").Funcs(common.TemplateFuncs)
 
 	if _, err := temp.Parse(TestsTemplate); err != nil {
@@ -111,16 +111,15 @@ func GenerateTests(moduleName string, name string) ([]byte, error) {
 	var buf bytes.Buffer
 
 	data := struct {
-		Name       string
 		ModuleName string
+		Schema     *schema.Schema
 	}{
-		Name:       name,
-		ModuleName: moduleName,
+		ModuleName: strings.ToLower(moduleName),
+		Schema:     s,
 	}
 
 	if err := temp.ExecuteTemplate(&buf, "tests.tmpl", data); err != nil {
 		return nil, err
 	}
-
 	return format.Source(buf.Bytes())
 }
