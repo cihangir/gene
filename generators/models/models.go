@@ -4,6 +4,7 @@ package models
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/cihangir/gene/generators/constants"
@@ -19,7 +20,7 @@ import (
 func Generate(rootPath string, s *schema.Schema) error {
 
 	for _, def := range s.Definitions {
-		moduleName := stringext.ToLowerFirst(def.Title)
+		moduleName := strings.ToLower(def.Title)
 
 		modelFilePath := fmt.Sprintf(
 			"%smodels/%s.go",
@@ -43,7 +44,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 func GenerateStatements(rootPath string, s *schema.Schema) error {
 
 	for _, def := range s.Definitions {
-		moduleName := stringext.ToLowerFirst(def.Title)
+		moduleName := strings.ToLower(def.Title)
 
 		modelFilePath := fmt.Sprintf(
 			"%smodels/%s_statements.go",

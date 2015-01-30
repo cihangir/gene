@@ -4,6 +4,7 @@ package modules
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/cihangir/gene/generators/clients"
 	"github.com/cihangir/gene/generators/errors"
@@ -13,7 +14,6 @@ import (
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // Module holds the required parameters for a module
@@ -63,7 +63,7 @@ func (m *Module) Create() error {
 	// create the module folder structure
 	if err := folders.EnsureFolders(
 		rootPath, // root folder
-		createModuleStructure(stringext.ToLowerFirst(
+		createModuleStructure(strings.ToLower(
 			m.schema.Title,
 		)),
 	); err != nil {
