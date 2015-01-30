@@ -132,39 +132,53 @@ import (
 	"golang.org/x/net/context"
 )
 
-func TestAccountOne(t *testing.T) {
-	withAccountClient(t, func(c *accountclient.Account) {
-		err := c.One(context.Background(), models.NewAccount(), models.NewAccount())
-		tests.Assert(t, err == nil, "Err should be nil while testing Account.One")
-	})
-}
-
 func TestAccountCreate(t *testing.T) {
 	withAccountClient(t, func(c *accountclient.Account) {
-		err := c.Create(context.Background(), models.NewAccount(), models.NewAccount())
+		req := &models.Account{}
+		res := &models.Account{}
+		ctx := context.Background()
+		err := c.Create(ctx, req, res)
 		tests.Assert(t, err == nil, "Err should be nil while testing Account.Create")
-	})
-}
-
-func TestAccountUpdate(t *testing.T) {
-	withAccountClient(t, func(c *accountclient.Account) {
-		err := c.Update(context.Background(), models.NewAccount(), models.NewAccount())
-		tests.Assert(t, err == nil, "Err should be nil while testing Account.Update")
 	})
 }
 
 func TestAccountDelete(t *testing.T) {
 	withAccountClient(t, func(c *accountclient.Account) {
-		err := c.Delete(context.Background(), models.NewAccount(), models.NewAccount())
+		req := &models.Account{}
+		res := &models.Account{}
+		ctx := context.Background()
+		err := c.Delete(ctx, req, res)
 		tests.Assert(t, err == nil, "Err should be nil while testing Account.Delete")
+	})
+}
+
+func TestAccountOne(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		req := &models.Account{}
+		res := &models.Account{}
+		ctx := context.Background()
+		err := c.One(ctx, req, res)
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.One")
 	})
 }
 
 func TestAccountSome(t *testing.T) {
 	withAccountClient(t, func(c *accountclient.Account) {
-		res := make([]*models.Account, 0)
-		err := c.Some(context.Background(), &request.Options{}, &res)
+		req := &models.Account{}
+		res := &[]*models.Account{}
+		ctx := context.Background()
+		err := c.Some(ctx, req, res)
 		tests.Assert(t, err == nil, "Err should be nil while testing Account.Some")
+	})
+}
+
+func TestAccountUpdate(t *testing.T) {
+	withAccountClient(t, func(c *accountclient.Account) {
+		req := &models.Account{}
+		res := &models.Account{}
+		ctx := context.Background()
+		err := c.Update(ctx, req, res)
+		tests.Assert(t, err == nil, "Err should be nil while testing Account.Update")
 	})
 }
 `
@@ -174,7 +188,8 @@ func TestAccountSome(t *testing.T) {
 	}
 
 	s = s.Resolve(nil).Definitions["Account"]
-	a, err := GenerateTests("Account", s.Title)
+	a, err := GenerateTests("Account", s)
+
 	equals(t, nil, err)
 	equals(t, expected, string(a))
 }

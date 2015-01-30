@@ -2,6 +2,7 @@ package modules
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 
 	"bytes"
@@ -11,16 +12,13 @@ import (
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // GenerateHTTPMainFile handles the main file generation for browser request-
 // response compatible rpc server
 func (m *Module) GenerateHTTPMainFile(rootPath string) error {
 
-	moduleName := stringext.ToLowerFirst(
-		m.schema.Title,
-	)
+	moduleName := strings.ToLower(m.schema.Title)
 
 	mainFilePath := fmt.Sprintf(
 		"%s/%s%shttp/main.go",
