@@ -1,41 +1,33 @@
 package clients
 
 // ClientsTemplate holds the template for the clients packages
-var ClientsTemplate = `package {{ToLower .ModuleName}}client
+var ClientsTemplate = `
+{{$schema := .Schema}}
+{{$title := $schema.Title}}
+
+package {{ToLower .ModuleName}}client
 
 import (
     "github.com/youtube/vitess/go/rpcplus"
     "golang.org/x/net/context"
 )
 
-// New creates a new {{.}} rpc client
-func New{{ToUpperFirst .Name}}(client *rpcplus.Client) *{{ToUpperFirst .Name}} {
-    return &{{ToUpperFirst .Name}}{
+// New creates a new local {{ToUpperFirst $title}} rpc client
+func New{{ToUpperFirst $title}}(client *rpcplus.Client) *{{ToUpperFirst $title}} {
+    return &{{ToUpperFirst $title}}{
         client: client,
     }
 }
 
-// {{ToUpperFirst .Name}} is for holding the api functions
-type {{ToUpperFirst .Name}} struct{
+// {{ToUpperFirst $title}} is for holding the api functions
+type {{ToUpperFirst $title}} struct{
     client *rpcplus.Client
 }
 
-func (a *{{ToUpperFirst .Name}}) One(ctx context.Context, req *models.{{ToUpperFirst .Name}}, res *models.{{ToUpperFirst .Name}}) error {
-    return m.client.Call(ctx, "{{ToUpperFirst .Name}}.One", req, res)
-}
 
-func (a *{{ToUpperFirst .Name}}) Create(ctx context.Context, req *models.{{ToUpperFirst .Name}}, res *models.{{ToUpperFirst .Name}}) error {
-    return m.client.Call(ctx, "{{ToUpperFirst .Name}}.Create", req, res)
+{{range $funcKey, $funcValue := $schema.Functions}}
+func ({{Pointerize $title}} *{{$title}}) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}, res *{{Argumentize $funcValue.Properties.outgoing}}) error {
+    return m.client.Call(ctx, "{{ToUpperFirst $title}}.{{$funcKey}}", req, res)
 }
-
-func (a *{{ToUpperFirst .Name}}) Update(ctx context.Context, req *models.{{ToUpperFirst .Name}}, res *models.{{ToUpperFirst .Name}}) error {
-    return m.client.Call(ctx, "{{ToUpperFirst .Name}}.Update", req, res)
-}
-
-func (a *{{ToUpperFirst .Name}}) Delete(ctx context.Context, req *models.{{ToUpperFirst .Name}}, res *models.{{ToUpperFirst .Name}}) error {
-    return m.client.Call(ctx, "{{ToUpperFirst .Name}}.Delete", req, res)
-}
-
-func (a *{{ToUpperFirst .Name}}) Some(ctx context.Context, req *models.{{ToUpperFirst .Name}}, res *[]*models.{{ToUpperFirst .Name}}) error {
-    return m.client.Call(ctx, "{{ToUpperFirst .Name}}.Some", req, res)
-}`
+{{end}}
+`
