@@ -2,34 +2,34 @@
 package main
 
 import (
-	"flag"
 	"log"
 
 	"github.com/cihangir/gene/generators/modules"
+	"github.com/koding/multiconfig"
 
 	_ "github.com/cihangir/govalidator"
 	_ "github.com/cihangir/stringext"
 	_ "github.com/koding/logging"
-	_ "github.com/koding/multiconfig"
 	_ "github.com/lann/squirrel"
 	_ "golang.org/x/net/context"
 )
 
-var (
-	flagSchemaFile = flag.String("schema", "", "schema content file")
-	flagFolder     = flag.String("target", "./", "target directory name")
-)
-
 func main() {
-	flag.Parse()
 
-	m, err := modules.NewFromFile(*flagSchemaFile)
+	conf := &Config{}
+
+	envloader := multiconfig.FlagLoader{}
+	if err := envloader.Load(conf); err != nil {
+		log.Fatalf("config err:", err.Error())
+	}
+
+	m, err := modules.NewFromFile(conf.Schema)
 	if err != nil {
 		log.Fatalf(err.Error())
 		return
 	}
 
-	m.TargetFolderName = *flagFolder
+	m.TargetFolderName = conf.Target
 	if err := m.Create(); err != nil {
 		log.Fatalf(err.Error())
 		return
