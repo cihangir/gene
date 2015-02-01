@@ -3,17 +3,21 @@ package modules
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/cihangir/gene/generators/clients"
-	"github.com/cihangir/gene/generators/errors"
+	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/schema"
+	"gopkg.in/yaml.v2"
 )
 
 // Module holds the required parameters for a module
@@ -39,12 +43,36 @@ func NewFromFile(path string) (*Module, error) {
 		return nil, err
 	}
 
-	var s schema.Schema
-	if err := json.Unmarshal(fileContent, &s); err != nil {
+	s, err := unmarshall(path, fileContent)
+	if err != nil {
 		return nil, err
 	}
 
-	return NewModule(&s), nil
+	return NewModule(s), nil
+}
+
+func unmarshall(path string, fileContent []byte) (*schema.Schema, error) {
+	s := &schema.Schema{}
+
+	// Choose what while is passed
+	switch filepath.Ext(path) {
+	case ".toml":
+		if err := toml.Unmarshal(fileContent, s); err != nil {
+			return nil, err
+		}
+	case ".json":
+		if err := json.Unmarshal(fileContent, s); err != nil {
+			return nil, err
+		}
+	case ".yaml", ".yml":
+		if err := yaml.Unmarshal(fileContent, s); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.New("Unmarshal not implemented")
+	}
+
+	return s, nil
 }
 
 // Create creates the module. While creating the module it handles models,
@@ -78,7 +106,7 @@ func (m *Module) Create() error {
 		return err
 	}
 
-	if err := errors.Generate(rootPath, m.schema); err != nil {
+	if err := gerr.Generate(rootPath, m.schema); err != nil {
 		return err
 	}
 
