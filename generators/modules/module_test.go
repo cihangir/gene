@@ -18,6 +18,7 @@ func TestCreateModuleStructure(t *testing.T) {
 		"workers/name",
 		"workers/name/nameapi",
 		"workers/name/tests",
+		"workers/name/js",
 		"workers/name/errors",
 		"workers/name/handlers",
 		"workers/name/clients",
