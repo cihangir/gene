@@ -9,12 +9,15 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+
 	"github.com/cihangir/gene/generators/clients"
 	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/functions"
+	"github.com/cihangir/gene/generators/js"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/tests"
+
 	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/schema"
 	"gopkg.in/yaml.v2"
@@ -130,6 +133,10 @@ func (m *Module) Create() error {
 		return err
 	}
 
+	if err := js.Generate(rootPath, m.schema); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -141,6 +148,7 @@ var moduleFolderStucture = []string{
 	"workers/%[1]s",
 	"workers/%[1]s/%[1]sapi",
 	"workers/%[1]s/tests",
+	"workers/%[1]s/js",
 	"workers/%[1]s/errors",
 	"workers/%[1]s/clients",
 }
