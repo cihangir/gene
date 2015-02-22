@@ -2,7 +2,6 @@ package modules
 
 import (
 	"fmt"
-	"strings"
 	"text/template"
 
 	"bytes"
@@ -12,22 +11,24 @@ import (
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
+	"github.com/cihangir/stringext"
 )
 
-// GenerateHTTPMainFile handles the main file generation for browser request-
-// response compatible rpc server
-func (m *Module) GenerateHTTPMainFile(rootPath string) error {
+// GenerateMainFile handles the main file generation for persistent
+// connection rpc server
+func (m *Module) GenerateMainFile(rootPath string) error {
 
-	moduleName := strings.ToLower(m.schema.Title)
-
-	mainFilePath := fmt.Sprintf(
-		"%s/%s%shttp/main.go",
-		rootPath,
-		fmt.Sprintf(moduleFolderStucture[0], moduleName),
-		moduleName,
+	moduleName := stringext.ToLowerFirst(
+		m.schema.Title,
 	)
 
-	f, err := generateHTTPMainFile(m.schema)
+	mainFilePath := fmt.Sprintf(
+		"%s/%s/main.go",
+		rootPath,
+		fmt.Sprintf(moduleFolderStucture[0], moduleName),
+	)
+
+	f, err := generateMainFile(m.schema)
 	if err != nil {
 		return err
 	}
@@ -35,11 +36,11 @@ func (m *Module) GenerateHTTPMainFile(rootPath string) error {
 	return writers.WriteFormattedFile(mainFilePath, f)
 }
 
-func generateHTTPMainFile(s *schema.Schema) ([]byte, error) {
+func generateMainFile(s *schema.Schema) ([]byte, error) {
 	const templateName = "mainfile.tmpl"
 	temp := template.New(templateName).Funcs(common.TemplateFuncs)
 
-	if _, err := temp.Parse(MainHTTPFileTemplate); err != nil {
+	if _, err := temp.Parse(MainFileTemplate); err != nil {
 		return nil, err
 	}
 
@@ -52,8 +53,8 @@ func generateHTTPMainFile(s *schema.Schema) ([]byte, error) {
 	return format.Source(buf.Bytes())
 }
 
-// MainHTTPFileTemplate holds the template for the main file generation
-var MainHTTPFileTemplate = `
+// MainFileTemplate holds the template for the main file generation
+var MainFileTemplate = `
 package main
 
 import (
@@ -83,16 +84,22 @@ func main() {
 	server.Register(new({{ToLower $Name}}api.{{$key}}))
 	{{end}}
 
-	mux := http.NewServeMux()
+	rpcwrap.ServeCustomRPC(
+		Mux,
+		server,
+		false,  // use auth
+		"json", // codec name
+		jsonrpc.NewServerCodec,
+	)
 
 	rpcwrap.ServeHTTPRPC(
 		Mux,                    // httpmuxer
 		server,                 // rpcserver
-		"json",                 // codec name
+		"http_json",            // codec name
 		jsonrpc.NewServerCodec, // jsoncodec
 		ContextCreator,         // contextCreator
 	)
 
 	fmt.Println("Server listening on 3000")
-	http.ListenAndServe("localhost:3000", mux)
+	http.ListenAndServe("localhost:3000", Mux)
 }`

@@ -113,11 +113,7 @@ func (m *Module) Create() error {
 		return err
 	}
 
-	if err := m.GenerateHTTPMainFile(rootPath); err != nil {
-		return err
-	}
-
-	if err := m.GenerateRPCMainFile(rootPath); err != nil {
+	if err := m.GenerateMainFile(rootPath); err != nil {
 		return err
 	}
 
@@ -142,9 +138,6 @@ func (m *Module) Create() error {
 
 var moduleFolderStucture = []string{
 	"cmd/%[1]s/",
-	"cmd/%[1]s/%[1]srpc",
-	"cmd/%[1]s/%[1]shttp",
-
 	"workers/%[1]s",
 	"workers/%[1]s/%[1]sapi",
 	"workers/%[1]s/tests",
