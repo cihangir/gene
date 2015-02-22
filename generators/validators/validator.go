@@ -81,7 +81,7 @@ func Generate(s *schema.Schema) ([]byte, error) {
 	}
 
 	templ := `
-// Validate validates the struct
+// Validate validates the %s struct
 func (%s *%s) Validate() error {
 	return govalidator.NewMulti(%s).Validate()
 }`
@@ -91,6 +91,7 @@ func (%s *%s) Validate() error {
 
 	res := fmt.Sprintf(
 		templ,
+		s.Title,
 		stringext.Pointerize(s.Title),
 		s.Title,
 		strings.Join(sslice, ",\n"),
