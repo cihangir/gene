@@ -84,6 +84,7 @@ func main() {
 		{{$type := .Type}}
 		{{/* export functions if they have any exported function */}}
 		{{if len .Functions}}
+			{{/* export functions if they are objects */}}
 			{{if Equal $type "object"}}
 				server.Register(new({{ToLower $Name}}api.{{$key}}))
 			{{end}}
