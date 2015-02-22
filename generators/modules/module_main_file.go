@@ -81,7 +81,10 @@ func main() {
 	{{$Name := .Title}}
 	server := rpcplus.NewServer()
 	{{range $key, $value := .Definitions}}
-	server.Register(new({{ToLower $Name}}api.{{$key}}))
+		{{/* export functions if they have any exported function */}}
+		{{if len .Functions}}
+			server.Register(new({{ToLower $Name}}api.{{$key}}))
+		{{end}}
 	{{end}}
 
 	rpcwrap.ServeCustomRPC(
