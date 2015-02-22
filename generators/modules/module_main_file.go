@@ -81,9 +81,12 @@ func main() {
 	{{$Name := .Title}}
 	server := rpcplus.NewServer()
 	{{range $key, $value := .Definitions}}
+		{{$type := .Type}}
 		{{/* export functions if they have any exported function */}}
 		{{if len .Functions}}
-			server.Register(new({{ToLower $Name}}api.{{$key}}))
+			{{if Equal $type "object"}}
+				server.Register(new({{ToLower $Name}}api.{{$key}}))
+			{{end}}
 		{{end}}
 	{{end}}
 
