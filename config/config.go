@@ -1,4 +1,4 @@
-package main
+package config
 
 // Config holds the config parameters for gene package
 type Config struct {
