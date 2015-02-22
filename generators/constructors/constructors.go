@@ -29,6 +29,7 @@ func Generate(s *schema.Schema) ([]byte, error) {
 
 // ConstructorsTemplate provides the template for constructors of models
 var ConstructorsTemplate = `
+// New{{DepunctWithInitialUpper .Title}} creates a new {{DepunctWithInitialUpper .Title}} struct with default values
 func New{{DepunctWithInitialUpper .Title}}() *{{DepunctWithInitialUpper .Title}} {
     return &{{DepunctWithInitialUpper .Title}}{
         {{range $key, $value := .Properties}}
