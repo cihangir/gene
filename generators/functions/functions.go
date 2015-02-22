@@ -34,9 +34,8 @@ func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) error {
 	}
 
 	path := fmt.Sprintf(
-		"%sworkers/%s/%sapi/%s.go",
+		"%sworkers/%s/api/%s.go",
 		rootPath,
-		moduleName,
 		moduleName,
 		strings.ToLower(s.Title),
 	)
