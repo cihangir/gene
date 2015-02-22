@@ -20,6 +20,15 @@ import (
 func Generate(rootPath string, s *schema.Schema) error {
 
 	for _, def := range s.Definitions {
+		// create models only for objects
+		if def.Type != nil {
+			if t, ok := def.Type.(string); ok {
+				if t != "object" {
+					continue
+				}
+			}
+		}
+
 		moduleName := strings.ToLower(def.Title)
 
 		modelFilePath := fmt.Sprintf(
@@ -44,6 +53,15 @@ func Generate(rootPath string, s *schema.Schema) error {
 func GenerateStatements(rootPath string, s *schema.Schema) error {
 
 	for _, def := range s.Definitions {
+		// create models only for objects
+		if def.Type != nil {
+			if t, ok := def.Type.(string); ok {
+				if t != "object" {
+					continue
+				}
+			}
+		}
+
 		moduleName := strings.ToLower(def.Title)
 
 		modelFilePath := fmt.Sprintf(
