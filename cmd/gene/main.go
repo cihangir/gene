@@ -4,6 +4,7 @@ package main
 import (
 	"log"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/modules"
 	"github.com/koding/multiconfig"
 
@@ -15,7 +16,7 @@ import (
 )
 
 func main() {
-	conf := &Config{}
+	conf := &config.Config{}
 
 	loader := multiconfig.MultiLoader(
 		&multiconfig.TagLoader{},  // assign default values
