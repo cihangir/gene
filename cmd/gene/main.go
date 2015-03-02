@@ -4,6 +4,7 @@ package main
 import (
 	"log"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/modules"
 	"github.com/koding/multiconfig"
 
@@ -15,24 +16,25 @@ import (
 )
 
 func main() {
+	conf := &config.Config{}
 
-	conf := &Config{}
+	loader := multiconfig.MultiLoader(
+		&multiconfig.TagLoader{},  // assign default values
+		&multiconfig.FlagLoader{}, // read flag params
+	)
 
-	envloader := multiconfig.FlagLoader{}
-	if err := envloader.Load(conf); err != nil {
-		log.Fatalf("config err:", err.Error())
+	if err := loader.Load(conf); err != nil {
+		log.Fatalf("config read err:", err.Error())
 	}
 
 	m, err := modules.NewFromFile(conf.Schema)
 	if err != nil {
-		log.Fatalf(err.Error())
-		return
+		log.Fatalf("err while reading schema", err.Error())
 	}
 
 	m.TargetFolderName = conf.Target
 	if err := m.Create(); err != nil {
 		log.Fatalf(err.Error())
-		return
 	}
 
 	log.Println("module created with success")

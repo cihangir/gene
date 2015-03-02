@@ -14,6 +14,7 @@ import (
 )
 
 const expected = `
+// NewAccount creates a new Account struct with default values
 func NewAccount() *Account {
 	return &Account{}
 }`

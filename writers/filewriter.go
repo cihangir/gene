@@ -18,6 +18,10 @@ func WriteFormattedFile(fileName string, model []byte) error {
 		return err
 	}
 
+	return Write(fileName, dest)
+}
+
+func Write(fileName string, models []byte) error {
 	f, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -25,7 +29,7 @@ func WriteFormattedFile(fileName string, model []byte) error {
 
 	defer f.Close()
 
-	if _, err = f.Write(dest); err != nil {
+	if _, err = f.Write(models); err != nil {
 		return err
 	}
 

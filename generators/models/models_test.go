@@ -75,7 +75,7 @@ func TestGenerateValidators(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	result := `
-// Validate validates the struct
+// Validate validates the Account struct
 func (a *Account) Validate() error {
 	return govalidator.NewMulti(govalidator.Date(a.CreatedAt),
 		govalidator.MaxLength(a.Salt, 255),

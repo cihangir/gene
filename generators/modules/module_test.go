@@ -12,12 +12,11 @@ import (
 func TestCreateModuleStructure(t *testing.T) {
 	expected := []string{
 		"cmd/name/",
-		"cmd/name/namerpc",
-		"cmd/name/namehttp",
 
 		"workers/name",
-		"workers/name/nameapi",
+		"workers/name/api",
 		"workers/name/tests",
+		"workers/name/js",
 		"workers/name/errors",
 		"workers/name/handlers",
 		"workers/name/clients",

@@ -15,6 +15,7 @@ var TemplateFuncs = template.FuncMap{
 	"ToLower":                 strings.ToLower,
 	"ToLowerFirst":            stringext.ToLowerFirst,
 	"ToUpperFirst":            stringext.ToUpperFirst,
+	"AsComment":               stringext.AsComment,
 	"DepunctWithInitialUpper": stringext.DepunctWithInitialUpper,
 	"DepunctWithInitialLower": stringext.DepunctWithInitialLower,
 	"Equal":                   stringext.Equal,

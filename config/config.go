@@ -1,4 +1,4 @@
-package main
+package config
 
 // Config holds the config parameters for gene package
 type Config struct {
@@ -6,8 +6,8 @@ type Config struct {
 	Schema string `required:"true"`
 
 	// Target holds the target folder
-	Target string `required:"true"`
+	Target string `required:"true" default:"./"`
 
 	// Generators holds the generator names for processing
-	Generators []string
+	Generators []string `default:"model,statements,errors,clients,tests,functions"`
 }
