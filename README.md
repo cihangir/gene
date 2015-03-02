@@ -69,41 +69,40 @@ After having gene executable in your path
 Pass schema flag for your base json-schema, and target as the existing path for your app
 
 ```
-gene -schema ./command.json -target ./test/
+gene  -schema ./testdata/test.json -target ./
 ```
 
 For now, it is generating the following folder/file structure
 ```
-test
 ├── app
+├── cmd
+│   └── account
+│       └── main.go
 ├── models
 │   ├── account.go
 │   ├── account_statements.go
-│   ├── config.go
-│   ├── config_statements.go
 │   ├── profile.go
 │   └── profile_statements.go
 ├── tests
 │   └── testfuncs.go
 └── workers
     └── account
-        ├── accountapi
+        ├── api
         │   ├── account.go
         │   ├── config.go
         │   └── profile.go
         ├── clients
         │   ├── account.go
         │   └── profile.go
-        ├── cmd
-        │   └── account
-        │       └── main.go
         ├── errors
         │   └── account.go
+        ├── js
+        │   ├── account.js
+        │   ├── config.js
+        │   └── profile.js
         └── tests
-            ├── account_test.go
             ├── common_test.go
-            ├── config_test.go
-            └── profile_test.go
+            └── config_test.go
 
-11 directories, 18 files
+12 directories, 17 files
 ```

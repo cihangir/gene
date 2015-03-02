@@ -48,7 +48,7 @@ type Account struct {
 	CreatedAt              time.Time ~json:"createdAt"~              // Profile's creation time
 	EmailAddress           string    ~json:"emailAddress"~           // Email Address of the Account
 	EmailStatusConstant    string    ~json:"emailStatusConstant"~    // Status of the Account's Email
-	ID                     int64     ~json:"id"~                     // The unique identifier for a Account's Profile
+	ID                     int64     ~json:"id,string"~              // The unique identifier for a Account's Profile
 	Password               string    ~json:"password"~               // Salted Password of the Account
 	PasswordStatusConstant string    ~json:"passwordStatusConstant"~ // Status of the Account's Password
 	ProfileID              int64     ~json:"profileId"~              // The unique identifier for a Account's Profile
