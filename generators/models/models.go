@@ -23,7 +23,7 @@ func Generate(rootPath string, s *schema.Schema) error {
 		// create models only for objects
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
-				if t != "object" {
+				if t == "config" {
 					continue
 				}
 			}
