@@ -9,6 +9,7 @@ import (
 
 	"testing"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 )
@@ -59,9 +60,14 @@ func TestConstructors(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	s = s.Resolve(nil)
+	s = s.Resolve(s)
 
-	a, err := generate("test", s.Definitions["Account"])
+	cl, err := NewClient(config.NewContext(), s)
+	if err != nil {
+		t.Fail()
+	}
+
+	a, err := cl.generate("test", s.Definitions["Account"])
 	equals(t, nil, err)
 	equals(t, expected, string(a))
 }
