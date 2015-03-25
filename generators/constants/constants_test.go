@@ -14,8 +14,8 @@ import (
 )
 
 const expected = `
-	// EmailStatusConstant holds the predefined enums
-	var EmailStatusConstant = struct {
+	// AccountEmailStatusConstant holds the predefined enums
+	var AccountEmailStatusConstant = struct {
 		Verified    string
 		NotVerified string
 	}{
@@ -23,8 +23,8 @@ const expected = `
 		NotVerified: "notVerified",
 	}
 
-	// PasswordStatusConstant holds the predefined enums
-	var PasswordStatusConstant = struct {
+	// AccountPasswordStatusConstant holds the predefined enums
+	var AccountPasswordStatusConstant = struct {
 		Valid      string
 		NeedsReset string
 		Generated  string
@@ -34,8 +34,8 @@ const expected = `
 		Generated:  "generated",
 	}
 
-	// StatusConstant holds the predefined enums
-	var StatusConstant = struct {
+	// AccountStatusConstant holds the predefined enums
+	var AccountStatusConstant = struct {
 		Registered              string
 		Unregistered            string
 		NeedsManualVerification string
