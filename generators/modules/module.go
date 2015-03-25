@@ -10,6 +10,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/clients"
 	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
@@ -17,6 +18,7 @@ import (
 	"github.com/cihangir/gene/generators/js"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/tests"
+	"github.com/cihangir/gene/writers"
 
 	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/schema"
@@ -27,31 +29,37 @@ import (
 type Module struct {
 	schema *schema.Schema
 
+	context *config.Context
+
 	// TargetFolderName holds the folder name for the module
 	TargetFolderName string
 }
 
 // NewModule creates a new module with the given Schema
-func NewModule(s *schema.Schema) *Module {
+func New(conf *config.Config) (*Module, error) {
+	s, err := read(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	context := config.NewContext()
+	context.Config = conf
+
 	return &Module{
 		schema:           s.Resolve(s),
+		context:          context,
 		TargetFolderName: "./",
-	}
+	}, nil
 }
 
 // NewFromFile reads the given file and creates a new module out of it
-func NewFromFile(path string) (*Module, error) {
-	fileContent, err := helpers.ReadFile(path)
+func read(config *config.Config) (*schema.Schema, error) {
+	fileContent, err := helpers.ReadFile(config.Schema)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := unmarshall(path, fileContent)
-	if err != nil {
-		return nil, err
-	}
-
-	return NewModule(s), nil
+	return unmarshall(config.Schema, fileContent)
 }
 
 func unmarshall(path string, fileContent []byte) (*schema.Schema, error) {
@@ -117,8 +125,20 @@ func (m *Module) Create() error {
 		return err
 	}
 
-	if err := clients.Generate(rootPath, m.schema); err != nil {
+	cl, err := clients.NewClient(m.context, m.schema)
+	if err != nil {
 		return err
+	}
+
+	clgen, err := cl.Generate()
+	if err != nil {
+		return err
+	}
+
+	for _, file := range clgen {
+		if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
+			return err
+		}
 	}
 
 	if err := tests.Generate(rootPath, m.schema); err != nil {

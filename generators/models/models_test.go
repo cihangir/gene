@@ -85,18 +85,18 @@ func (a *Account) Validate() error {
 		govalidator.MinLength(a.URL, 6),
 		govalidator.MinLength(a.URLName, 6),
 		govalidator.OneOf(a.EmailStatusConstant, []string{
-			EmailStatusConstant.Verified,
-			EmailStatusConstant.NotVerified,
+			AccountEmailStatusConstant.Verified,
+			AccountEmailStatusConstant.NotVerified,
 		}),
 		govalidator.OneOf(a.PasswordStatusConstant, []string{
-			PasswordStatusConstant.Valid,
-			PasswordStatusConstant.NeedsReset,
-			PasswordStatusConstant.Generated,
+			AccountPasswordStatusConstant.Valid,
+			AccountPasswordStatusConstant.NeedsReset,
+			AccountPasswordStatusConstant.Generated,
 		}),
 		govalidator.OneOf(a.StatusConstant, []string{
-			StatusConstant.Registered,
-			StatusConstant.Unregistered,
-			StatusConstant.NeedsManualVerification,
+			AccountStatusConstant.Registered,
+			AccountStatusConstant.Unregistered,
+			AccountStatusConstant.NeedsManualVerification,
 		})).Validate()
 }`
 

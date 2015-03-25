@@ -27,7 +27,7 @@ func main() {
 		log.Fatalf("config read err:", err.Error())
 	}
 
-	m, err := modules.NewFromFile(conf.Schema)
+	m, err := modules.New(conf)
 	if err != nil {
 		log.Fatalf("err while reading schema", err.Error())
 	}

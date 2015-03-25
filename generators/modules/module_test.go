@@ -1,13 +1,6 @@
 package modules
 
-import (
-	"encoding/json"
-
-	"github.com/cihangir/gene/testdata"
-	"github.com/cihangir/schema"
-
-	"testing"
-)
+import "testing"
 
 func TestCreateModuleStructure(t *testing.T) {
 	expected := []string{
@@ -36,18 +29,4 @@ func TestCreateModuleStructure(t *testing.T) {
 			t.Fatalf("%s is not expected in the result set", stc)
 		}
 	}
-}
-
-func TestCreateModule(t *testing.T) {
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
-		t.Fatal(err.Error())
-	}
-
-	m := NewModule(&s)
-	err := m.Create()
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
 }

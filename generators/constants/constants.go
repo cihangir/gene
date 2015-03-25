@@ -27,10 +27,11 @@ func Generate(s *schema.Schema) ([]byte, error) {
 
 // ConstantsTemplate holds the template for the constant generation
 var ConstantsTemplate = `
+{{$title := .Title}}
 {{range $key, $value := .Properties}}
     {{if len $value.Enum}}
-        // {{DepunctWithInitialUpper $key}} holds the predefined enums
-        var {{DepunctWithInitialUpper $key}}  = struct {
+        // {{DepunctWithInitialUpper $title}}{{DepunctWithInitialUpper $key}} holds the predefined enums
+        var {{DepunctWithInitialUpper $title}}{{DepunctWithInitialUpper $key}}  = struct {
         {{range $defKey, $val := $value.Enum}}
             {{DepunctWithInitialUpper $val}} string
         {{end}}
