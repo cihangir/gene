@@ -29,8 +29,9 @@ func Generate(s *schema.Schema) ([]byte, error) {
 
 // ConstructorsTemplate provides the template for constructors of models
 var ConstructorsTemplate = `
-// New{{DepunctWithInitialUpper .Title}} creates a new {{DepunctWithInitialUpper .Title}} struct with default values
-func New{{DepunctWithInitialUpper .Title}}() *{{DepunctWithInitialUpper .Title}} {
+{{$title := DepunctWithInitialUpper .Title}}
+// New{{$title}} creates a new {{$title}} struct with default values
+func New{{$title}}() *{{$title}} {
     return &{{DepunctWithInitialUpper .Title}}{
         {{range $key, $value := .Properties}}
             {{/* only process if default value is set */}}
@@ -39,7 +40,7 @@ func New{{DepunctWithInitialUpper .Title}}() *{{DepunctWithInitialUpper .Title}}
                 {{if Equal "string" $value.Type}}
                     {{/* if property is enum, handle them accordingly */}}
                     {{if len $value.Enum}}
-                        {{DepunctWithInitialUpper $key}}: {{DepunctWithInitialUpper $key}}.{{DepunctWithInitialUpper $value.Default}},
+                        {{DepunctWithInitialUpper $key}}: {{$title}}{{DepunctWithInitialUpper $key}}.{{DepunctWithInitialUpper $value.Default}},
                     {{else}}
                         {{/* strings can have special formatting */}}
                         {{/* no-matter what value set for a date-time field, set UTC Now */}}
