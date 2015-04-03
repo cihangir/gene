@@ -14,15 +14,9 @@ import (
 type generator struct {
 	context *config.Context
 	schema  *schema.Schema
-	// template *template.Template
 }
 
 func New(context *config.Context, schema *schema.Schema) (*generator, error) {
-	// tmpl := template.New("statements.tmpl").Funcs(context.TemplateFuncs)
-	// if _, err := tmpl.Parse(ClientsTemplate); err != nil {
-	// 	return nil, err
-	// }
-
 	c := &generator{
 		context: context,
 		schema:  schema,
