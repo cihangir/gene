@@ -150,10 +150,9 @@ func (m *Module) Create() error {
 			return err
 		}
 	}
-
-	// if err := models.GenerateStatements(rootPath, m.schema); err != nil {
-	// 	return err
-	// }
+	///
+	/// end creating statements
+	///
 
 	if err := gerr.Generate(rootPath, m.schema); err != nil {
 		return err
