@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 
 	"testing"
 
@@ -22,14 +23,18 @@ func TestStatements(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	cl, err := New(config.NewContext(), s)
+	sgenerator, err := New(config.NewContext(), s)
 	if err != nil {
 		t.Fail()
 	}
 
-	a, err := cl.Generate()
+	sts, err := sgenerator.Generate()
 	equals(t, nil, err)
-	equals(t, expected, string(a[0].Content))
+	for _, s := range sts {
+		if strings.HasSuffix(s.Path, "profile_statements.go") {
+			equals(t, expected, string(s.Content))
+		}
+	}
 }
 
 func equals(tb testing.TB, exp, act interface{}) {
