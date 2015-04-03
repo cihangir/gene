@@ -20,7 +20,6 @@ func New(context *config.Context, schema *schema.Schema) (*generator, error) {
 	c := &generator{
 		context: context,
 		schema:  schema,
-		// template: tmpl,
 	}
 
 	return c, nil
