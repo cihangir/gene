@@ -7,19 +7,34 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/cihangir/gene/config"
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/generators/constants"
 	"github.com/cihangir/gene/generators/constructors"
-	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
 )
 
-// Generate creates the models and write them to the required paths
-func Generate(rootPath string, s *schema.Schema) error {
+type generator struct {
+	context *config.Context
+	schema  *schema.Schema
+}
 
-	for _, def := range s.Definitions {
+func New(context *config.Context, schema *schema.Schema) (*generator, error) {
+	c := &generator{
+		context: context,
+		schema:  schema,
+	}
+
+	return c, nil
+}
+
+func (g *generator) Generate() ([]common.Output, error) {
+	outputs := make([]common.Output, 0)
+
+	for _, def := range g.schema.Definitions {
 		// create models only for objects
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
@@ -31,56 +46,27 @@ func Generate(rootPath string, s *schema.Schema) error {
 
 		moduleName := strings.ToLower(def.Title)
 
-		modelFilePath := fmt.Sprintf(
-			"%smodels/%s.go",
-			rootPath,
-			moduleName,
-		)
-
 		f, err := GenerateModel(def)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		if err := writers.WriteFormattedFile(modelFilePath, f); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// GenerateStatements generates the basic CRUD statements for the models
-func GenerateStatements(rootPath string, s *schema.Schema) error {
-
-	for _, def := range s.Definitions {
-		// create models only for objects
-		if def.Type != nil {
-			if t, ok := def.Type.(string); ok {
-				if t != "object" {
-					continue
-				}
-			}
-		}
-
-		moduleName := strings.ToLower(def.Title)
-
-		modelFilePath := fmt.Sprintf(
-			"%smodels/%s_statements.go",
-			rootPath,
+		path := fmt.Sprintf(
+			PathForModels,
+			g.context.Config.Target,
 			moduleName,
 		)
 
-		f, err := GenerateModelStatements(def)
-		if err != nil {
-			return err
-		}
-
-		if err := writers.WriteFormattedFile(modelFilePath, f); err != nil {
-			return err
-		}
+		outputs = append(outputs, common.Output{
+			Content: f,
+			Path:    path,
+		})
 	}
-	return nil
+
+	return outputs, nil
 }
+
+var PathForModels = "%smodels/%s.go"
 
 // GenerateModel generates the model itself
 func GenerateModel(s *schema.Schema) ([]byte, error) {
@@ -118,50 +104,6 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 	if validators != nil {
 		buf.Write(validators)
 	}
-
-	return writers.Clear(buf)
-}
-
-// GenerateModelStatements generates the CRUD statements for the model struct
-func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
-	var buf bytes.Buffer
-
-	packageLine, err := GeneratePackage(s)
-	if err != nil {
-		return nil, err
-	}
-
-	createStatements, err := statements.GenerateCreate(s)
-	if err != nil {
-		return nil, err
-	}
-
-	updateStatements, err := statements.GenerateUpdate(s)
-	if err != nil {
-		return nil, err
-	}
-
-	deleteStatements, err := statements.GenerateDelete(s)
-	if err != nil {
-		return nil, err
-	}
-
-	selectStatements, err := statements.GenerateSelect(s)
-	if err != nil {
-		return nil, err
-	}
-
-	tableName, err := statements.GenerateTableName(s)
-	if err != nil {
-		return nil, err
-	}
-
-	buf.Write(packageLine)
-	buf.Write(createStatements)
-	buf.Write(updateStatements)
-	buf.Write(deleteStatements)
-	buf.Write(selectStatements)
-	buf.Write(tableName)
 
 	return writers.Clear(buf)
 }
