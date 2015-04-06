@@ -38,11 +38,10 @@ func NewClient(context *config.Context, schema *schema.Schema) (*client, error) 
 // Generate generates the client package for given schema
 func (c *client) Generate() ([]common.Output, error) {
 	moduleName := c.context.ModuleNameFunc(c.schema.Title)
-
 	keys := schema.SortedKeys(c.schema.Definitions)
-	outputs := make([]common.Output, len(keys))
+	outputs := make([]common.Output, 0)
 
-	for i, key := range keys {
+	for _, key := range keys {
 		def := c.schema.Definitions[key]
 
 		if def.Type != nil {
@@ -64,10 +63,10 @@ func (c *client) Generate() ([]common.Output, error) {
 			c.context.FileNameFunc(def.Title),
 		)
 
-		outputs[i] = common.Output{
+		outputs = append(outputs, common.Output{
 			Content: f,
 			Path:    path,
-		}
+		})
 	}
 
 	return outputs, nil

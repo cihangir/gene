@@ -17,6 +17,7 @@ import (
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/js"
 	"github.com/cihangir/gene/generators/models"
+	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/writers"
 
@@ -109,13 +110,49 @@ func (m *Module) Create() error {
 		return err
 	}
 
-	if err := models.Generate(rootPath, m.schema); err != nil {
+	///
+	/// create models
+	///
+	mgenerator, err := models.New(m.context, m.schema)
+	if err != nil {
 		return err
 	}
 
-	if err := models.GenerateStatements(rootPath, m.schema); err != nil {
+	mgen, err := mgenerator.Generate()
+	if err != nil {
 		return err
 	}
+
+	for _, file := range mgen {
+		if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
+			return err
+		}
+	}
+	///
+	/// end  creating models
+	///
+
+	///
+	/// create statements
+	///
+	s, err := statements.New(m.context, m.schema)
+	if err != nil {
+		return err
+	}
+
+	sgen, err := s.Generate()
+	if err != nil {
+		return err
+	}
+
+	for _, file := range sgen {
+		if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
+			return err
+		}
+	}
+	///
+	/// end creating statements
+	///
 
 	if err := gerr.Generate(rootPath, m.schema); err != nil {
 		return err

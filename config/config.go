@@ -38,5 +38,6 @@ func NewContext() *Context {
 
 		// TemplateFuncs
 		TemplateFuncs: common.TemplateFuncs,
+		Config:        &Config{},
 	}
 }
