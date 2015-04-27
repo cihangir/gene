@@ -9,58 +9,79 @@ import (
 
 	"go/format"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
 )
 
+type generator struct{}
+
+func New() *generator {
+	return &generator{}
+}
+
+var PathForTests = "%smodels/%s_statements.go"
+
+func (g *generator) Name() string {
+	return "statements"
+}
+
 // Generate generates the tests for the schema
-func Generate(rootPath string, s *schema.Schema) error {
+func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
+	moduleName := context.ModuleNameFunc(s.Title)
+	outputs := make([]common.Output, 0)
+
 	// Generate test functions
 	testFuncs, err := GenerateTestFuncs(s)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	path := fmt.Sprintf("%stests/testfuncs.go", rootPath)
+	path := fmt.Sprintf("%stests/testfuncs.go", context.Config.Target)
 
-	if err := writers.WriteFormattedFile(path, testFuncs); err != nil {
-		return err
-	}
+	outputs = append(outputs, common.Output{
+		Content: testFuncs,
+		Path:    path,
+	})
 
 	// generate module test file
 	mainTest, err := GenerateMainTestFileForModule(s)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	path = fmt.Sprintf(
 		"%sworkers/%s/tests/common_test.go",
-		rootPath,
-		strings.ToLower(s.Title),
+		context.Config.Target,
+		moduleName,
 	)
 
-	if err := writers.WriteFormattedFile(path, mainTest); err != nil {
-		return err
-	}
+	outputs = append(outputs, common.Output{
+		Content: mainTest,
+		Path:    path,
+	})
 
 	// generate tests for the schema
 	for _, def := range s.Definitions {
 		testFile, err := GenerateTests(s.Title, def)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		path = fmt.Sprintf(
 			"%sworkers/%s/tests/%s_test.go",
-			rootPath,
-			strings.ToLower(s.Title),
+			context.Config.Target,
+			moduleName,
 			strings.ToLower(def.Title),
 		)
 
-		return writers.WriteFormattedFile(path, testFile)
+		outputs = append(outputs, common.Output{
+			Content: testFile,
+			Path:    path,
+		})
+
 	}
 
-	return nil
+	return outputs, nil
 }
 
 // GenerateMainTestFileForModule generates the main test file for the module

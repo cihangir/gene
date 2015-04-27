@@ -7,26 +7,59 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
 )
 
+type generator struct{}
+
+func New() *generator {
+	return &generator{}
+}
+
+func (g *generator) Name() string {
+	return "errors"
+}
+
+var PathForErrors = "%sworkers/%s/errors/%s.go"
+
 // Generate generates and writes the errors of the schema
-func Generate(rootPath string, s *schema.Schema) error {
-	data, err := generate(s)
-	if err != nil {
-		return err
+func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
+	moduleName := context.ModuleNameFunc(s.Title)
+	outputs := make([]common.Output, 0)
+
+	for _, def := range s.Definitions {
+		// create models only for objects
+		if def.Type != nil {
+			if t, ok := def.Type.(string); ok {
+				if t != "object" {
+					continue
+				}
+			}
+		}
+
+		f, err := generate(def)
+		if err != nil {
+			return nil, err
+		}
+
+		path := fmt.Sprintf(
+			PathForErrors,
+			context.Config.Target,
+			moduleName,
+			strings.ToLower(s.Title),
+		)
+
+		outputs = append(outputs, common.Output{
+			Content: f,
+			Path:    path,
+		})
+
 	}
 
-	path := fmt.Sprintf(
-		"%sworkers/%s/errors/%s.go",
-		rootPath,
-		strings.ToLower(s.Title),
-		strings.ToLower(s.Title),
-	)
-
-	return writers.WriteFormattedFile(path, data)
+	return outputs, nil
 }
 
 func generate(s *schema.Schema) ([]byte, error) {

@@ -14,7 +14,7 @@ import (
 	"github.com/cihangir/schema"
 )
 
-const expected = `package testclient
+const expected = `package accountclient
 
 import (
 	"github.com/youtube/vitess/go/rpcplus"
@@ -62,14 +62,9 @@ func TestConstructors(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	cl, err := NewClient(config.NewContext(), s)
-	if err != nil {
-		t.Fail()
-	}
-
-	a, err := cl.generate("test", s.Definitions["Account"])
+	a, err := New().Generate(config.NewContext(), s)
 	equals(t, nil, err)
-	equals(t, expected, string(a))
+	equals(t, expected, string(a[0].Content))
 }
 
 func equals(tb testing.TB, exp, act interface{}) {

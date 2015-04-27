@@ -19,30 +19,32 @@ type client struct {
 	template *template.Template
 }
 
-func NewClient(context *config.Context, schema *schema.Schema) (*client, error) {
+func New() *client {
 	// create a template to process the clients
+	return &client{}
+}
+
+func (c *client) Name() string {
+	return "clients"
+}
+
+// Generate generates the client package for given schema
+func (c *client) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
+	moduleName := context.ModuleNameFunc(s.Title)
+	keys := schema.SortedKeys(s.Definitions)
+	outputs := make([]common.Output, 0)
 	tmpl := template.New("clients.tmpl").Funcs(context.TemplateFuncs)
+
+	c.context = context
+	c.schema = s
+	c.template = tmpl
+
 	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
 		return nil, err
 	}
 
-	c := &client{
-		context:  context,
-		schema:   schema,
-		template: tmpl,
-	}
-
-	return c, nil
-}
-
-// Generate generates the client package for given schema
-func (c *client) Generate() ([]common.Output, error) {
-	moduleName := c.context.ModuleNameFunc(c.schema.Title)
-	keys := schema.SortedKeys(c.schema.Definitions)
-	outputs := make([]common.Output, 0)
-
 	for _, key := range keys {
-		def := c.schema.Definitions[key]
+		def := s.Definitions[key]
 
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
@@ -58,9 +60,9 @@ func (c *client) Generate() ([]common.Output, error) {
 		}
 
 		path := fmt.Sprintf(PathForClient,
-			c.context.Config.Target,
+			context.Config.Target,
 			moduleName,
-			c.context.FileNameFunc(def.Title),
+			context.FileNameFunc(def.Title),
 		)
 
 		outputs = append(outputs, common.Output{

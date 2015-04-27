@@ -23,12 +23,7 @@ func TestStatements(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	sgenerator, err := New(config.NewContext(), s)
-	if err != nil {
-		t.Fail()
-	}
-
-	sts, err := sgenerator.Generate()
+	sts, err := New().Generate(config.NewContext(), s)
 	equals(t, nil, err)
 	for _, s := range sts {
 		if strings.HasSuffix(s.Path, "profile_statements.go") {

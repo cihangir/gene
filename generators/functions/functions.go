@@ -8,29 +8,51 @@ import (
 
 	"go/format"
 
+	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
 )
 
+type generator struct{}
+
+func New() *generator {
+	return &generator{}
+}
+
+var PathForFunctions = "%sworkers/%s/api/%s.go"
+
+func (g *generator) Name() string {
+	return "functions"
+}
+
 // Generate generates and writes the errors of the schema
-func Generate(rootPath string, s *schema.Schema) error {
+func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
+	moduleName := context.ModuleNameFunc(s.Title)
+	outputs := make([]common.Output, 0)
+
 	keys := schema.SortedKeys(s.Definitions)
 	for _, key := range keys {
 		def := s.Definitions[key]
-		if err := GenerateAPI(rootPath, strings.ToLower(s.Title), def); err != nil {
-			return err
+		output, err := GenerateAPI(
+			context.Config.Target,
+			moduleName,
+			def,
+		)
+		if err != nil {
+			return nil, err
 		}
+
+		outputs = append(outputs, output)
 	}
 
-	return nil
+	return outputs, nil
 }
 
 // GenerateAPI generates and writes the api files
-func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) error {
+func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) (common.Output, error) {
 	api, err := generate(moduleName, s)
 	if err != nil {
-		return err
+		return common.Output{}, err
 	}
 
 	path := fmt.Sprintf(
@@ -40,7 +62,10 @@ func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) error {
 		strings.ToLower(s.Title),
 	)
 
-	return writers.WriteFormattedFile(path, api)
+	return common.Output{
+		Content: api,
+		Path:    path,
+	}, nil
 }
 
 // FunctionsTemplate provides the template for constructors of models

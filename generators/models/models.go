@@ -22,19 +22,18 @@ type generator struct {
 	schema  *schema.Schema
 }
 
-func New(context *config.Context, schema *schema.Schema) (*generator, error) {
-	c := &generator{
-		context: context,
-		schema:  schema,
-	}
-
-	return c, nil
+func New() *generator {
+	return &generator{}
 }
 
-func (g *generator) Generate() ([]common.Output, error) {
+func (g *generator) Name() string {
+	return "models"
+}
+
+func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
-	for _, def := range g.schema.Definitions {
+	for _, def := range schema.Definitions {
 		// create models only for objects
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
@@ -53,7 +52,7 @@ func (g *generator) Generate() ([]common.Output, error) {
 
 		path := fmt.Sprintf(
 			PathForModels,
-			g.context.Config.Target,
+			context.Config.Target,
 			moduleName,
 		)
 
