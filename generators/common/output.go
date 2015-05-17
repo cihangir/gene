@@ -1,6 +1,7 @@
 package common
 
 type Output struct {
-	Content []byte
-	Path    string
+	Content     []byte
+	Path        string
+	DoNotFormat bool
 }
