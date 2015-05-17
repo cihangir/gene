@@ -13,6 +13,7 @@ import (
 var TemplateFuncs = template.FuncMap{
 	"Pointerize":              stringext.Pointerize,
 	"ToLower":                 strings.ToLower,
+	"ToUpper":                 strings.ToUpper,
 	"ToLowerFirst":            stringext.ToLowerFirst,
 	"ToUpperFirst":            stringext.ToUpperFirst,
 	"AsComment":               stringext.AsComment,
