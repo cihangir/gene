@@ -7,7 +7,7 @@ import (
 )
 
 type ORM struct {
-	PlaceholderFormat
+	PlaceholderFormat squirrel.PlaceholderFormat
 }
 
 func New() *ORM {
@@ -58,88 +58,88 @@ type TablerRowsScanner interface {
 	RowsScanner
 }
 
-func (o *ORM) ByIds(a TablerRowsScanner, res interface{}, ids ...interface{}) error {
-	sql, args, err := squirrel.
-		StatementBuilder.
-		PlaceholderFormat(o.PlaceholderFormat).
-		Select("*").
-		From(a.TableName()).
-		// TODO(cihangir) may need to parameterize id
-		Columns("id IN (" + squirrel.Placeholders(len(ids)) + ")").
-		Values(ids...).
-		ToSql()
-	if err != nil {
-		return err
-	}
+// func (o *ORM) ByIds(a TablerRowsScanner, res interface{}, ids ...interface{}) error {
+// 	sql, args, err := squirrel.
+// 		StatementBuilder.
+// 		PlaceholderFormat(o.PlaceholderFormat).
+// 		Select("*").
+// 		From(a.TableName()).
+// 		// TODO(cihangir) may need to parameterize id
+// 		Columns("id IN (" + squirrel.Placeholders(len(ids)) + ")").
+// 		Values(ids...).
+// 		ToSql()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	rows, err := o.Query(sql, args)
-	if err != nil {
-		return err
-	}
+// 	rows, err := o.Query(sql, args)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return a.RowsScan(rows, res)
-}
+// 	return a.RowsScan(rows, res)
+// }
 
-func (o *ORM) Select(a Selecter, res interface{}) error {
-	sql, args, err := a.SelectSQL()
-	if err != nil {
-		return err
-	}
+// func (o *ORM) Select(a Selecter, res interface{}) error {
+// 	sql, args, err := a.SelectSQL()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	rows, err := o.Query(sql, args)
-	if err != nil {
-		return err
-	}
+// 	rows, err := o.Query(sql, args)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return a.RowsScan(rows, res)
-}
+// 	return a.RowsScan(rows, res)
+// }
 
-func (o *ORM) Delete(a Deleter) error {
-	sql, args, err := a.DeleteSQL()
-	if err != nil {
-		return err
-	}
+// func (o *ORM) Delete(a Deleter) error {
+// 	sql, args, err := a.DeleteSQL()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	_, err = o.Exec(sql, args)
-	return err
-}
+// 	_, err = o.Exec(sql, args)
+// 	return err
+// }
 
-func (o *ORM) Update(a Updater) error {
-	query := squirrel.
-		StatementBuilder.
-		PlaceholderFormat(o.PlaceholderFormat).
-		Update(a.TableName())
+// func (o *ORM) Update(a Updater) error {
+// 	query := squirrel.
+// 		StatementBuilder.
+// 		PlaceholderFormat(o.PlaceholderFormat).
+// 		Update(a.TableName())
 
-	sql, args, err := a.UpdateSQL(query).ToSql()
-	if err != nil {
-		return err
-	}
+// 	sql, args, err := a.UpdateSQL(query).ToSql()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	result, err := o.Exec(sql, args)
-	if err != nil {
-		return err
-	}
+// 	result, err := o.Exec(sql, args)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	// TODO(cihangir) bind data into res
-	return nil
-}
+// 	// TODO(cihangir) bind data into res
+// 	return nil
+// }
 
-func (o *ORM) Create(a Updater) error {
-	query := squirrel.
-		StatementBuilder.
-		PlaceholderFormat(o.PlaceholderFormat).
-		Insert(a.TableName())
+// func (o *ORM) Create(a Updater) error {
+// 	query := squirrel.
+// 		StatementBuilder.
+// 		PlaceholderFormat(o.PlaceholderFormat).
+// 		Insert(a.TableName())
 
-	sql, args, err := a.Create(query).ToSql()
-	if err != nil {
-		return err
-	}
+// 	sql, args, err := a.CreateSQL(query).ToSql()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	result, err := o.Exec(sql, args)
-	if err != nil {
-		return err
-	}
+// 	result, err := o.Exec(sql, args)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	// TODO(cihangir) bind data into res
-	return nil
-}
+// 	// TODO(cihangir) bind data into res
+// 	return nil
+// }
