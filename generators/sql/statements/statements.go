@@ -11,28 +11,24 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct {
-	context *config.Context
-	schema  *schema.Schema
-}
+type generator struct{}
 
-func New(context *config.Context, schema *schema.Schema) (*generator, error) {
-	c := &generator{
-		context: context,
-		schema:  schema,
-	}
-
-	return c, nil
+func New() *generator {
+	return &generator{}
 }
 
 var PathForStatements = "%smodels/%s_statements.go"
 
+func (g *generator) Name() string {
+	return "statements"
+}
+
 // Generate generates the basic CRUD statements for the models
-func (g *generator) Generate() ([]common.Output, error) {
-	moduleName := g.context.ModuleNameFunc(g.schema.Title)
+func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
+	moduleName := context.ModuleNameFunc(schema.Title)
 	outputs := make([]common.Output, 0)
 
-	for _, def := range g.schema.Definitions {
+	for _, def := range schema.Definitions {
 		// create models only for objects
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
@@ -49,7 +45,7 @@ func (g *generator) Generate() ([]common.Output, error) {
 
 		path := fmt.Sprintf(
 			PathForStatements,
-			g.context.Config.Target,
+			context.Config.Target,
 			moduleName,
 		)
 

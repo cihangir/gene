@@ -12,11 +12,14 @@ import (
 
 	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/clients"
+	"github.com/cihangir/gene/generators/common"
 	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/functions"
-	"github.com/cihangir/gene/generators/js"
+	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
+	"github.com/cihangir/gene/generators/scanners/rows"
+	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/writers"
@@ -25,6 +28,28 @@ import (
 	"github.com/cihangir/schema"
 	"gopkg.in/yaml.v2"
 )
+
+type Generator interface {
+	Name() string
+	Generate(*config.Context, *schema.Schema) ([]common.Output, error)
+}
+
+var generators []Generator
+
+func init() {
+	generators = []Generator{
+		statements.New(),
+		models.New(),
+		rows.New(),
+		gerr.New(),
+		mainfile.New(),
+		clients.New(),
+		tests.New(),
+		functions.New(),
+		definitions.New(),
+		// js.New(),
+	}
+}
 
 // Module holds the required parameters for a module
 type Module struct {
@@ -110,84 +135,29 @@ func (m *Module) Create() error {
 		return err
 	}
 
-	///
-	/// create models
-	///
-	mgenerator, err := models.New(m.context, m.schema)
-	if err != nil {
-		return err
-	}
-
-	mgen, err := mgenerator.Generate()
-	if err != nil {
-		return err
-	}
-
-	for _, file := range mgen {
-		if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
+	// mgenerator, err := models.New(m.context, m.schema)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	for _, gen := range generators {
+		mgen, err := gen.Generate(m.context, m.schema)
+		if err != nil {
 			return err
 		}
-	}
-	///
-	/// end  creating models
-	///
 
-	///
-	/// create statements
-	///
-	s, err := statements.New(m.context, m.schema)
-	if err != nil {
-		return err
-	}
+		for _, file := range mgen {
+			if file.DoNotFormat {
+				if err := writers.Write(file.Path, file.Content); err != nil {
+					return err
+				}
+			} else {
+				if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
+					return err
+				}
+			}
 
-	sgen, err := s.Generate()
-	if err != nil {
-		return err
-	}
-
-	for _, file := range sgen {
-		if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
-			return err
 		}
-	}
-	///
-	/// end creating statements
-	///
-
-	if err := gerr.Generate(rootPath, m.schema); err != nil {
-		return err
-	}
-
-	if err := m.GenerateMainFile(rootPath); err != nil {
-		return err
-	}
-
-	cl, err := clients.NewClient(m.context, m.schema)
-	if err != nil {
-		return err
-	}
-
-	clgen, err := cl.Generate()
-	if err != nil {
-		return err
-	}
-
-	for _, file := range clgen {
-		if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
-			return err
-		}
-	}
-
-	if err := tests.Generate(rootPath, m.schema); err != nil {
-		return err
-	}
-
-	if err := functions.Generate(rootPath, m.schema); err != nil {
-		return err
-	}
-
-	if err := js.Generate(rootPath, m.schema); err != nil {
-		return err
 	}
 
 	return nil

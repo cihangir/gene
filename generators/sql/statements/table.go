@@ -32,6 +32,6 @@ var TableNameTemplate = `
 // TableName returns the table name for {{DepunctWithInitialUpper .Title}}
 {{$title := Pointerize .Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Title}}) TableName() string {
-    return "{{DepunctWithInitialLower .Title}}"
+    return "{{ToLower .Title}}"
 }
 `

@@ -99,9 +99,11 @@ const JSON1 = `
     },
     "Profile": {
       "type": "object",
-      "additionalProperties": true,
       "title": "Profile",
       "description": "Profile represents a registered Account's Public Info",
+      "generators": [
+        "sql-definition"
+      ],
       "properties": {
         "Id": {
           "description": "The unique identifier for a Account's Profile",
