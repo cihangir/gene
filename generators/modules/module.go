@@ -18,6 +18,7 @@ import (
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
+	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/writers"
@@ -38,11 +39,13 @@ func init() {
 	generators = []Generator{
 		statements.New(),
 		models.New(),
+		rows.New(),
 		gerr.New(),
 		mainfile.New(),
 		clients.New(),
 		tests.New(),
 		functions.New(),
+		definitions.New(),
 		// js.New(),
 	}
 }
@@ -143,9 +146,16 @@ func (m *Module) Create() error {
 		}
 
 		for _, file := range mgen {
-			if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
-				return err
+			if file.DoNotFormat {
+				if err := writers.Write(file.Path, file.Content); err != nil {
+					return err
+				}
+			} else {
+				if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
+					return err
+				}
 			}
+
 		}
 	}
 
