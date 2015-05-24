@@ -20,9 +20,11 @@ func DefineSchema(settings schema.Generator, s *schema.Schema) (res string) {
 	data := struct {
 		Schema     *schema.Schema
 		SchemaName string // postgres schema name
+		RoleName   string
 	}{
 		Schema:     s,
 		SchemaName: settings.Get("schemaName").(string),
+		RoleName:   settings.Get("roleName").(string),
 	}
 	if err := temp.ExecuteTemplate(&buf, "create_schema.tmpl", data); err != nil {
 		panic(err)
@@ -36,5 +38,12 @@ var SchemaTemplate = `
 -- ----------------------------
 --  Schema structure for {{.SchemaName}}
 -- ----------------------------
+-- create schema
 CREATE SCHEMA IF NOT EXISTS "{{.SchemaName}}"
+
+-- give usage permission
+GRANT usage ON SCHEMA "{{.SchemaName}}" to "{{.RoleName}}";
+
+-- add new schema to search path -just for convenience
+SELECT set_config('search_path', current_setting('search_path') || ',{{.SchemaName}}', false);
 `

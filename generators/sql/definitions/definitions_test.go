@@ -41,7 +41,12 @@ const expected = `
 -- ----------------------------
 --  Schema structure for account
 -- ----------------------------
+-- create schema
 CREATE SCHEMA IF NOT EXISTS "account"
+-- give usage permission
+GRANT usage ON SCHEMA "account" to "social";
+-- add new schema to search path -just for convenience
+SELECT set_config('search_path', current_setting('search_path') || ',account', false);
 -- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
