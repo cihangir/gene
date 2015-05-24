@@ -75,6 +75,7 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 
 func GenerateDefinitions(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	common.TemplateFuncs["DefineSQLTable"] = DefineTable
+	common.TemplateFuncs["DefineSQLSchema"] = DefineSchema
 	common.TemplateFuncs["DefineSQLSequnce"] = DefineSequence
 
 	temp := template.New("create_statement.tmpl").Funcs(common.TemplateFuncs)
@@ -116,6 +117,7 @@ func clean(b []byte) []byte {
 
 // CreateStatementTemplate holds the template for the create sql statement generator
 var CreateStatementTemplate = `
+{{DefineSQLSchema .Settings .Schema}}
 {{DefineSQLSequnce .Settings .Schema}}
 {{DefineSQLTable .Settings .Schema}}
 `
