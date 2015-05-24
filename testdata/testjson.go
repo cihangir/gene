@@ -102,7 +102,11 @@ const JSON1 = `
       "title": "Profile",
       "description": "Profile represents a registered Account's Public Info",
       "generators": [
-        "sql-definition"
+          {
+              "sql-definition": {
+                  "roleName": "social"
+              }
+          }
       ],
       "properties": {
         "Id": {
