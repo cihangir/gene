@@ -30,7 +30,7 @@ func DefineSchema(settings schema.Generator, s *schema.Schema) (res string) {
 		panic(err)
 	}
 
-	return string(buf.Bytes())
+	return string(clean(buf.Bytes()))
 }
 
 //  SchemaTemplate holds the template for sequences
@@ -45,5 +45,4 @@ CREATE SCHEMA IF NOT EXISTS "{{.SchemaName}}";
 GRANT usage ON SCHEMA "{{.SchemaName}}" to "{{.RoleName}}";
 
 -- add new schema to search path -just for convenience
--- SELECT set_config('search_path', current_setting('search_path') || ',{{.SchemaName}}', false);
-`
+-- SELECT set_config('search_path', current_setting('search_path') || ',{{.SchemaName}}', false);`

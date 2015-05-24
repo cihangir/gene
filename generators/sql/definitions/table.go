@@ -40,7 +40,7 @@ func DefineTable(settings schema.Generator, s *schema.Schema) (res string) {
 		panic(err)
 	}
 
-	return string(buf.Bytes())
+	return string(clean(buf.Bytes()))
 }
 
 // TableTemplate holds the template for sequences
@@ -56,7 +56,6 @@ CREATE TABLE "{{.SchemaName}}"."{{.TableName}}" (
     {{GenerateSQLField $settings $value $key}}
 {{end}}
 ) WITH (OIDS = FALSE);-- end schema creation
-
 GRANT {{Join $settings.grants ", "}} ON "{{.SchemaName}}"."{{.TableName}}" TO "{{$settings.roleName}}";
 `
 

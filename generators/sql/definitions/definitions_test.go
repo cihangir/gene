@@ -47,22 +47,30 @@ CREATE SCHEMA IF NOT EXISTS "account";
 GRANT usage ON SCHEMA "account" to "social";
 -- add new schema to search path -just for convenience
 -- SELECT set_config('search_path', current_setting('search_path') || ',account', false);
+
+
 -- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;
 CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
+
+
 -- ----------------------------
 --  Required extensions
 -- ----------------------------
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
 -- ----------------------------
 --  Types structure for account.profile.enum_bare
 -- ----------------------------
 DROP TYPE IF EXISTS "account"."profile_enum_bare_enum" CASCADE;
 CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
-  'enum1', 'enum2', 'enum3'
+  'enum1',
+  'enum2',
+  'enum3'
 );
 -- ----------------------------
 --  Table structure for account.profile
@@ -171,4 +179,5 @@ CREATE TABLE "account"."profile" (
     "string_with_pattern" TEXT COLLATE "default"
         CONSTRAINT "check_profile_string_with_pattern_pattern" CHECK ("string_with_pattern" ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
 ) WITH (OIDS = FALSE);-- end schema creation
-GRANT SELECT, UPDATE ON "account"."profile" TO "social";`
+GRANT SELECT, UPDATE ON "account"."profile" TO "social";
+`

@@ -32,13 +32,14 @@ func DefineTypes(settings schema.Generator, s *schema.Schema) (res string) {
 		panic(err)
 	}
 
-	return string(buf.Bytes())
+	return string(clean(buf.Bytes()))
 }
 
 // TypeTemplate holds the template for types
 var TypeTemplate = `
 {{$schemaName := .SchemaName}}
 {{$tableName := .TableName}}
+{{$roleName := .RoleName}}
 
 {{range $key, $value := .Schema.Properties}}
 {{if len $value.Enum}}
@@ -47,9 +48,8 @@ var TypeTemplate = `
 -- ----------------------------
 DROP TYPE IF EXISTS "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" CASCADE;
 CREATE TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" AS ENUM (
-  '{{Join $value.Enum "', '"}}'
+  '{{Join $value.Enum "',\n  '"}}'
 );
 {{end}}
 {{end}}
-
 `
