@@ -45,5 +45,5 @@ CREATE SCHEMA IF NOT EXISTS "{{.SchemaName}}";
 GRANT usage ON SCHEMA "{{.SchemaName}}" to "{{.RoleName}}";
 
 -- add new schema to search path -just for convenience
-SELECT set_config('search_path', current_setting('search_path') || ',{{.SchemaName}}', false);
+-- SELECT set_config('search_path', current_setting('search_path') || ',{{.SchemaName}}', false);
 `

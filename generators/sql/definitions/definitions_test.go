@@ -46,11 +46,11 @@ CREATE SCHEMA IF NOT EXISTS "account";
 -- give usage permission
 GRANT usage ON SCHEMA "account" to "social";
 -- add new schema to search path -just for convenience
-SELECT set_config('search_path', current_setting('search_path') || ',account', false);
+-- SELECT set_config('search_path', current_setting('search_path') || ',account', false);
 -- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "account"."profile_id_seq";
+DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;
 CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
 -- ----------------------------
@@ -60,6 +60,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ----------------------------
 --  Types structure for account.profile.enum_bare
 -- ----------------------------
+DROP TYPE IF EXISTS "account"."profile_enum_bare_enum" CASCADE;
 CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
   'enum1', 'enum2', 'enum3'
 );

@@ -45,6 +45,7 @@ var TypeTemplate = `
 -- ----------------------------
 --  Types structure for {{$schemaName}}.{{$tableName}}.{{ToFieldName $value.Title}}
 -- ----------------------------
+DROP TYPE IF EXISTS "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" CASCADE;
 CREATE TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" AS ENUM (
   '{{Join $value.Enum "', '"}}'
 );
