@@ -39,7 +39,7 @@ var SchemaTemplate = `
 --  Schema structure for {{.SchemaName}}
 -- ----------------------------
 -- create schema
-CREATE SCHEMA IF NOT EXISTS "{{.SchemaName}}"
+CREATE SCHEMA IF NOT EXISTS "{{.SchemaName}}";
 
 -- give usage permission
 GRANT usage ON SCHEMA "{{.SchemaName}}" to "{{.RoleName}}";
