@@ -38,20 +38,29 @@ func equals(tb testing.TB, exp, act interface{}) {
 }
 
 const expected = `
-DROP TABLE IF EXISTS "api"."profile";
-CREATE TABLE "api"."profile" (
-    "boolean_bare" BOOLEAN ,
+-- ----------------------------
+--  Sequence structure for account.profile_id
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "account"."profile_id_seq";
+CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
+GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
+-- ----------------------------
+--  Table structure for account.profile
+-- ----------------------------
+DROP TABLE IF EXISTS "account"."profile";
+CREATE TABLE "account"."profile" (
+    "boolean_bare" BOOLEAN,
     "boolean_with_default" BOOLEAN DEFAULT TRUE,
-    "boolean_with_max_length" BOOLEAN ,
-    "boolean_with_min_length" BOOLEAN ,
-    "enum_bare" "profile_enum_bare_enum" ,
-    "id" BIGINT
+    "boolean_with_max_length" BOOLEAN,
+    "boolean_with_min_length" BOOLEAN,
+    "enum_bare" "profile_enum_bare_enum",
+    "id" BIGINT DEFAULT nextval('account.profile_id_seq' :: regclass)
         CONSTRAINT "check_profile_id_gte_0" CHECK ("id" >= 0.000000),
-    "number_bare" NUMERIC ,
-    "number_with_exclusive_maximum_without_maximum" NUMERIC ,
+    "number_bare" NUMERIC,
+    "number_with_exclusive_maximum_without_maximum" NUMERIC,
     "number_with_exclusive_minimum" NUMERIC
         CONSTRAINT "check_profile_number_with_exclusive_minimum_gte_0" CHECK ("number_with_exclusive_minimum" >= 0.000000),
-    "number_with_exclusive_minimum_without_minimum" NUMERIC ,
+    "number_with_exclusive_minimum_without_minimum" NUMERIC,
     "number_with_maximum" NUMERIC
         CONSTRAINT "check_profile_number_with_maximum_lte_1023" CHECK ("number_with_maximum" <= 1023.000000),
     "number_with_maximum_as_float32" NUMERIC
@@ -128,15 +137,15 @@ CREATE TABLE "api"."profile" (
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int64_multiple_of_64" CHECK (("number_with_multiple_of_formatted_as_u_int64" % 64.000000) = 0),
     "number_with_multiple_of_formatted_as_u_int8" SMALLINT
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int8_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_u_int8" % 2.000000) = 0),
-    "string_bare" TEXT COLLATE "default" ,
-    "string_date_formatted" TIMESTAMP (6) WITH TIME ZONE ,
+    "string_bare" TEXT COLLATE "default",
+    "string_date_formatted" TIMESTAMP (6) WITH TIME ZONE,
     "string_date_formatted_with_default" TIMESTAMP (6) WITH TIME ZONE DEFAULT now(),
-    "string_uuid_formatted" UUID ,
+    "string_uuid_formatted" UUID,
     "string_uuid_formatted_with_default" UUID DEFAULT uuid_generate_v1(),
     "string_with_default" TEXT COLLATE "default" DEFAULT 'THISISMYDEFAULTVALUE',
     "string_with_max_and_min_length" VARCHAR (24) COLLATE "default"
         CONSTRAINT "check_profile_string_with_max_and_min_length_min_length_4" CHECK (char_length("string_with_max_and_min_length") > 4 ),
-    "string_with_max_length" VARCHAR (24) COLLATE "default" ,
+    "string_with_max_length" VARCHAR (24) COLLATE "default",
     "string_with_min_length" TEXT COLLATE "default"
         CONSTRAINT "check_profile_string_with_min_length_min_length_24" CHECK (char_length("string_with_min_length") > 24 ),
     "string_with_pattern" TEXT COLLATE "default"
