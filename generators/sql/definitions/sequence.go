@@ -32,7 +32,7 @@ func DefineSequence(settings schema.Generator, s *schema.Schema) (res string) {
 		panic(err)
 	}
 
-	return string(buf.Bytes())
+	return string(clean(buf.Bytes()))
 }
 
 // SequenceTemplate holds the template for sequences
@@ -43,5 +43,4 @@ var SequenceTemplate = `
 DROP SEQUENCE IF EXISTS "{{.SchemaName}}"."{{.TableName}}_id_seq" CASCADE;
 CREATE SEQUENCE "{{.SchemaName}}"."{{.TableName}}_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 GRANT USAGE ON SEQUENCE "{{.SchemaName}}"."{{.TableName}}_id_seq" TO "{{.RoleName}}";
-
 `

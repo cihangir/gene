@@ -98,7 +98,7 @@ func GenerateDefinitions(settings schema.Generator, s *schema.Schema) ([]byte, e
 		return nil, err
 	}
 
-	return clean(buf.Bytes()), nil
+	return buf.Bytes(), nil
 }
 
 func clean(b []byte) []byte {
@@ -118,10 +118,13 @@ func clean(b []byte) []byte {
 }
 
 // CreateStatementTemplate holds the template for the create sql statement generator
-var CreateStatementTemplate = `
-{{DefineSQLSchema .Settings .Schema}}
+var CreateStatementTemplate = `{{DefineSQLSchema .Settings .Schema}}
+
 {{DefineSQLSequnce .Settings .Schema}}
+
 {{DefineSQLExtensions .Settings .Schema}}
+
 {{DefineSQLTypes .Settings .Schema}}
+
 {{DefineSQLTable .Settings .Schema}}
 `
