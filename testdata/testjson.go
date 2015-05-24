@@ -104,7 +104,8 @@ const JSON1 = `
       "generators": [
           {
               "sql-definition": {
-                  "roleName": "social"
+                  "roleName": "social",
+                  "grants": [ "SELECT", "INSERT", "UPDATE" ]
               }
           }
       ],

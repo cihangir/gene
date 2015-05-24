@@ -62,7 +62,8 @@ var TestDataFull = `{
             "generators": [
                 {
                     "sql-definition": {
-                        "roleName": "social"
+                        "roleName": "social",
+                        "grants":[ "SELECT", "UPDATE" ]
                     }
                 }
             ],
