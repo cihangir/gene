@@ -40,7 +40,7 @@ var SequenceTemplate = `
 -- ----------------------------
 --  Sequence structure for {{.SchemaName}}.{{.TableName}}_id
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "{{.SchemaName}}"."{{.TableName}}_id_seq";
+DROP SEQUENCE IF EXISTS "{{.SchemaName}}"."{{.TableName}}_id_seq" CASCADE;
 CREATE SEQUENCE "{{.SchemaName}}"."{{.TableName}}_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 GRANT USAGE ON SEQUENCE "{{.SchemaName}}"."{{.TableName}}_id_seq" TO "{{.RoleName}}";
 
