@@ -150,4 +150,5 @@ CREATE TABLE "account"."profile" (
         CONSTRAINT "check_profile_string_with_min_length_min_length_24" CHECK (char_length("string_with_min_length") > 24 ),
     "string_with_pattern" TEXT COLLATE "default"
         CONSTRAINT "check_profile_string_with_pattern_pattern" CHECK ("string_with_pattern" ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
-) WITH (OIDS = FALSE);-- end schema creation`
+) WITH (OIDS = FALSE);-- end schema creation
+GRANT SELECT, UPDATE ON "account"."profile" TO "social";`

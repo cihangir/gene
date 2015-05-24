@@ -14,6 +14,7 @@ var TemplateFuncs = template.FuncMap{
 	"Pointerize":              stringext.Pointerize,
 	"ToLower":                 strings.ToLower,
 	"ToUpper":                 strings.ToUpper,
+	"Join":                    strings.Join,
 	"ToLowerFirst":            stringext.ToLowerFirst,
 	"ToUpperFirst":            stringext.ToUpperFirst,
 	"AsComment":               stringext.AsComment,
