@@ -42,7 +42,7 @@ const expected = `
 --  Schema structure for account
 -- ----------------------------
 -- create schema
-CREATE SCHEMA IF NOT EXISTS "account"
+CREATE SCHEMA IF NOT EXISTS "account";
 -- give usage permission
 GRANT usage ON SCHEMA "account" to "social";
 -- add new schema to search path -just for convenience
@@ -53,6 +53,10 @@ SELECT set_config('search_path', current_setting('search_path') || ',account', f
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq";
 CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
+-- ----------------------------
+--  Required extensions
+-- ----------------------------
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ----------------------------
 --  Types structure for account.profile.enum_bare
 -- ----------------------------
