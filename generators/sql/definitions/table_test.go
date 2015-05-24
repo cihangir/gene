@@ -2,20 +2,16 @@ package definitions
 
 import (
 	"encoding/json"
-	"fmt"
-	"path/filepath"
-	"reflect"
-	"runtime"
 
 	"testing"
 
-	"github.com/aryann/difflib"
 	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
+	"github.com/cihangir/stringext"
 )
 
-func TestDefinitions(t *testing.T) {
+func TestTable(t *testing.T) {
 	s := &schema.Schema{}
 	if err := json.Unmarshal([]byte(testdata.TestDataFull), s); err != nil {
 		t.Fatal(err.Error())
@@ -23,66 +19,43 @@ func TestDefinitions(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	sts, err := New().Generate(config.NewContext(), s)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-	for _, s := range sts {
-		equals(t, expected, string(s.Content))
-	}
-}
+	context := config.NewContext()
+	moduleName := context.ModuleNameFunc(s.Title)
 
-func equals(tb testing.TB, exp, act string) {
-	if !reflect.DeepEqual(exp, act) {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("\033[31m%s:%d:\n\n\texp: %#v\n\n\tgot: %#v\033[39m\n\n", filepath.Base(file), line, exp, act)
-		diff := difflib.Diff([]string{exp}, []string{act})
-		fmt.Println("diff-->")
-		for _, d := range diff {
-			fmt.Printf("%#v\n", d.String())
+	index := 0
+	for _, def := range s.Definitions {
+
+		// schema should have our generator
+		if !def.Generators.Has(generatorName) {
+			continue
 		}
-		tb.Fail()
+
+		settings, _ := def.Generators.Get(generatorName)
+		settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
+		settings.SetNX("tableName", stringext.ToFieldName(def.Title))
+		settings.SetNX("roleName", stringext.ToFieldName(moduleName))
+		// convert []interface to []string
+		grants := settings.GetWithDefault("grants", []string{"ALL"})
+		grantsI, ok := grants.([]interface{})
+		grantsS := make([]string, 0)
+
+		if ok {
+			for _, t := range grantsI {
+				grantsS = append(grantsS, t.(string))
+			}
+		} else {
+			grantsS = grants.([]string)
+		}
+
+		settings.Set("grants", grantsS)
+		sts := DefineTable(settings, def)
+		equals(t, expectedTables[index], sts)
+		index++
 	}
 }
 
-const expected = `
--- ----------------------------
---  Schema structure for account
--- ----------------------------
--- create schema
-CREATE SCHEMA IF NOT EXISTS "account";
--- give usage permission
-GRANT usage ON SCHEMA "account" to "social";
--- add new schema to search path -just for convenience
--- SELECT set_config('search_path', current_setting('search_path') || ',account', false);
-
-
--- ----------------------------
---  Sequence structure for account.profile_id
--- ----------------------------
-DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;
-CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
-GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
-
-
--- ----------------------------
---  Required extensions
--- ----------------------------
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-
--- ----------------------------
---  Types structure for account.profile.enum_bare
--- ----------------------------
-DROP TYPE IF EXISTS "account"."profile_enum_bare_enum" CASCADE;
-CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
-  'enum1',
-  'enum2',
-  'enum3'
-);
-ALTER TYPE "account"."profile_enum_bare_enum" OWNER TO "social";
-
-
+var expectedTables = []string{
+	`
 -- ----------------------------
 --  Table structure for account.profile
 -- ----------------------------
@@ -190,5 +163,5 @@ CREATE TABLE "account"."profile" (
     "string_with_pattern" TEXT COLLATE "default"
         CONSTRAINT "check_profile_string_with_pattern_pattern" CHECK ("string_with_pattern" ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
 ) WITH (OIDS = FALSE);-- end schema creation
-GRANT SELECT, UPDATE ON "account"."profile" TO "social";
-`
+GRANT SELECT, UPDATE ON "account"."profile" TO "social";`,
+}

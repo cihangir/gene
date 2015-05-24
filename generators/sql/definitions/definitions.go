@@ -12,6 +12,8 @@ import (
 	"github.com/cihangir/stringext"
 )
 
+const generatorName = "sql-definition"
+
 type generator struct{}
 
 func New() *generator {
@@ -21,7 +23,7 @@ func New() *generator {
 var PathForStatements = "%smodels/%s_statements.go.sql"
 
 func (g *generator) Name() string {
-	return "sql-definition"
+	return generatorName
 }
 
 // Generate generates the basic CRUD statements for the models
