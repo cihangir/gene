@@ -54,6 +54,12 @@ DROP SEQUENCE IF EXISTS "account"."profile_id_seq";
 CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
 -- ----------------------------
+--  Types structure for account.profile.enum_bare
+-- ----------------------------
+CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
+  'enum1', 'enum2', 'enum3'
+);
+-- ----------------------------
 --  Table structure for account.profile
 -- ----------------------------
 DROP TABLE IF EXISTS "account"."profile";
