@@ -50,6 +50,7 @@ DROP TYPE IF EXISTS "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title
 CREATE TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" AS ENUM (
   '{{Join $value.Enum "',\n  '"}}'
 );
+ALTER TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" OWNER TO "{{$roleName}}";
 {{end}}
 {{end}}
 `

@@ -72,6 +72,9 @@ CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
   'enum2',
   'enum3'
 );
+ALTER TYPE "account"."profile_enum_bare_enum" OWNER TO "social";
+
+
 -- ----------------------------
 --  Table structure for account.profile
 -- ----------------------------
