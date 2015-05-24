@@ -69,8 +69,6 @@ var PathForModels = "%smodels/%s.go"
 
 // GenerateModel generates the model itself
 func GenerateModel(s *schema.Schema) ([]byte, error) {
-	var buf bytes.Buffer
-
 	packageLine, err := GeneratePackage(s)
 	if err != nil {
 		return nil, err
@@ -96,6 +94,7 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	var buf bytes.Buffer
 	buf.Write(packageLine)
 	buf.Write(consts)
 	buf.Write(schema)
@@ -130,7 +129,6 @@ func GeneratePackage(s *schema.Schema) ([]byte, error) {
 
 // GenerateSchema generates the schema.
 func GenerateSchema(s *schema.Schema) ([]byte, error) {
-
 	temp := template.New("schema.tmpl")
 	temp.Funcs(schema.Helpers)
 
@@ -159,7 +157,6 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 
 // GenerateFunctions generates the functions according to the schema.
 func GenerateFunctions(s *schema.Schema) ([]byte, error) {
-
 	temp := template.New("functions.tmpl")
 	temp.Funcs(template.FuncMap{
 		"Pointerize": stringext.Pointerize,

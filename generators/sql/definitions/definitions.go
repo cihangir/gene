@@ -34,11 +34,15 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 	for _, def := range schema.Definitions {
 
 		// schema should have our generator
-		if !common.IsIn(g.Name(), def.Generators...) {
+		if !def.Generators.Has(g.Name()) {
 			continue
 		}
 
-		f, err := GenerateDefinitions(def)
+		settings, _ := def.Generators.Get(g.Name())
+		settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
+		settings.SetNX("roleName", stringext.ToFieldName(moduleName))
+
+		f, err := GenerateDefinitions(settings, def)
 		if err != nil {
 			return outputs, err
 		}
@@ -55,7 +59,7 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 	return outputs, nil
 }
 
-func GenerateDefinitions(s *schema.Schema) ([]byte, error) {
+func GenerateDefinitions(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	common.TemplateFuncs["DefineSQLField"] = Define
 
 	temp := template.New("create_statement.tmpl").Funcs(common.TemplateFuncs)
@@ -65,41 +69,69 @@ func GenerateDefinitions(s *schema.Schema) ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "create_statement.tmpl", s); err != nil {
+	data := struct {
+		Schema     *schema.Schema
+		SchemaName string // postgres schema name
+		RoleName   string // postgres role name
+	}{
+		Schema:     s,
+		SchemaName: settings.Get("schemaName"),
+		RoleName:   settings.Get("roleName"),
+	}
+	if err := temp.ExecuteTemplate(&buf, "create_statement.tmpl", data); err != nil {
 		return nil, err
 	}
 
-	b := writers.NewLinesRegex.ReplaceAll(buf.Bytes(), []byte(""))
+	return clean(buf.Bytes()), nil
+}
+
+func clean(b []byte) []byte {
+	b = writers.NewLinesRegex.ReplaceAll(b, []byte(""))
 
 	// convert tabs to 4 spaces
 	b = bytes.Replace(b, []byte("\t"), []byte("    "), -1)
 
+	// clean extra spaces
+	b = bytes.Replace(b, []byte("  ,"), []byte(","), -1)
+	b = bytes.Replace(b, []byte(" ,"), []byte(","), -1)
+
 	// replace last trailing comma
-	b = bytes.Replace(b, []byte(" ,"), []byte(","), -1)
-	b = bytes.Replace(b, []byte(" ,"), []byte(","), -1)
 	b = bytes.Replace(b, []byte(",\n)"), []byte("\n)"), -1)
 
-	return b, nil
+	return b
 }
 
 // CreateStatementTemplate holds the template for the create sql statement generator
 var CreateStatementTemplate = `
-{{$title := ToFieldName .Title}}
-{{$schema := .}}
-DROP TABLE IF EXISTS "api"."{{$title}}";
-CREATE TABLE "api"."{{$title}}" (
-{{range $key, $value := .Properties}}
-    {{DefineSQLField $title $key $schema}}
+{{$schemaName := ToFieldName .SchemaName}}
+{{$title := ToFieldName .Schema.Title}}
+{{$schema := .Schema}}
+
+
+-- ----------------------------
+--  Sequence structure for {{$schemaName}}.{{$title}}_id
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "{{$schemaName}}"."{{$title}}_id_seq";
+CREATE SEQUENCE "{{$schemaName}}"."{{$title}}_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
+GRANT USAGE ON SEQUENCE "{{$schemaName}}"."{{$title}}_id_seq" TO "{{.RoleName}}";
+
+-- ----------------------------
+--  Table structure for {{$schemaName}}.{{$title}}
+-- ----------------------------
+DROP TABLE IF EXISTS "{{$schemaName}}"."{{$title}}";
+CREATE TABLE "{{$schemaName}}"."{{$title}}" (
+{{range $key, $value := .Schema.Properties}}
+    {{DefineSQLField $schemaName $title $key $schema}}
 {{end}}
 ) WITH (OIDS = FALSE);-- end schema creation
 `
 
 // Define creates a definition line for a given coloumn
-func Define(tableName string, name string, s *schema.Schema) (res string) {
+func Define(schemaName string, tableName string, propertyName string, s *schema.Schema) (res string) {
 
-	property := s.Properties[name]
+	property := s.Properties[propertyName]
 
-	fieldName := stringext.ToFieldName(name) // transpiled version of property
+	fieldName := stringext.ToFieldName(propertyName) // transpiled version of property
 
 	fieldType := "" // will hold the type for coloumn
 
@@ -156,24 +188,28 @@ func Define(tableName string, name string, s *schema.Schema) (res string) {
 		fieldType = fmt.Sprintf(
 			"\"%s_%s_enum\"",
 			stringext.ToFieldName(tableName),
-			stringext.ToFieldName(name),
+			stringext.ToFieldName(propertyName),
 		)
 	}
 
 	res = fmt.Sprintf(
 		"%q %s %s %s %s,",
-		fieldName,                                               // first name comes
-		fieldType,                                               // then type of the coloumn
-		generateDefaultValue(property),                          // generate default value if exists
-		generateNotNull(s, name),                                // generate not null statement if requiired
-		generateCheckStatements(tableName, fieldName, property), // generate validators
+		fieldName, // first name comes
+		fieldType, // then type of the coloumn
+		generateDefaultValue(schemaName, fieldName, tableName, property), // generate default value if exists
+		generateNotNull(s, propertyName),                                 // generate not null statement if requiired
+		generateCheckStatements(tableName, fieldName, property),          // generate validators
 	)
 
 	return res
 }
 
 // generateDefaultValue generates `default` string for given coloumn
-func generateDefaultValue(s *schema.Schema) string {
+func generateDefaultValue(schemaName string, propertyName, tableName string, s *schema.Schema) string {
+	if propertyName == "id" {
+		return fmt.Sprintf("DEFAULT nextval('%s.%s_id_seq' :: regclass) ", schemaName, tableName)
+	}
+
 	if s.Default == nil {
 		return ""
 	}
@@ -297,5 +333,4 @@ func generateCheckStatements(tableName, fieldName string, property *schema.Schem
 	}
 
 	return chekcs
-
 }

@@ -60,8 +60,6 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 
 // GenerateModelStatements generates the CRUD statements for the model struct
 func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
-	var buf bytes.Buffer
-
 	packageLine, err := GeneratePackage(s)
 	if err != nil {
 		return nil, err
@@ -92,6 +90,7 @@ func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	var buf bytes.Buffer
 	buf.Write(packageLine)
 	buf.Write(createStatements)
 	buf.Write(updateStatements)
