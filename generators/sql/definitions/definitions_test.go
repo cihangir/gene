@@ -39,6 +39,10 @@ func equals(tb testing.TB, exp, act interface{}) {
 
 const expected = `
 -- ----------------------------
+--  Schema structure for account
+-- ----------------------------
+CREATE SCHEMA IF NOT EXISTS "account"
+-- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq";
