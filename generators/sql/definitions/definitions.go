@@ -2,6 +2,7 @@ package definitions
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"text/template"
 
@@ -26,10 +27,68 @@ func (g *generator) Name() string {
 	return generatorName
 }
 
+func (g *generator) generateSettings(moduleName string, s *schema.Schema) schema.Generator {
+	settings, _ := s.Generators.Get(g.Name())
+	settings.SetNX("databaseName", stringext.ToFieldName(moduleName))
+	settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
+	settings.SetNX("tableName", stringext.ToFieldName(s.Title))
+	settings.SetNX("roleName", stringext.ToFieldName(moduleName))
+
+	// convert []interface to []string
+	grants := settings.GetWithDefault("grants", []string{"ALL"})
+	grantsI, ok := grants.([]interface{})
+	grantsS := make([]string, 0)
+
+	if ok {
+		for _, t := range grantsI {
+			grantsS = append(grantsS, t.(string))
+		}
+	} else {
+		grantsS = grants.([]string)
+	}
+
+	settings.Set("grants", grantsS)
+
+	return settings
+}
+
+func (g *generator) setDefaultSettings(defaultSettings schema.Generator, s *schema.Schema) schema.Generator {
+	settings, _ := s.Generators.Get(g.Name())
+
+	settings.SetNX("databaseName", defaultSettings.Get("databaseName").(string))
+	settings.SetNX("schemaName", defaultSettings.Get("schemaName").(string))
+	settings.SetNX("tableName", defaultSettings.Get("tableName").(string))
+	settings.SetNX("roleName", defaultSettings.Get("roleName").(string))
+
+	// convert []interface to []string
+	grants := settings.GetWithDefault("grants", defaultSettings.Get("grants").([]string))
+	grantsI, ok := grants.([]interface{})
+	grantsS := make([]string, 0)
+
+	if ok {
+		for _, t := range grantsI {
+			grantsS = append(grantsS, t.(string))
+		}
+	} else {
+		grantsS = grants.([]string)
+	}
+
+	settings.Set("grants", grantsS)
+
+	return settings
+}
+
 // Generate generates the basic CRUD statements for the models
 func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(schema.Title)
 	outputs := make([]common.Output, 0)
+
+	if schema.Title == "" {
+		return outputs, errors.New("Title should be set")
+	}
+
+	moduleName := context.ModuleNameFunc(schema.Title)
+
+	settings := g.generateSettings(moduleName, schema)
 
 	for _, def := range schema.Definitions {
 
@@ -38,27 +97,10 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 			continue
 		}
 
-		settings, _ := def.Generators.Get(g.Name())
-		settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
-		settings.SetNX("tableName", stringext.ToFieldName(def.Title))
-		settings.SetNX("roleName", stringext.ToFieldName(moduleName))
+		settingsDef := g.setDefaultSettings(settings, def)
+		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		// convert []interface to []string
-		grants := settings.GetWithDefault("grants", []string{"ALL"})
-		grantsI, ok := grants.([]interface{})
-		grantsS := make([]string, 0)
-
-		if ok {
-			for _, t := range grantsI {
-				grantsS = append(grantsS, t.(string))
-			}
-		} else {
-			grantsS = grants.([]string)
-		}
-
-		settings.Set("grants", grantsS)
-
-		f, err := GenerateDefinitions(settings, def)
+		f, err := GenerateDefinitions(settingsDef, def)
 		if err != nil {
 			return outputs, err
 		}
@@ -74,7 +116,6 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 
 	return outputs, nil
 }
-
 func GenerateDefinitions(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	common.TemplateFuncs["DefineSQLTable"] = DefineTable
 	common.TemplateFuncs["DefineSQLSchema"] = DefineSchema

@@ -18,9 +18,11 @@ func TestTable(t *testing.T) {
 	}
 
 	s = s.Resolve(s)
+	g := New()
 
 	context := config.NewContext()
 	moduleName := context.ModuleNameFunc(s.Title)
+	settings := g.generateSettings(moduleName, s)
 
 	index := 0
 	for _, def := range s.Definitions {
@@ -30,25 +32,10 @@ func TestTable(t *testing.T) {
 			continue
 		}
 
-		settings, _ := def.Generators.Get(generatorName)
-		settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
-		settings.SetNX("tableName", stringext.ToFieldName(def.Title))
-		settings.SetNX("roleName", stringext.ToFieldName(moduleName))
-		// convert []interface to []string
-		grants := settings.GetWithDefault("grants", []string{"ALL"})
-		grantsI, ok := grants.([]interface{})
-		grantsS := make([]string, 0)
+		settingsDef := g.setDefaultSettings(settings, def)
+		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		if ok {
-			for _, t := range grantsI {
-				grantsS = append(grantsS, t.(string))
-			}
-		} else {
-			grantsS = grants.([]string)
-		}
-
-		settings.Set("grants", grantsS)
-		sts := DefineTable(settings, def)
+		sts := DefineTable(settingsDef, def)
 		equals(t, expectedTables[index], sts)
 		index++
 	}
