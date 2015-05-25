@@ -11,7 +11,7 @@ import (
 	"github.com/cihangir/stringext"
 )
 
-func TestExtensions(t *testing.T) {
+func TestRoles(t *testing.T) {
 	s := &schema.Schema{}
 	if err := json.Unmarshal([]byte(testdata.TestDataFull), s); err != nil {
 		t.Fatal(err.Error())
@@ -35,20 +35,20 @@ func TestExtensions(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts, err := DefineExtensions(settingsDef, def)
+		sts, err := DefineRole(settingsDef, def)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		equals(t, expectedExtensions[index], string(sts))
+		equals(t, expectedRoles[index], string(sts))
 		index++
 	}
 }
 
-var expectedExtensions = []string{
+var expectedRoles = []string{
 	`
--- ----------------------------
---  Required extensions
--- ----------------------------
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`, // account.profile
+-- Drop role
+DROP ROLE IF EXISTS "social";
+-- Create role
+CREATE ROLE "social";`,
 }

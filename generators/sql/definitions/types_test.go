@@ -18,9 +18,11 @@ func TestTypes(t *testing.T) {
 	}
 
 	s = s.Resolve(s)
+	g := New()
 
 	context := config.NewContext()
 	moduleName := context.ModuleNameFunc(s.Title)
+	settings := g.generateSettings(moduleName, s)
 
 	index := 0
 	for _, def := range s.Definitions {
@@ -30,13 +32,15 @@ func TestTypes(t *testing.T) {
 			continue
 		}
 
-		settings, _ := def.Generators.Get(generatorName)
-		settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
-		settings.SetNX("tableName", stringext.ToFieldName(def.Title))
-		settings.SetNX("roleName", stringext.ToFieldName(moduleName))
+		settingsDef := g.setDefaultSettings(settings, def)
+		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineTypes(settings, def)
-		equals(t, expectedTypes[index], sts)
+		sts, err := DefineTypes(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedTypes[index], string(sts))
 		index++
 	}
 }

@@ -4,6 +4,7 @@ import "testing"
 
 func TestCreateModuleStructure(t *testing.T) {
 	expected := []string{
+		"db/name/",
 		"cmd/name/",
 
 		"workers/name",

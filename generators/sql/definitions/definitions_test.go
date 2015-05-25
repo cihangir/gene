@@ -16,6 +16,8 @@ import (
 )
 
 func TestDefinitions(t *testing.T) {
+	t.Skip("test in smaller chunks")
+
 	s := &schema.Schema{}
 	if err := json.Unmarshal([]byte(testdata.TestDataFull), s); err != nil {
 		t.Fatal(err.Error())

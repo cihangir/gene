@@ -9,10 +9,10 @@ import (
 )
 
 // DefineSequence creates definition for sequences
-func DefineSequence(settings schema.Generator, s *schema.Schema) (res string) {
+func DefineSequence(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_sequences.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(SequenceTemplate); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var buf bytes.Buffer
@@ -29,10 +29,10 @@ func DefineSequence(settings schema.Generator, s *schema.Schema) (res string) {
 		TableName:  settings.Get("tableName").(string),
 	}
 	if err := temp.ExecuteTemplate(&buf, "create_sequences.tmpl", data); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return string(clean(buf.Bytes()))
+	return clean(buf.Bytes()), nil
 }
 
 // SequenceTemplate holds the template for sequences

@@ -13,12 +13,12 @@ import (
 )
 
 // DefineSequence creates definition for sequences
-func DefineTable(settings schema.Generator, s *schema.Schema) (res string) {
+func DefineTable(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	common.TemplateFuncs["GenerateSQLField"] = GenerateSQLField
 
 	temp := template.New("create_table.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(TableTemplate); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var buf bytes.Buffer
@@ -37,10 +37,10 @@ func DefineTable(settings schema.Generator, s *schema.Schema) (res string) {
 		Settings:   settings,
 	}
 	if err := temp.ExecuteTemplate(&buf, "create_table.tmpl", data); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return string(clean(buf.Bytes()))
+	return clean(buf.Bytes()), nil
 }
 
 // TableTemplate holds the template for sequences
