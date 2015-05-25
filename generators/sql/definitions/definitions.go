@@ -28,7 +28,10 @@ func (g *generator) Name() string {
 }
 
 func (g *generator) generateSettings(moduleName string, s *schema.Schema) schema.Generator {
-	settings, _ := s.Generators.Get(g.Name())
+	settings, ok := s.Generators.Get(g.Name())
+	if !ok {
+		settings = schema.Generator{}
+	}
 	settings.SetNX("databaseName", stringext.ToFieldName(moduleName))
 	settings.SetNX("schemaName", stringext.ToFieldName(moduleName))
 	settings.SetNX("tableName", stringext.ToFieldName(s.Title))
@@ -100,16 +103,87 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		f, err := GenerateDefinitions(settingsDef, def)
+		//
+		// generate database
+		//
+		db, err := DefineDatabase(settingsDef, def)
 		if err != nil {
-			return outputs, err
+			return nil, err
 		}
 
-		path := fmt.Sprintf(PathForStatements, context.Config.Target, moduleName)
+		outputs = append(outputs, common.Output{
+			Content:     db,
+			Path:        fmt.Sprintf("%sdb/001-%s_database.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate roles
+		//
+		role, err := DefineRole(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
 
 		outputs = append(outputs, common.Output{
-			Content:     f,
-			Path:        path,
+			Content:     role,
+			Path:        fmt.Sprintf("%sdb/002-%s_roles.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate extenstions
+		//
+		extenstions, err := DefineExtensions(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content:     extenstions,
+			Path:        fmt.Sprintf("%sdb/003-%s_extensions.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate sequences
+		//
+		sequence, err := DefineSequence(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content:     sequence,
+			Path:        fmt.Sprintf("%sdb/004-%s_sequence.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate types
+		//
+		types, err := DefineTypes(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content:     types,
+			Path:        fmt.Sprintf("%sdb/005-%s_types.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate tables
+		//
+		table, err := DefineTable(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content:     table,
+			Path:        fmt.Sprintf("%sdb/005-%s_table.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
 			DoNotFormat: true,
 		})
 	}
