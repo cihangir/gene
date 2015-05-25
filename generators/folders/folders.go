@@ -31,7 +31,7 @@ func EnsureFolders(root string, folderStucture []string) error {
 			continue
 		}
 
-		if err := os.Mkdir(path, os.ModePerm); err != nil {
+		if err := os.MkdirAll(path, os.ModePerm); err != nil {
 			return err
 		}
 	}
