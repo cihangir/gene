@@ -147,6 +147,11 @@ func (m *Module) Create() error {
 		}
 
 		for _, file := range mgen {
+			// do not write empty files
+			if len(file.Content) == 0 {
+				continue
+			}
+
 			if file.DoNotFormat {
 				if err := writers.Write(file.Path, file.Content); err != nil {
 					return err
@@ -164,7 +169,6 @@ func (m *Module) Create() error {
 }
 
 var moduleFolderStucture = []string{
-	"db/%[1]s/",
 	"cmd/%[1]s/",
 	"workers/%[1]s",
 	"workers/%[1]s/api",

@@ -97,6 +97,19 @@
       "additionalProperties": true,
       "title": "Profile",
       "description": "Profile represents a registered Account's Public Info",
+      "generators": [
+        {
+            "sql-definition": {
+                "roleName": "social",
+                "grants": [
+                    "SELECT",
+                    "UPDATE"
+                ],
+                "databaseName": "mydatabase",
+                "schemaName": "account"
+            }
+        }
+    ],
       "properties": {
         "Id": {
           "description": "The unique identifier for a Account's Profile",

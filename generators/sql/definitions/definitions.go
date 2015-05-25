@@ -8,6 +8,7 @@ import (
 
 	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
+	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
@@ -104,20 +105,6 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
 		//
-		// generate database
-		//
-		db, err := DefineDatabase(settingsDef, def)
-		if err != nil {
-			return nil, err
-		}
-
-		outputs = append(outputs, common.Output{
-			Content:     db,
-			Path:        fmt.Sprintf("%sdb/001-%s_database.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
-			DoNotFormat: true,
-		})
-
-		//
 		// generate roles
 		//
 		role, err := DefineRole(settingsDef, def)
@@ -127,7 +114,21 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 
 		outputs = append(outputs, common.Output{
 			Content:     role,
-			Path:        fmt.Sprintf("%sdb/002-%s_roles.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Path:        fmt.Sprintf("%sdb/001-%s_roles.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate database
+		//
+		db, err := DefineDatabase(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content:     db,
+			Path:        fmt.Sprintf("%sdb/002-%s_database.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
 			DoNotFormat: true,
 		})
 
@@ -153,9 +154,24 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 			return nil, err
 		}
 
+		// create the module folder structure
+		if err := folders.EnsureFolders(
+			context.Config.Target, // root folder
+			[]string{fmt.Sprintf(
+				"db/%s", settingsDef.Get("schemaName").(string),
+			)},
+		); err != nil {
+			return nil, err
+		}
+
 		outputs = append(outputs, common.Output{
-			Content:     sequence,
-			Path:        fmt.Sprintf("%sdb/004-%s_sequence.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: sequence,
+			Path: fmt.Sprintf(
+				"%sdb/%s/004-%s-sequence.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
+			),
 			DoNotFormat: true,
 		})
 
@@ -168,8 +184,13 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		}
 
 		outputs = append(outputs, common.Output{
-			Content:     types,
-			Path:        fmt.Sprintf("%sdb/005-%s_types.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: types,
+			Path: fmt.Sprintf(
+				"%sdb/%s/005-%s-types.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
+			),
 			DoNotFormat: true,
 		})
 
@@ -182,8 +203,13 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		}
 
 		outputs = append(outputs, common.Output{
-			Content:     table,
-			Path:        fmt.Sprintf("%sdb/005-%s_table.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: table,
+			Path: fmt.Sprintf(
+				"%sdb/%s/006-%s-table.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
+			),
 			DoNotFormat: true,
 		})
 	}
