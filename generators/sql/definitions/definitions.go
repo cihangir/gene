@@ -167,9 +167,10 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		outputs = append(outputs, common.Output{
 			Content: sequence,
 			Path: fmt.Sprintf(
-				"%sdb/%s/004-sequence.sql",
+				"%sdb/%s/004-%s-sequence.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
 			),
 			DoNotFormat: true,
 		})
@@ -185,9 +186,10 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		outputs = append(outputs, common.Output{
 			Content: types,
 			Path: fmt.Sprintf(
-				"%sdb/%s/005-types.sql",
+				"%sdb/%s/005-%s-types.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
 			),
 			DoNotFormat: true,
 		})
@@ -203,9 +205,10 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		outputs = append(outputs, common.Output{
 			Content: table,
 			Path: fmt.Sprintf(
-				"%sdb/%s/006-table.sql",
+				"%sdb/%s/006-%s-table.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
 			),
 			DoNotFormat: true,
 		})
