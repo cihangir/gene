@@ -8,6 +8,7 @@ import (
 
 	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
+	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
@@ -153,9 +154,23 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 			return nil, err
 		}
 
+		// create the module folder structure
+		if err := folders.EnsureFolders(
+			context.Config.Target, // root folder
+			[]string{fmt.Sprintf(
+				"db/%s", settingsDef.Get("schemaName").(string),
+			)},
+		); err != nil {
+			return nil, err
+		}
+
 		outputs = append(outputs, common.Output{
-			Content:     sequence,
-			Path:        fmt.Sprintf("%sdb/004-%s_sequence.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: sequence,
+			Path: fmt.Sprintf(
+				"%sdb/%s/004-sequence.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+			),
 			DoNotFormat: true,
 		})
 
@@ -168,8 +183,12 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		}
 
 		outputs = append(outputs, common.Output{
-			Content:     types,
-			Path:        fmt.Sprintf("%sdb/005-%s_types.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: types,
+			Path: fmt.Sprintf(
+				"%sdb/%s/005-types.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+			),
 			DoNotFormat: true,
 		})
 
@@ -182,8 +201,12 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		}
 
 		outputs = append(outputs, common.Output{
-			Content:     table,
-			Path:        fmt.Sprintf("%sdb/005-%s_table.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: table,
+			Path: fmt.Sprintf(
+				"%sdb/%s/006-table.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+			),
 			DoNotFormat: true,
 		})
 	}

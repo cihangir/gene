@@ -164,7 +164,6 @@ func (m *Module) Create() error {
 }
 
 var moduleFolderStucture = []string{
-	"db/%[1]s/",
 	"cmd/%[1]s/",
 	"workers/%[1]s",
 	"workers/%[1]s/api",
