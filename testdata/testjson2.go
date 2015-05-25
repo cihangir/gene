@@ -6,6 +6,15 @@ var TestDataFull = `{
     "additionalProperties": true,
     "title": "Account",
     "description": "Account module handles all the operations regarding Account management.",
+    "generators": [
+        {
+            "sql-definition": {
+                "roleName": "social",
+                "grants":[ "SELECT", "UPDATE" ],
+                "databaseName": "mydatabase"
+            }
+        }
+    ],
     "properties": {},
     "definitions": {
         "Config": {
@@ -62,7 +71,6 @@ var TestDataFull = `{
             "generators": [
                 {
                     "sql-definition": {
-                        "roleName": "social",
                         "grants":[ "SELECT", "UPDATE" ]
                     }
                 }
