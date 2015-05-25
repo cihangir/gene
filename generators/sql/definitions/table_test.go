@@ -35,8 +35,12 @@ func TestTable(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineTable(settingsDef, def)
-		equals(t, expectedTables[index], sts)
+		sts, err := DefineTable(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedTables[index], string(sts))
 		index++
 	}
 }

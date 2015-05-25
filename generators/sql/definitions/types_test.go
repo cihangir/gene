@@ -35,8 +35,12 @@ func TestTypes(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineTypes(settingsDef, def)
-		equals(t, expectedTypes[index], sts)
+		sts, err := DefineTypes(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedTypes[index], string(sts))
 		index++
 	}
 }

@@ -35,8 +35,12 @@ func TestDatabase(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineDatabase(settingsDef, def)
-		equals(t, expectedDatabases[index], sts)
+		sts, err := DefineDatabase(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedDatabases[index], string(sts))
 		index++
 	}
 }

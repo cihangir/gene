@@ -8,11 +8,11 @@ import (
 	"github.com/cihangir/schema"
 )
 
-// DefineRoles creates definition for types
-func DefineRoles(settings schema.Generator, s *schema.Schema) (res string) {
+// DefineRole creates definition for types
+func DefineRole(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_role.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(RoleTemplate); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var buf bytes.Buffer
@@ -31,10 +31,10 @@ func DefineRoles(settings schema.Generator, s *schema.Schema) (res string) {
 		TableName:    settings.Get("tableName").(string),
 	}
 	if err := temp.ExecuteTemplate(&buf, "create_role.tmpl", data); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return string(clean(buf.Bytes()))
+	return clean(buf.Bytes()), nil
 }
 
 // RoleTemplate holds the template for types

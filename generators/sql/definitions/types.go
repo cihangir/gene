@@ -9,10 +9,10 @@ import (
 )
 
 // DefineTypes creates definition for types
-func DefineTypes(settings schema.Generator, s *schema.Schema) (res string) {
+func DefineTypes(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_types.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(TypeTemplate); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var buf bytes.Buffer
@@ -29,10 +29,10 @@ func DefineTypes(settings schema.Generator, s *schema.Schema) (res string) {
 		TableName:  settings.Get("tableName").(string),
 	}
 	if err := temp.ExecuteTemplate(&buf, "create_types.tmpl", data); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return string(clean(buf.Bytes()))
+	return clean(buf.Bytes()), nil
 }
 
 // TypeTemplate holds the template for types

@@ -35,8 +35,12 @@ func TestExtensions(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineExtensions(settingsDef, def)
-		equals(t, expectedExtensions[index], sts)
+		sts, err := DefineExtensions(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedExtensions[index], string(sts))
 		index++
 	}
 }

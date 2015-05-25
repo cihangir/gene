@@ -9,10 +9,10 @@ import (
 )
 
 // DefineDatabase creates definition for types
-func DefineDatabase(settings schema.Generator, s *schema.Schema) (res string) {
+func DefineDatabase(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_database.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(DatabaseTemplate); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var buf bytes.Buffer
@@ -30,11 +30,12 @@ func DefineDatabase(settings schema.Generator, s *schema.Schema) (res string) {
 		RoleName:     settings.Get("roleName").(string),
 		TableName:    settings.Get("tableName").(string),
 	}
+
 	if err := temp.ExecuteTemplate(&buf, "create_database.tmpl", data); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return string(clean(buf.Bytes()))
+	return clean(buf.Bytes()), nil
 }
 
 //  DatabaseTemplate holds the template for types

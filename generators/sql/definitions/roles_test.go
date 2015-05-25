@@ -35,8 +35,12 @@ func TestRoles(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineRoles(settingsDef, def)
-		equals(t, expectedRoles[index], sts)
+		sts, err := DefineRole(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedRoles[index], string(sts))
 		index++
 	}
 }

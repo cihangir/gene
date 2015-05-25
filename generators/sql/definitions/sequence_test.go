@@ -35,8 +35,12 @@ func TestSequence(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts := DefineSequence(settingsDef, def)
-		equals(t, expectedSequences[index], sts)
+		sts, err := DefineSequence(settingsDef, def)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+
+		equals(t, expectedSequences[index], string(sts))
 		index++
 	}
 }

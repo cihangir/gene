@@ -8,7 +8,7 @@ import (
 )
 
 // DefineExtensions creates definition for extensions
-func DefineExtensions(settings schema.Generator, s *schema.Schema) (res string) {
+func DefineExtensions(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	exts := make([]string, 0)
 
 	for _, val := range s.Properties {
@@ -23,6 +23,7 @@ func DefineExtensions(settings schema.Generator, s *schema.Schema) (res string) 
 		}
 	}
 
+	res := ""
 	if len(exts) > 0 {
 		res = `
 -- ----------------------------
@@ -31,5 +32,5 @@ func DefineExtensions(settings schema.Generator, s *schema.Schema) (res string) 
 ` + strings.Join(exts, "\n")
 	}
 
-	return res
+	return []byte(res), nil
 }
