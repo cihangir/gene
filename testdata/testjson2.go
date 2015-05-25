@@ -10,7 +10,10 @@ var TestDataFull = `{
         {
             "sql-definition": {
                 "roleName": "social",
-                "grants":[ "SELECT", "UPDATE" ],
+                "grants": [
+                    "SELECT",
+                    "UPDATE"
+                ],
                 "databaseName": "mydatabase"
             }
         }
@@ -71,7 +74,10 @@ var TestDataFull = `{
             "generators": [
                 {
                     "sql-definition": {
-                        "grants":[ "SELECT", "UPDATE" ]
+                        "grants": [
+                            "SELECT",
+                            "UPDATE"
+                        ]
                     }
                 }
             ],
