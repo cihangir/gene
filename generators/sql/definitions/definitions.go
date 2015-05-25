@@ -105,20 +105,6 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
 		//
-		// generate database
-		//
-		db, err := DefineDatabase(settingsDef, def)
-		if err != nil {
-			return nil, err
-		}
-
-		outputs = append(outputs, common.Output{
-			Content:     db,
-			Path:        fmt.Sprintf("%sdb/001-%s_database.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
-			DoNotFormat: true,
-		})
-
-		//
 		// generate roles
 		//
 		role, err := DefineRole(settingsDef, def)
@@ -128,7 +114,21 @@ func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]
 
 		outputs = append(outputs, common.Output{
 			Content:     role,
-			Path:        fmt.Sprintf("%sdb/002-%s_roles.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Path:        fmt.Sprintf("%sdb/001-%s_roles.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate database
+		//
+		db, err := DefineDatabase(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content:     db,
+			Path:        fmt.Sprintf("%sdb/002-%s_database.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
 			DoNotFormat: true,
 		})
 
