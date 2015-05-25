@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/fatih/invoker/workers/account/api"
+	"github.com/cihangir/gene/example/twitter/workers/account/api"
 	"github.com/youtube/vitess/go/rpcplus"
 	"github.com/youtube/vitess/go/rpcplus/jsonrpc"
 	"github.com/youtube/vitess/go/rpcwrap"

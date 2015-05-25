@@ -181,23 +181,6 @@
               "$ref": "#/definitions/Account"
             }
           }
-        },
-        "Some": {
-          "type": "object",
-          "title": "One",
-          "properties": {
-            "incoming": {
-              "$ref": "#/definitions/Account"
-            },
-            "outgoing": {
-              "type": "array",
-              "items": [
-                {
-                  "$ref": "#/definitions/Account"
-                }
-              ]
-            }
-          }
         }
       }
     },
@@ -341,23 +324,6 @@
             },
             "outgoing": {
               "$ref": "#/definitions/Account"
-            }
-          }
-        },
-        "Some": {
-          "type": "object",
-          "title": "One",
-          "properties": {
-            "incoming": {
-              "$ref": "#/definitions/Account"
-            },
-            "outgoing": {
-              "type": "array",
-              "items": [
-                {
-                  "$ref": "#/definitions/Account"
-                }
-              ]
             }
           }
         }

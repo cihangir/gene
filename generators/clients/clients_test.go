@@ -34,23 +34,23 @@ type Account struct {
 }
 
 func (a *Account) Create(ctx context.Context, req *models.Account, res *models.Account) error {
-	return m.client.Call(ctx, "Account.Create", req, res)
+	return a.client.Call(ctx, "Account.Create", req, res)
 }
 
 func (a *Account) Delete(ctx context.Context, req *models.Account, res *models.Account) error {
-	return m.client.Call(ctx, "Account.Delete", req, res)
+	return a.client.Call(ctx, "Account.Delete", req, res)
 }
 
 func (a *Account) One(ctx context.Context, req *models.Account, res *models.Account) error {
-	return m.client.Call(ctx, "Account.One", req, res)
+	return a.client.Call(ctx, "Account.One", req, res)
 }
 
 func (a *Account) Some(ctx context.Context, req *models.Account, res *[]*models.Account) error {
-	return m.client.Call(ctx, "Account.Some", req, res)
+	return a.client.Call(ctx, "Account.Some", req, res)
 }
 
 func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {
-	return m.client.Call(ctx, "Account.Update", req, res)
+	return a.client.Call(ctx, "Account.Update", req, res)
 }
 `
 

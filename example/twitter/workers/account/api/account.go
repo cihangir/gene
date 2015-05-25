@@ -2,7 +2,7 @@ package accountapi
 
 import (
 	"github.com/cihangir/gene/db"
-	"github.com/fatih/invoker/models"
+	"github.com/cihangir/gene/example/twitter/models"
 	"golang.org/x/net/context"
 )
 
@@ -22,10 +22,6 @@ func (a *Account) Delete(ctx context.Context, req *models.Account, res *models.A
 
 func (a *Account) One(ctx context.Context, req *models.Account, res *models.Account) error {
 	return db.MustGetDB(ctx).One(models.NewAccount(), req, res)
-}
-
-func (a *Account) Some(ctx context.Context, req *models.Account, res *[]*models.Account) error {
-	return db.MustGetDB(ctx).Some(models.NewAccount(), req, res)
 }
 
 func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {

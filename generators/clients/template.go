@@ -27,7 +27,7 @@ type {{ToUpperFirst $title}} struct{
 
 {{range $funcKey, $funcValue := $schema.Functions}}
 func ({{Pointerize $title}} *{{$title}}) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}, res *{{Argumentize $funcValue.Properties.outgoing}}) error {
-    return m.client.Call(ctx, "{{ToUpperFirst $title}}.{{$funcKey}}", req, res)
+    return {{Pointerize $title}}.client.Call(ctx, "{{ToUpperFirst $title}}.{{$funcKey}}", req, res)
 }
 {{end}}
 `
