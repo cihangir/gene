@@ -14,7 +14,8 @@ var TestDataFull = `{
                     "SELECT",
                     "UPDATE"
                 ],
-                "databaseName": "mydatabase"
+                "databaseName": "mydatabase",
+                "schemaName": "account"
             }
         }
     ],

@@ -8,10 +8,10 @@ import (
 	"github.com/cihangir/schema"
 )
 
-// DefineDatabase creates definition for types
-func DefineDatabase(settings schema.Generator, s *schema.Schema) (res string) {
-	temp := template.New("create_database.tmpl").Funcs(common.TemplateFuncs)
-	if _, err := temp.Parse(DatabaseTemplate); err != nil {
+// DefineRoles creates definition for types
+func DefineRoles(settings schema.Generator, s *schema.Schema) (res string) {
+	temp := template.New("create_role.tmpl").Funcs(common.TemplateFuncs)
+	if _, err := temp.Parse(RoleTemplate); err != nil {
 		panic(err)
 	}
 
@@ -30,21 +30,21 @@ func DefineDatabase(settings schema.Generator, s *schema.Schema) (res string) {
 		RoleName:     settings.Get("roleName").(string),
 		TableName:    settings.Get("tableName").(string),
 	}
-	if err := temp.ExecuteTemplate(&buf, "create_database.tmpl", data); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "create_role.tmpl", data); err != nil {
 		panic(err)
 	}
 
 	return string(clean(buf.Bytes()))
 }
 
-//  DatabaseTemplate holds the template for types
-var DatabaseTemplate = `
+// RoleTemplate holds the template for types
+var RoleTemplate = `
 {{$databaseName := .DatabaseName}}
 {{$roleName := .RoleName}}
 
--- Drop database
-DROP DATABASE IF EXISTS "{{$databaseName}}";
+-- Drop role
+DROP ROLE IF EXISTS "{{$roleName}}";
 
--- Create database itself
-CREATE DATABASE "{{$databaseName}}" OWNER "{{$roleName}}" ENCODING 'UTF8'  TEMPLATE template0;
+-- Create role
+CREATE ROLE "{{$roleName}}";
 `
