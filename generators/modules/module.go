@@ -21,7 +21,6 @@ import (
 	"github.com/cihangir/gene/generators/scanners/rows"
 	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/cihangir/gene/generators/sql/statements"
-	"github.com/cihangir/gene/generators/tests"
 	"github.com/cihangir/gene/writers"
 
 	"github.com/cihangir/gene/helpers"
@@ -44,7 +43,7 @@ func init() {
 		gerr.New(),
 		mainfile.New(),
 		clients.New(),
-		tests.New(),
+		// tests.New(), //TODO(cihangir) tests are not stable
 		functions.New(),
 		definitions.New(),
 		// js.New(),
@@ -91,7 +90,7 @@ func read(config *config.Config) (*schema.Schema, error) {
 func unmarshall(path string, fileContent []byte) (*schema.Schema, error) {
 	s := &schema.Schema{}
 
-	// Choose what while is passed
+	// Choose what what kind of file is passed
 	switch filepath.Ext(path) {
 	case ".toml":
 		if err := toml.Unmarshal(fileContent, s); err != nil {
@@ -135,11 +134,6 @@ func (m *Module) Create() error {
 		return err
 	}
 
-	// mgenerator, err := models.New(m.context, m.schema)
-	// if err != nil {
-	// 	return err
-	// }
-	//
 	for _, gen := range generators {
 		mgen, err := gen.Generate(m.context, m.schema)
 		if err != nil {

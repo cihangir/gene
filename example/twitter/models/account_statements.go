@@ -7,157 +7,202 @@ import (
 	"github.com/lann/squirrel"
 )
 
-// GenerateCreateSQL generates plain sql for the given Profile
-func (p *Profile) GenerateCreateSQL() (string, []interface{}, error) {
-	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Insert(p.TableName())
+// GenerateCreateSQL generates plain sql for the given Account
+func (a *Account) GenerateCreateSQL() (string, []interface{}, error) {
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Insert(a.TableName())
 	columns := make([]string, 0)
 	values := make([]interface{}, 0)
-	if p.AvatarURL != "" {
-		columns = append(columns, "avatar_url")
-		values = append(values, p.AvatarURL)
-	}
-	if !p.CreatedAt.IsZero() {
+	if !a.CreatedAt.IsZero() {
 		columns = append(columns, "created_at")
-		values = append(values, p.CreatedAt)
+		values = append(values, a.CreatedAt)
 	}
-	if p.Description != "" {
-		columns = append(columns, "description")
-		values = append(values, p.Description)
+	if a.EmailAddress != "" {
+		columns = append(columns, "email_address")
+		values = append(values, a.EmailAddress)
 	}
-	if float64(p.ID) != float64(0) {
+	if a.EmailStatusConstant != "" {
+		columns = append(columns, "email_status_constant")
+		values = append(values, a.EmailStatusConstant)
+	}
+	if float64(a.ID) != float64(0) {
 		columns = append(columns, "id")
-		values = append(values, p.ID)
+		values = append(values, a.ID)
 	}
-	if p.LinkColor != "" {
-		columns = append(columns, "link_color")
-		values = append(values, p.LinkColor)
+	if a.Password != "" {
+		columns = append(columns, "password")
+		values = append(values, a.Password)
 	}
-	if p.Location != "" {
-		columns = append(columns, "location")
-		values = append(values, p.Location)
+	if a.PasswordStatusConstant != "" {
+		columns = append(columns, "password_status_constant")
+		values = append(values, a.PasswordStatusConstant)
 	}
-	if p.ScreenName != "" {
-		columns = append(columns, "screen_name")
-		values = append(values, p.ScreenName)
+	if float64(a.ProfileID) != float64(0) {
+		columns = append(columns, "profile_id")
+		values = append(values, a.ProfileID)
 	}
-	if p.URL != "" {
+	if a.Salt != "" {
+		columns = append(columns, "salt")
+		values = append(values, a.Salt)
+	}
+	if a.StatusConstant != "" {
+		columns = append(columns, "status_constant")
+		values = append(values, a.StatusConstant)
+	}
+	if a.URL != "" {
 		columns = append(columns, "url")
-		values = append(values, p.URL)
+		values = append(values, a.URL)
+	}
+	if a.URLName != "" {
+		columns = append(columns, "url_name")
+		values = append(values, a.URLName)
 	}
 	return psql.Columns(columns...).Values(values...).ToSql()
 }
 
-// GenerateUpdateSQL generates plain update sql statement for the given Profile
-func (p *Profile) GenerateUpdateSQL() (string, []interface{}, error) {
-	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(p.TableName())
-	if p.AvatarURL != "" {
-		psql = psql.Set("avatar_url", p.AvatarURL)
+// GenerateUpdateSQL generates plain update sql statement for the given Account
+func (a *Account) GenerateUpdateSQL() (string, []interface{}, error) {
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(a.TableName())
+	if !a.CreatedAt.IsZero() {
+		psql = psql.Set("created_at", a.CreatedAt)
 	}
-	if !p.CreatedAt.IsZero() {
-		psql = psql.Set("created_at", p.CreatedAt)
+	if a.EmailAddress != "" {
+		psql = psql.Set("email_address", a.EmailAddress)
 	}
-	if p.Description != "" {
-		psql = psql.Set("description", p.Description)
+	if a.EmailStatusConstant != "" {
+		psql = psql.Set("email_status_constant", a.EmailStatusConstant)
 	}
-	if float64(p.ID) != float64(0) {
-		psql = psql.Set("id", p.ID)
+	if float64(a.ID) != float64(0) {
+		psql = psql.Set("id", a.ID)
 	}
-	if p.LinkColor != "" {
-		psql = psql.Set("link_color", p.LinkColor)
+	if a.Password != "" {
+		psql = psql.Set("password", a.Password)
 	}
-	if p.Location != "" {
-		psql = psql.Set("location", p.Location)
+	if a.PasswordStatusConstant != "" {
+		psql = psql.Set("password_status_constant", a.PasswordStatusConstant)
 	}
-	if p.ScreenName != "" {
-		psql = psql.Set("screen_name", p.ScreenName)
+	if float64(a.ProfileID) != float64(0) {
+		psql = psql.Set("profile_id", a.ProfileID)
 	}
-	if p.URL != "" {
-		psql = psql.Set("url", p.URL)
+	if a.Salt != "" {
+		psql = psql.Set("salt", a.Salt)
 	}
-	return psql.Where("id = ?", p.ID).ToSql()
+	if a.StatusConstant != "" {
+		psql = psql.Set("status_constant", a.StatusConstant)
+	}
+	if a.URL != "" {
+		psql = psql.Set("url", a.URL)
+	}
+	if a.URLName != "" {
+		psql = psql.Set("url_name", a.URLName)
+	}
+	return psql.Where("id = ?", a.ID).ToSql()
 }
 
-// GenerateDeleteSQL generates plain delete sql statement for the given Profile
-func (p *Profile) GenerateDeleteSQL() (string, []interface{}, error) {
-	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Delete(p.TableName())
+// GenerateDeleteSQL generates plain delete sql statement for the given Account
+func (a *Account) GenerateDeleteSQL() (string, []interface{}, error) {
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Delete(a.TableName())
 	columns := make([]string, 0)
 	values := make([]interface{}, 0)
-	if p.AvatarURL != "" {
-		columns = append(columns, "avatar_url = ?")
-		values = append(values, p.AvatarURL)
-	}
-	if !p.CreatedAt.IsZero() {
+	if !a.CreatedAt.IsZero() {
 		columns = append(columns, "created_at = ?")
-		values = append(values, p.CreatedAt)
+		values = append(values, a.CreatedAt)
 	}
-	if p.Description != "" {
-		columns = append(columns, "description = ?")
-		values = append(values, p.Description)
+	if a.EmailAddress != "" {
+		columns = append(columns, "email_address = ?")
+		values = append(values, a.EmailAddress)
 	}
-	if float64(p.ID) != float64(0) {
+	if a.EmailStatusConstant != "" {
+		columns = append(columns, "email_status_constant = ?")
+		values = append(values, a.EmailStatusConstant)
+	}
+	if float64(a.ID) != float64(0) {
 		columns = append(columns, "id = ?")
-		values = append(values, p.ID)
+		values = append(values, a.ID)
 	}
-	if p.LinkColor != "" {
-		columns = append(columns, "link_color = ?")
-		values = append(values, p.LinkColor)
+	if a.Password != "" {
+		columns = append(columns, "password = ?")
+		values = append(values, a.Password)
 	}
-	if p.Location != "" {
-		columns = append(columns, "location = ?")
-		values = append(values, p.Location)
+	if a.PasswordStatusConstant != "" {
+		columns = append(columns, "password_status_constant = ?")
+		values = append(values, a.PasswordStatusConstant)
 	}
-	if p.ScreenName != "" {
-		columns = append(columns, "screen_name = ?")
-		values = append(values, p.ScreenName)
+	if float64(a.ProfileID) != float64(0) {
+		columns = append(columns, "profile_id = ?")
+		values = append(values, a.ProfileID)
 	}
-	if p.URL != "" {
+	if a.Salt != "" {
+		columns = append(columns, "salt = ?")
+		values = append(values, a.Salt)
+	}
+	if a.StatusConstant != "" {
+		columns = append(columns, "status_constant = ?")
+		values = append(values, a.StatusConstant)
+	}
+	if a.URL != "" {
 		columns = append(columns, "url = ?")
-		values = append(values, p.URL)
+		values = append(values, a.URL)
+	}
+	if a.URLName != "" {
+		columns = append(columns, "url_name = ?")
+		values = append(values, a.URLName)
 	}
 	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
 }
 
-// GenerateSelectSQL generates plain select sql statement for the given Profile
-func (p *Profile) GenerateSelectSQL() (string, []interface{}, error) {
-	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("*").From(p.TableName())
+// GenerateSelectSQL generates plain select sql statement for the given Account
+func (a *Account) GenerateSelectSQL() (string, []interface{}, error) {
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("*").From(a.TableName())
 	columns := make([]string, 0)
 	values := make([]interface{}, 0)
-	if p.AvatarURL != "" {
-		columns = append(columns, "avatar_url = ?")
-		values = append(values, p.AvatarURL)
-	}
-	if !p.CreatedAt.IsZero() {
+	if !a.CreatedAt.IsZero() {
 		columns = append(columns, "created_at = ?")
-		values = append(values, p.CreatedAt)
+		values = append(values, a.CreatedAt)
 	}
-	if p.Description != "" {
-		columns = append(columns, "description = ?")
-		values = append(values, p.Description)
+	if a.EmailAddress != "" {
+		columns = append(columns, "email_address = ?")
+		values = append(values, a.EmailAddress)
 	}
-	if float64(p.ID) != float64(0) {
+	if a.EmailStatusConstant != "" {
+		columns = append(columns, "email_status_constant = ?")
+		values = append(values, a.EmailStatusConstant)
+	}
+	if float64(a.ID) != float64(0) {
 		columns = append(columns, "id = ?")
-		values = append(values, p.ID)
+		values = append(values, a.ID)
 	}
-	if p.LinkColor != "" {
-		columns = append(columns, "link_color = ?")
-		values = append(values, p.LinkColor)
+	if a.Password != "" {
+		columns = append(columns, "password = ?")
+		values = append(values, a.Password)
 	}
-	if p.Location != "" {
-		columns = append(columns, "location = ?")
-		values = append(values, p.Location)
+	if a.PasswordStatusConstant != "" {
+		columns = append(columns, "password_status_constant = ?")
+		values = append(values, a.PasswordStatusConstant)
 	}
-	if p.ScreenName != "" {
-		columns = append(columns, "screen_name = ?")
-		values = append(values, p.ScreenName)
+	if float64(a.ProfileID) != float64(0) {
+		columns = append(columns, "profile_id = ?")
+		values = append(values, a.ProfileID)
 	}
-	if p.URL != "" {
+	if a.Salt != "" {
+		columns = append(columns, "salt = ?")
+		values = append(values, a.Salt)
+	}
+	if a.StatusConstant != "" {
+		columns = append(columns, "status_constant = ?")
+		values = append(values, a.StatusConstant)
+	}
+	if a.URL != "" {
 		columns = append(columns, "url = ?")
-		values = append(values, p.URL)
+		values = append(values, a.URL)
+	}
+	if a.URLName != "" {
+		columns = append(columns, "url_name = ?")
+		values = append(values, a.URLName)
 	}
 	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
 }
 
-// TableName returns the table name for Profile
-func (p *Profile) TableName() string {
-	return "profile"
+// TableName returns the table name for Account
+func (a *Account) TableName() string {
+	return "account"
 }

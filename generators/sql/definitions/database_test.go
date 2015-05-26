@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/cihangir/gene/config"
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
@@ -13,9 +14,8 @@ import (
 
 func TestDatabase(t *testing.T) {
 	s := &schema.Schema{}
-	if err := json.Unmarshal([]byte(testdata.TestDataFull), s); err != nil {
-		t.Fatal(err.Error())
-	}
+	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
+	common.TestEquals(t, nil, err)
 
 	s = s.Resolve(s)
 	g := New()
