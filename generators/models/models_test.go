@@ -6,6 +6,7 @@ import (
 
 	"testing"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/testdata"
@@ -16,30 +17,24 @@ import (
 
 func TestGenerateModel(t *testing.T) {
 	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
-		t.Fatal(err.Error())
-	}
+	err := json.Unmarshal([]byte(testdata.JSON1), &s)
+	common.TestEquals(t, nil, err)
 
 	model, err := GenerateModel(&s)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	common.TestEquals(t, nil, err)
 
 	folders.EnsureFolders("/tmp/", folders.FolderStucture)
 	fileName := "/tmp/models/" + s.Title + ".go"
 
 	err = writers.WriteFormattedFile(fileName, model)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	common.TestEquals(t, nil, err)
 
 }
 
 func TestGenerateSchema(t *testing.T) {
 	s := &schema.Schema{}
-	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
-		t.Fatal(err.Error())
-	}
+	err := json.Unmarshal([]byte(testdata.JSON1), s)
+	common.TestEquals(t, nil, err)
 
 	// replace "~" with "`"
 	result := strings.Replace(`
@@ -59,21 +54,15 @@ type Account struct {
 }`, "~", "`", -1)
 
 	code, err := GenerateSchema(s.Definitions["Account"])
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
-	if result != string(code) {
-		// fmt.Printf("foo %# v", pretty.Formatter(difflib.Diff([]string{result}, []string{string(code)})))
-		t.Fatalf("Schema is not same. Wanted: %s, Get: %s", result, string(code))
-	}
+	common.TestEquals(t, nil, err)
+	common.TestEquals(t, result, string(code))
 }
 
 func TestGenerateValidators(t *testing.T) {
 	s := &schema.Schema{}
-	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
-		t.Fatal(err.Error())
-	}
+	err := json.Unmarshal([]byte(testdata.JSON1), s)
+	common.TestEquals(t, nil, err)
+
 	result := `
 // Validate validates the Account struct
 func (a *Account) Validate() error {
@@ -101,23 +90,15 @@ func (a *Account) Validate() error {
 }`
 
 	code, err := validators.Generate(s.Definitions["Account"])
-	if err != nil {
-		t.Fatal(err.Error())
-	}
-
-	if result != string(code) {
-		t.Fatalf("Schema is not same. Wanted: %s, Get: %s", result, string(code))
-	}
+	common.TestEquals(t, nil, err)
+	common.TestEquals(t, result, string(code))
 }
 
 func TestGenerateFunctions(t *testing.T) {
 	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
-		t.Fatal(err.Error())
-	}
+	err := json.Unmarshal([]byte(testdata.JSON1), s)
+	common.TestEquals(t, nil, err)
 
 	_, err := GenerateFunctions(&s)
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+	common.TestEquals(t, nil, err)
 }

@@ -2,22 +2,12 @@ package constructors
 
 import (
 	"encoding/json"
-	"fmt"
-	"path/filepath"
-	"reflect"
-	"runtime"
 
 	"testing"
 
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 )
-
-const expected = `
-// NewAccount creates a new Account struct with default values
-func NewAccount() *Account {
-	return &Account{}
-}`
 
 func TestConstructors(t *testing.T) {
 	var s schema.Schema
@@ -26,14 +16,12 @@ func TestConstructors(t *testing.T) {
 	}
 
 	a, err := Generate(&s)
-	equals(t, nil, err)
-	equals(t, expected, string(a))
+	common.TetEquals(t, nil, err)
+	common.TetEquals(t, expected, string(a))
 }
 
-func equals(tb testing.TB, exp, act interface{}) {
-	if !reflect.DeepEqual(exp, act) {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("\033[31m%s:%d:\n\n\texp: %#v\n\n\tgot: %#v\033[39m\n\n", filepath.Base(file), line, exp, act)
-		tb.Fail()
-	}
-}
+const expected = `
+// NewAccount creates a new Account struct with default values
+func NewAccount() *Account {
+	return &Account{}
+}`
