@@ -14,8 +14,6 @@ import (
 )
 
 type client struct {
-	context  *config.Context
-	schema   *schema.Schema
 	template *template.Template
 }
 
@@ -35,13 +33,11 @@ func (c *client) Generate(context *config.Context, s *schema.Schema) ([]common.O
 	outputs := make([]common.Output, 0)
 	tmpl := template.New("clients.tmpl").Funcs(context.TemplateFuncs)
 
-	c.context = context
-	c.schema = s
-	c.template = tmpl
-
 	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
 		return nil, err
 	}
+
+	c.template = tmpl
 
 	for _, key := range keys {
 		def := s.Definitions[key]

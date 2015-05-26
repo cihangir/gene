@@ -2,9 +2,9 @@ package constructors
 
 import (
 	"encoding/json"
-
 	"testing"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 )
@@ -16,8 +16,8 @@ func TestConstructors(t *testing.T) {
 	}
 
 	a, err := Generate(&s)
-	common.TetEquals(t, nil, err)
-	common.TetEquals(t, expected, string(a))
+	common.TestEquals(t, nil, err)
+	common.TestEquals(t, expected, string(a))
 }
 
 const expected = `

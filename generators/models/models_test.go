@@ -95,10 +95,10 @@ func (a *Account) Validate() error {
 }
 
 func TestGenerateFunctions(t *testing.T) {
-	var s schema.Schema
+	s := &schema.Schema{}
 	err := json.Unmarshal([]byte(testdata.JSON1), s)
 	common.TestEquals(t, nil, err)
 
-	_, err := GenerateFunctions(&s)
+	_, err = GenerateFunctions(s)
 	common.TestEquals(t, nil, err)
 }
