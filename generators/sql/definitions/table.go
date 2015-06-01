@@ -25,12 +25,14 @@ func DefineTable(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 
 	data := struct {
 		Schema     *schema.Schema
+		Properties []*schema.Schema
 		SchemaName string // postgres schema name
 		RoleName   string // postgres role name
 		TableName  string // postgres table name
 		Settings   schema.Generator
 	}{
 		Schema:     s,
+		Properties: schema.SortedSchema(s.Properties),
 		SchemaName: settings.Get("schemaName").(string),
 		RoleName:   settings.Get("roleName").(string),
 		TableName:  settings.Get("tableName").(string),
@@ -44,23 +46,24 @@ func DefineTable(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 }
 
 // TableTemplate holds the template for sequences
-var TableTemplate = `
-{{$schema := .Schema}}
+var TableTemplate = `{{$schema := .Schema}}
+{{$properties := .Properties}}
 {{$settings := .Settings}}
 -- ----------------------------
 --  Table structure for {{.SchemaName}}.{{.TableName}}
 -- ----------------------------
 DROP TABLE IF EXISTS "{{.SchemaName}}"."{{.TableName}}";
 CREATE TABLE "{{.SchemaName}}"."{{.TableName}}" (
-{{range $key, $value := .Schema.Properties}}
-    {{GenerateSQLField $settings $value $key}}
+{{range $key, $value := $properties}}
+    {{GenerateSQLField $settings $value}}
 {{end}}
 ) WITH (OIDS = FALSE);-- end schema creation
 GRANT {{Join $settings.grants ", "}} ON "{{.SchemaName}}"."{{.TableName}}" TO "{{$settings.roleName}}";
 `
 
 // DefineTable creates a definition line for a given coloumn
-func GenerateSQLField(settings schema.Generator, s *schema.Schema, propertyName string) (res string) {
+func GenerateSQLField(settings schema.Generator, s *schema.Schema) (res string) {
+	propertyName := s.Title
 	schemaName := settings.Get("schemaName").(string)
 	tableName := settings.Get("tableName").(string)
 
