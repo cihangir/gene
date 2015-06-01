@@ -83,18 +83,19 @@ func (g *generator) setDefaultSettings(defaultSettings schema.Generator, s *sche
 }
 
 // Generate generates the basic CRUD statements for the models
-func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
-	if schema.Title == "" {
+	if s.Title == "" {
 		return outputs, errors.New("Title should be set")
 	}
 
-	moduleName := context.ModuleNameFunc(schema.Title)
+	moduleName := context.ModuleNameFunc(s.Title)
 
-	settings := g.generateSettings(moduleName, schema)
+	settings := g.generateSettings(moduleName, s)
 
-	for _, def := range schema.Definitions {
+	for _, name := range schema.SortedKeys(s.Definitions) {
+		def := s.Definitions[name]
 
 		// schema should have our generator
 		if !def.Generators.Has(g.Name()) {
