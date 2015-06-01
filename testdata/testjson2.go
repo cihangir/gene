@@ -87,117 +87,139 @@ var TestDataFull = `{
                     "description": "The unique identifier for a Account's Profile",
                     "type": "number",
                     "format": "int64",
-                    "minimum": 1
+                    "minimum": 1,
+                    "propertyOrder": 10
                 },
                 "BooleanBare": {
                     "description": "A Boolean with no properties",
-                    "type": "Boolean"
+                    "type": "Boolean",
+                    "propertyOrder": 20
                 },
                 "BooleanWithMaxLength": {
                     "description": "A boolean variable with max length",
                     "type": "boolean",
-                    "maxLength": 24
+                    "maxLength": 24,
+                    "propertyOrder": 21
                 },
                 "BooleanWithMinLength": {
                     "description": "A boolean variable with min length",
                     "type": "boolean",
-                    "minLength": 24
+                    "minLength": 24,
+                    "propertyOrder": 22
                 },
                 "BooleanWithDefault": {
                     "description": "A boolean variable with default value",
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "propertyOrder": 23
                 },
                 "StringBare": {
                     "description": "A string with no properties",
-                    "type": "string"
+                    "type": "string",
+                    "propertyOrder": 30
                 },
                 "StringWithDefault": {
                     "description": "A string with deafult value",
                     "type": "string",
-                    "default": "thisismydefaultvalue"
+                    "default": "thisismydefaultvalue",
+                    "propertyOrder": 31
                 },
                 "StringWithMaxLength": {
                     "description": "A String variable with max length",
                     "type": "string",
-                    "maxLength": 24
+                    "maxLength": 24,
+                    "propertyOrder": 32
                 },
                 "StringWithMinLength": {
                     "description": "A String variable with min length",
                     "type": "string",
-                    "minLength": 24
+                    "minLength": 24,
+                    "propertyOrder": 33
                 },
                 "StringWithMaxAndMinLength": {
                     "description": "A String variable with min and max length",
                     "type": "string",
                     "minLength": 4,
-                    "maxLength": 24
+                    "maxLength": 24,
+                    "propertyOrder": 34
                 },
                 "StringWithPattern": {
                     "description": "A String variable with min length",
                     "type": "string",
-                    "pattern": "^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$"
+                    "pattern": "^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$",
+                    "propertyOrder": 35
                 },
                 "StringDateFormatted": {
                     "description": "A String variable formatted as date time",
                     "type": "string",
-                    "format": "date-time"
+                    "format": "date-time",
+                    "propertyOrder": 36
                 },
                 "StringDateFormattedWithDefault": {
                     "description": "A String variable formatted as date time with default",
                     "type": "string",
                     "format": "date-time",
-                    "default": "now()"
+                    "default": "now()",
+                    "propertyOrder": 37
                 },
                 "StringUUIDFormatted": {
                     "description": "A String variable formatted as UUID",
                     "type": "string",
-                    "format": "UUID"
+                    "format": "UUID",
+                    "propertyOrder": 38
                 },
                 "StringUUIDFormattedWithDefault": {
                     "description": "A String variable formatted as UUID",
                     "type": "string",
                     "format": "UUID",
-                    "default": "uuid_generate_v1()"
+                    "default": "uuid_generate_v1()",
+                    "propertyOrder": 39
                 },
                 "NumberBare": {
                     "description": "A number with no properties",
-                    "type": "number"
+                    "type": "number",
+                    "propertyOrder": 40
                 },
                 "NumberWithMultipleOf": {
                     "description": "A number with multiple of property",
                     "type": "number",
-                    "multipleOf": 2
+                    "multipleOf": 2,
+                    "propertyOrder": 41
                 },
                 "NumberWithMultipleOfFormattedAsFloat64": {
                     "description": "A float64 number with multiple of property",
                     "type": "number",
                     "format": "float64",
-                    "multipleOf": 6.4
+                    "multipleOf": 6.4,
+                    "propertyOrder": 42
                 },
                 "NumberWithMultipleOfFormattedAsFloat32": {
                     "description": "A float32 number with multiple of property",
                     "type": "number",
                     "format": "float32",
-                    "multipleOf": 3.2
+                    "multipleOf": 3.2,
+                    "propertyOrder": 43
                 },
                 "NumberWithMultipleOfFormattedAsInt64": {
                     "description": "An int64 number with multiple of property",
                     "type": "number",
                     "format": "int64",
-                    "multipleOf": 64
+                    "multipleOf": 64,
+                    "propertyOrder": 44
                 },
                 "NumberWithMultipleOfFormattedAsUInt64": {
                     "description": "An uint64 number with multiple of property",
                     "type": "number",
                     "format": "uint64",
-                    "multipleOf": 64
+                    "multipleOf": 64,
+                    "propertyOrder": 45
                 },
                 "NumberWithMultipleOfFormattedAsInt32": {
                     "description": "An int32 number with multiple of property",
                     "type": "number",
                     "format": "int32",
-                    "multipleOf": 2
+                    "multipleOf": 2,
+                    "propertyOrder": 46
                 },
                 "NumberWithMultipleOfFormattedAsUInt32": {
                     "description": "An uint32 number with multiple of property",

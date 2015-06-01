@@ -16,8 +16,6 @@ import (
 )
 
 func TestDefinitions(t *testing.T) {
-	t.Skip("test in smaller chunks")
-
 	s := &schema.Schema{}
 	if err := json.Unmarshal([]byte(testdata.TestDataFull), s); err != nil {
 		t.Fatal(err.Error())
@@ -29,8 +27,8 @@ func TestDefinitions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	for _, s := range sts {
-		equals(t, expected, string(s.Content))
+	for i, s := range sts {
+		equals(t, expecteds[i], string(s.Content))
 	}
 }
 
@@ -47,32 +45,29 @@ func equals(tb testing.TB, exp, act string) {
 	}
 }
 
-const expected = `
+var expecteds = []string{`
+-- Drop role
+DROP ROLE IF EXISTS "social";
+-- Create role
+CREATE ROLE "social";`,
+	`
+-- Drop database
+DROP DATABASE IF EXISTS "mydatabase";
+-- Create database itself
+CREATE DATABASE "mydatabase" OWNER "social" ENCODING 'UTF8'  TEMPLATE template0;`,
+	`
 -- ----------------------------
---  Schema structure for account
+--  Required extensions
 -- ----------------------------
--- create schema
-CREATE SCHEMA IF NOT EXISTS "account";
--- give usage permission
-GRANT usage ON SCHEMA "account" to "social";
--- add new schema to search path -just for convenience
--- SELECT set_config('search_path', current_setting('search_path') || ',account', false);
-
-
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
+	`
 -- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;
 CREATE SEQUENCE "account"."profile_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
-GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";
-
-
--- ----------------------------
---  Required extensions
--- ----------------------------
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-
+GRANT USAGE ON SEQUENCE "account"."profile_id_seq" TO "social";`,
+	`
 -- ----------------------------
 --  Types structure for account.profile.enum_bare
 -- ----------------------------
@@ -82,22 +77,46 @@ CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
   'enum2',
   'enum3'
 );
-ALTER TYPE "account"."profile_enum_bare_enum" OWNER TO "social";
-
-
+ALTER TYPE "account"."profile_enum_bare_enum" OWNER TO "social";`,
+	`
 -- ----------------------------
 --  Table structure for account.profile
 -- ----------------------------
 DROP TABLE IF EXISTS "account"."profile";
 CREATE TABLE "account"."profile" (
-    "boolean_bare" BOOLEAN,
-    "boolean_with_default" BOOLEAN DEFAULT TRUE,
-    "boolean_with_max_length" BOOLEAN,
-    "boolean_with_min_length" BOOLEAN,
-    "enum_bare" "profile_enum_bare_enum",
     "id" BIGINT DEFAULT nextval('account.profile_id_seq' :: regclass)
         CONSTRAINT "check_profile_id_gte_0" CHECK ("id" >= 0.000000),
+    "boolean_bare" BOOLEAN,
+    "boolean_with_max_length" BOOLEAN,
+    "boolean_with_min_length" BOOLEAN,
+    "boolean_with_default" BOOLEAN DEFAULT TRUE,
+    "string_bare" TEXT COLLATE "default",
+    "string_with_default" TEXT COLLATE "default" DEFAULT 'THISISMYDEFAULTVALUE',
+    "string_with_max_length" VARCHAR (24) COLLATE "default",
+    "string_with_min_length" TEXT COLLATE "default"
+        CONSTRAINT "check_profile_string_with_min_length_min_length_24" CHECK (char_length("string_with_min_length") > 24 ),
+    "string_with_max_and_min_length" VARCHAR (24) COLLATE "default"
+        CONSTRAINT "check_profile_string_with_max_and_min_length_min_length_4" CHECK (char_length("string_with_max_and_min_length") > 4 ),
+    "string_with_pattern" TEXT COLLATE "default"
+        CONSTRAINT "check_profile_string_with_pattern_pattern" CHECK ("string_with_pattern" ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'),
+    "string_date_formatted" TIMESTAMP (6) WITH TIME ZONE,
+    "string_date_formatted_with_default" TIMESTAMP (6) WITH TIME ZONE DEFAULT now(),
+    "string_uuid_formatted" UUID,
+    "string_uuid_formatted_with_default" UUID DEFAULT uuid_generate_v1(),
     "number_bare" NUMERIC,
+    "number_with_multiple_of" NUMERIC
+        CONSTRAINT "check_profile_number_with_multiple_of_multiple_of_2" CHECK (("number_with_multiple_of" % 2.000000) = 0),
+    "number_with_multiple_of_formatted_as_float64" NUMERIC
+        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_float64_multiple_of_6" CHECK (("number_with_multiple_of_formatted_as_float64" % 6.400000) = 0),
+    "number_with_multiple_of_formatted_as_float32" NUMERIC
+        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_float32_multiple_of_3" CHECK (("number_with_multiple_of_formatted_as_float32" % 3.200000) = 0),
+    "number_with_multiple_of_formatted_as_int64" BIGINT
+        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int64_multiple_of_64" CHECK (("number_with_multiple_of_formatted_as_int64" % 64.000000) = 0),
+    "number_with_multiple_of_formatted_as_u_int64" BIGINT
+        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int64_multiple_of_64" CHECK (("number_with_multiple_of_formatted_as_u_int64" % 64.000000) = 0),
+    "number_with_multiple_of_formatted_as_int32" INTEGER
+        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int32_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_int32" % 2.000000) = 0),
+    "enum_bare" "profile_enum_bare_enum",
     "number_with_exclusive_maximum_without_maximum" NUMERIC,
     "number_with_exclusive_minimum" NUMERIC
         CONSTRAINT "check_profile_number_with_exclusive_minimum_gte_0" CHECK ("number_with_exclusive_minimum" >= 0.000000),
@@ -152,20 +171,10 @@ CREATE TABLE "account"."profile" (
         CONSTRAINT "check_profile_number_with_minimum_as_u_int64_gte_0" CHECK ("number_with_minimum_as_u_int64" >= 0.000000),
     "number_with_minimum_as_u_int8" SMALLINT
         CONSTRAINT "check_profile_number_with_minimum_as_u_int8_gte_0" CHECK ("number_with_minimum_as_u_int8" >= 0.000000),
-    "number_with_multiple_of" NUMERIC
-        CONSTRAINT "check_profile_number_with_multiple_of_multiple_of_2" CHECK (("number_with_multiple_of" % 2.000000) = 0),
-    "number_with_multiple_of_formatted_as_float32" NUMERIC
-        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_float32_multiple_of_3" CHECK (("number_with_multiple_of_formatted_as_float32" % 3.200000) = 0),
-    "number_with_multiple_of_formatted_as_float64" NUMERIC
-        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_float64_multiple_of_6" CHECK (("number_with_multiple_of_formatted_as_float64" % 6.400000) = 0),
     "number_with_multiple_of_formatted_as_int" INTEGER
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_int" % 2.000000) = 0),
     "number_with_multiple_of_formatted_as_int16" SMALLINT
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int16_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_int16" % 2.000000) = 0),
-    "number_with_multiple_of_formatted_as_int32" INTEGER
-        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int32_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_int32" % 2.000000) = 0),
-    "number_with_multiple_of_formatted_as_int64" BIGINT
-        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int64_multiple_of_64" CHECK (("number_with_multiple_of_formatted_as_int64" % 64.000000) = 0),
     "number_with_multiple_of_formatted_as_int8" SMALLINT
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int8_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_int8" % 2.000000) = 0),
     "number_with_multiple_of_formatted_as_u_int" INTEGER
@@ -174,23 +183,8 @@ CREATE TABLE "account"."profile" (
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int16_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_u_int16" % 2.000000) = 0),
     "number_with_multiple_of_formatted_as_u_int32" INTEGER
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int32_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_u_int32" % 2.000000) = 0),
-    "number_with_multiple_of_formatted_as_u_int64" BIGINT
-        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int64_multiple_of_64" CHECK (("number_with_multiple_of_formatted_as_u_int64" % 64.000000) = 0),
     "number_with_multiple_of_formatted_as_u_int8" SMALLINT
-        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int8_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_u_int8" % 2.000000) = 0),
-    "string_bare" TEXT COLLATE "default",
-    "string_date_formatted" TIMESTAMP (6) WITH TIME ZONE,
-    "string_date_formatted_with_default" TIMESTAMP (6) WITH TIME ZONE DEFAULT now(),
-    "string_uuid_formatted" UUID,
-    "string_uuid_formatted_with_default" UUID DEFAULT uuid_generate_v1(),
-    "string_with_default" TEXT COLLATE "default" DEFAULT 'THISISMYDEFAULTVALUE',
-    "string_with_max_and_min_length" VARCHAR (24) COLLATE "default"
-        CONSTRAINT "check_profile_string_with_max_and_min_length_min_length_4" CHECK (char_length("string_with_max_and_min_length") > 4 ),
-    "string_with_max_length" VARCHAR (24) COLLATE "default",
-    "string_with_min_length" TEXT COLLATE "default"
-        CONSTRAINT "check_profile_string_with_min_length_min_length_24" CHECK (char_length("string_with_min_length") > 24 ),
-    "string_with_pattern" TEXT COLLATE "default"
-        CONSTRAINT "check_profile_string_with_pattern_pattern" CHECK ("string_with_pattern" ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
+        CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int8_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_u_int8" % 2.000000) = 0)
 ) WITH (OIDS = FALSE);-- end schema creation
-GRANT SELECT, UPDATE ON "account"."profile" TO "social";
-`
+GRANT SELECT, UPDATE ON "account"."profile" TO "social";`,
+}

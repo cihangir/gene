@@ -39,10 +39,8 @@ func DefineDatabase(settings schema.Generator, s *schema.Schema) ([]byte, error)
 }
 
 //  DatabaseTemplate holds the template for types
-var DatabaseTemplate = `
-{{$databaseName := .DatabaseName}}
+var DatabaseTemplate = `{{$databaseName := .DatabaseName}}
 {{$roleName := .RoleName}}
-
 -- Drop database
 DROP DATABASE IF EXISTS "{{$databaseName}}";
 
