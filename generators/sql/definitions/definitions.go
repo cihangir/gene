@@ -234,6 +234,19 @@ func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]commo
 			),
 			DoNotFormat: true,
 		})
+
+		//
+		// generate constraints
+		//
+		constraints, err := DefineConstraints(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content: constraints,
+			Path: fmt.Sprintf(
+				"%sdb/%s/007-%s-constraints.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
