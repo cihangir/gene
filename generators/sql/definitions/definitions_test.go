@@ -116,7 +116,7 @@ CREATE TABLE "account"."profile" (
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int64_multiple_of_64" CHECK (("number_with_multiple_of_formatted_as_u_int64" % 64.000000) = 0),
     "number_with_multiple_of_formatted_as_int32" INTEGER
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_int32_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_int32" % 2.000000) = 0),
-    "enum_bare" "profile_enum_bare_enum",
+    "enum_bare" "account"."profile_enum_bare_enum",
     "number_with_exclusive_maximum_without_maximum" NUMERIC,
     "number_with_exclusive_minimum" NUMERIC
         CONSTRAINT "check_profile_number_with_exclusive_minimum_gte_0" CHECK ("number_with_exclusive_minimum" >= 0.000000),
