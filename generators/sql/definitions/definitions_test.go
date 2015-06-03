@@ -62,6 +62,16 @@ CREATE DATABASE "mydatabase" OWNER "social" ENCODING 'UTF8'  TEMPLATE template0;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
 	`
 -- ----------------------------
+--  Schema structure for account
+-- ----------------------------
+-- create schema
+CREATE SCHEMA IF NOT EXISTS "account";
+-- give usage permission
+GRANT usage ON SCHEMA "account" to "social";
+-- add new schema to search path -just for convenience
+-- SELECT set_config('search_path', current_setting('search_path') || ',account', false);`,
+	`
+-- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;
@@ -187,4 +197,13 @@ CREATE TABLE "account"."profile" (
         CONSTRAINT "check_profile_number_with_multiple_of_formatted_as_u_int8_multiple_of_2" CHECK (("number_with_multiple_of_formatted_as_u_int8" % 2.000000) = 0)
 ) WITH (OIDS = FALSE);-- end schema creation
 GRANT SELECT, UPDATE ON "account"."profile" TO "social";`,
+	`-------------------------------
+--  Primary key structure for table profile
+-- ----------------------------
+ALTER TABLE "account"."profile" ADD PRIMARY KEY ("id") NOT DEFERRABLE INITIALLY IMMEDIATE;
+-------------------------------
+--  Uniqueu key structure for table profile
+-- ----------------------------
+ALTER TABLE "account"."profile" ADD CONSTRAINT "key_profile_id" UNIQUE ("id") NOT DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE "account"."profile" ADD CONSTRAINT "key_profile_boolean_bare_string_bare" UNIQUE ("boolean_bare", "string_bare") NOT DEFERRABLE INITIALLY IMMEDIATE;`,
 }

@@ -142,8 +142,29 @@ func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]commo
 		}
 
 		outputs = append(outputs, common.Output{
-			Content:     extenstions,
-			Path:        fmt.Sprintf("%sdb/003-%s_extensions.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
+			Content: extenstions,
+			Path: fmt.Sprintf(
+				"%sdb/003-%s_extensions.sql",
+				context.Config.Target,
+				settingsDef.Get("databaseName").(string)),
+			DoNotFormat: true,
+		})
+
+		//
+		// generate schema
+		//
+		sc, err := DefineSchema(settingsDef, def)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, common.Output{
+			Content: sc,
+			Path: fmt.Sprintf(
+				"%sdb/%s/004-schema.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+			),
 			DoNotFormat: true,
 		})
 
@@ -168,7 +189,7 @@ func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]commo
 		outputs = append(outputs, common.Output{
 			Content: sequence,
 			Path: fmt.Sprintf(
-				"%sdb/%s/004-%s-sequence.sql",
+				"%sdb/%s/005-%s-sequence.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
@@ -187,7 +208,7 @@ func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]commo
 		outputs = append(outputs, common.Output{
 			Content: types,
 			Path: fmt.Sprintf(
-				"%sdb/%s/005-%s-types.sql",
+				"%sdb/%s/006-%s-types.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
@@ -206,7 +227,13 @@ func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]commo
 		outputs = append(outputs, common.Output{
 			Content: table,
 			Path: fmt.Sprintf(
-				"%sdb/%s/006-%s-table.sql",
+				"%sdb/%s/007-%s-table.sql",
+				context.Config.Target,
+				settingsDef.Get("schemaName").(string),
+				settingsDef.Get("tableName").(string),
+			),
+			DoNotFormat: true,
+		})
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
