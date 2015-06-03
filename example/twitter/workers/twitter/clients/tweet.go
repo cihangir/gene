@@ -1,7 +1,7 @@
 package twitterclient
 
 import (
-	"github.com/fatih/invoker/models"
+	"github.com/cihangir/gene/example/twitter/models"
 	"github.com/youtube/vitess/go/rpcplus"
 	"golang.org/x/net/context"
 )

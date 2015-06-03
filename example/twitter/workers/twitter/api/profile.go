@@ -2,7 +2,7 @@ package twitterapi
 
 import (
 	"github.com/cihangir/gene/db"
-	"github.com/fatih/invoker/models"
+	"github.com/cihangir/gene/example/twitter/models"
 	"golang.org/x/net/context"
 )
 
