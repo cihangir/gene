@@ -78,6 +78,18 @@ var TestDataFull = `{
                         "grants": [
                             "SELECT",
                             "UPDATE"
+                        ],
+                        "primaryKey": [
+                            "Id"
+                        ],
+                        "uniqueKeys": [
+                            [
+                                "Id"
+                            ],
+                            [
+                                "BooleanBare",
+                                "StringBare"
+                            ]
                         ]
                     }
                 }
