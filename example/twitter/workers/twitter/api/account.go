@@ -1,4 +1,4 @@
-package accountapi
+package twitterapi
 
 import (
 	"github.com/cihangir/gene/db"

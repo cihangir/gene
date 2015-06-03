@@ -127,7 +127,8 @@ func GenerateSQLField(settings schema.Generator, s *schema.Schema) (res string) 
 	// override if it is an enum field
 	if len(property.Enum) > 0 {
 		fieldType = fmt.Sprintf(
-			"\"%s_%s_enum\"",
+			"%q.\"%s_%s_enum\"",
+			schemaName,
 			stringext.ToFieldName(tableName),
 			stringext.ToFieldName(propertyName),
 		)
@@ -162,7 +163,7 @@ func generateDefaultValue(schemaName string, propertyName, tableName string, s *
 			os.Exit(1)
 		}
 
-		return fmt.Sprintf("DEFAULT %q", s.Default)
+		return fmt.Sprintf("DEFAULT '%s'", s.Default)
 	}
 
 	def := ""

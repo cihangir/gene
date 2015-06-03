@@ -9,19 +9,19 @@ import (
 
 // Profile represents a registered Account's Public Info
 type Profile struct {
-	AvatarURL   string    `json:"avatarUrl,omitempty"`   // URL of the Account's Avatar
-	CreatedAt   time.Time `json:"createdAt,omitempty"`   // Profile's creation time
-	Description string    `json:"description,omitempty"` // A description of the user owning the account. Maximum of 160 characters.
-	ID          int64     `json:"id,omitempty,string"`   // The unique identifier for a Account's Profile
-	LinkColor   string    `json:"linkColor,omitempty"`   // Sets a hex value that controls the color scheme of links used on the
+	ID         int64  `json:"id,omitempty,string"` // The unique identifier for a Account's Profile
+	ScreenName string `json:"screenName"`          // Full name associated with the profile. Maximum of 20 characters.
+	URL        string `json:"url,omitempty"`       // URL associated with the profile. Will be prepended with “http://” if not
+	// present. Maximum of 100 characters.
+	Location string `json:"location,omitempty"` // The city or country describing where the user of the account is located. The
+	// contents are not normalized or geocoded in any way. Maximum of 30 characters.
+	Description string `json:"description,omitempty"` // A description of the user owning the account. Maximum of 160 characters.
+	LinkColor   string `json:"linkColor,omitempty"`   // Sets a hex value that controls the color scheme of links used on the
 	// authenticating user’s profile page on twitter.com. This must be a valid
 	// hexadecimal value, and may be either three or six characters (ex: F00 or
 	// FF0000).
-	Location string `json:"location,omitempty"` // The city or country describing where the user of the account is located. The
-	// contents are not normalized or geocoded in any way. Maximum of 30 characters.
-	ScreenName string `json:"screenName"`    // Full name associated with the profile. Maximum of 20 characters.
-	URL        string `json:"url,omitempty"` // URL associated with the profile. Will be prepended with “http://” if not
-	// present. Maximum of 100 characters.
+	AvatarURL string    `json:"avatarUrl,omitempty"` // URL of the Account's Avatar
+	CreatedAt time.Time `json:"createdAt,omitempty"` // Profile's creation time
 }
 
 // NewProfile creates a new Profile struct with default values

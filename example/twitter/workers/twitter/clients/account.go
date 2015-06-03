@@ -1,4 +1,4 @@
-package accountclient
+package twitterclient
 
 import (
 	"github.com/cihangir/gene/example/twitter/models"

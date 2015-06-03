@@ -1,4 +1,4 @@
-package accountapi
+package twitterapi
 
 // New creates a new local Config handler
 func NewConfig() *Config { return &Config{} }
