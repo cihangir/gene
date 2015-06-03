@@ -1,7 +1,7 @@
-package accountclient
+package twitterclient
 
 import (
-	"github.com/cihangir/gene/example/twitter/models"
+	"github.com/fatih/invoker/models"
 	"github.com/youtube/vitess/go/rpcplus"
 	"golang.org/x/net/context"
 )

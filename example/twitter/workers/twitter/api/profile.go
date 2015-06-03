@@ -1,8 +1,8 @@
-package accountapi
+package twitterapi
 
 import (
 	"github.com/cihangir/gene/db"
-	"github.com/cihangir/gene/example/twitter/models"
+	"github.com/fatih/invoker/models"
 	"golang.org/x/net/context"
 )
 

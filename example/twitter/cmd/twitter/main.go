@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cihangir/gene/example/twitter/workers/account/api"
+	"github.com/cihangir/gene/example/twitter/workers/twitter/api"
 	"github.com/youtube/vitess/go/rpcplus"
 	"github.com/youtube/vitess/go/rpcplus/jsonrpc"
 	"github.com/youtube/vitess/go/rpcwrap"
@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	Name    = "Account"
+	Name    = "Twitter"
 	VERSION string
 )
 
@@ -26,9 +26,11 @@ func main() {
 
 	server := rpcplus.NewServer()
 
-	server.Register(new(accountapi.Account))
+	server.Register(new(twitterapi.Account))
 
-	server.Register(new(accountapi.Profile))
+	server.Register(new(twitterapi.Profile))
+
+	server.Register(new(twitterapi.Tweet))
 
 	rpcwrap.ServeCustomRPC(
 		Mux,
