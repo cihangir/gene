@@ -16,7 +16,6 @@ import (
 const generatorName = "sql-definition"
 
 type Generator struct {
-	Target        string `default:"ddl"`
 	DatabaseName  string
 	SchemaName    string
 	TableName     string
@@ -25,9 +24,7 @@ type Generator struct {
 }
 
 func New() *Generator {
-	return &Generator{
-		Target: "./db",
-	}
+	return &Generator{}
 }
 
 func (g *Generator) Name() string {
@@ -67,7 +64,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 		outputs = append(outputs, common.Output{
 			Content:     role,
-			Path:        fmt.Sprintf("%s/001-%s_roles.sql", g.Target, settingsDef.Get("databaseName").(string)),
+			Path:        fmt.Sprintf("%s/001-%s_roles.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
 			DoNotFormat: true,
 		})
 
@@ -81,7 +78,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 		outputs = append(outputs, common.Output{
 			Content:     db,
-			Path:        fmt.Sprintf("%s/002-%s_database.sql", g.Target, settingsDef.Get("databaseName").(string)),
+			Path:        fmt.Sprintf("%s/002-%s_database.sql", context.Config.Target, settingsDef.Get("databaseName").(string)),
 			DoNotFormat: true,
 		})
 
@@ -97,7 +94,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			Content: extenstions,
 			Path: fmt.Sprintf(
 				"%s/003-%s_extensions.sql",
-				g.Target,
+				context.Config.Target,
 				settingsDef.Get("databaseName").(string)),
 			DoNotFormat: true,
 		})
@@ -114,7 +111,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			Content: sc,
 			Path: fmt.Sprintf(
 				"%s/%s/004-schema.sql",
-				g.Target,
+				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 			),
 			DoNotFormat: true,
@@ -128,21 +125,11 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			return nil, err
 		}
 
-		// // create the module folder structure
-		// if err := folders.EnsureFolders(
-		// 	g.Target, // root folder
-		// 	[]string{fmt.Sprintf(
-		// 		"db/%s", settingsDef.Get("schemaName").(string),
-		// 	)},
-		// ); err != nil {
-		// 	return nil, err
-		// }
-
 		outputs = append(outputs, common.Output{
 			Content: sequence,
 			Path: fmt.Sprintf(
 				"%s/%s/005-%s-sequence.sql",
-				g.Target,
+				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
 			),
@@ -161,7 +148,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			Content: types,
 			Path: fmt.Sprintf(
 				"%s/%s/006-%s-types.sql",
-				g.Target,
+				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
 			),
@@ -180,7 +167,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			Content: table,
 			Path: fmt.Sprintf(
 				"%s/%s/007-%s-table.sql",
-				g.Target,
+				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
 			),
@@ -199,7 +186,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			Content: constraints,
 			Path: fmt.Sprintf(
 				"%s/%s/007-%s-constraints.sql",
-				g.Target,
+				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),
 			),
