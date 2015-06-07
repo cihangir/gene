@@ -7,12 +7,9 @@ import (
 	"testing"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
-
-	"github.com/cihangir/gene/writers"
 )
 
 func TestGenerateModel(t *testing.T) {
@@ -20,15 +17,8 @@ func TestGenerateModel(t *testing.T) {
 	err := json.Unmarshal([]byte(testdata.JSON1), &s)
 	common.TestEquals(t, nil, err)
 
-	model, err := GenerateModel(&s)
+	_, err = GenerateModel(&s)
 	common.TestEquals(t, nil, err)
-
-	folders.EnsureFolders("/tmp/", folders.FolderStucture)
-	fileName := "/tmp/models/" + s.Title + ".go"
-
-	err = writers.WriteFormattedFile(fileName, model)
-	common.TestEquals(t, nil, err)
-
 }
 
 func TestGenerateSchema(t *testing.T) {
