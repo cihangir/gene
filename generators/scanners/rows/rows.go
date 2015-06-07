@@ -27,6 +27,16 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	outputs := make([]common.Output, 0)
 	for _, key := range schema.SortedKeys(s.Definitions) {
 		def := s.Definitions[key]
+
+		// create models only for objects
+		if def.Type != nil {
+			if t, ok := def.Type.(string); ok {
+				if t != "object" {
+					continue
+				}
+			}
+		}
+
 		output, err := GenerateScanner(context.Config.Target, def)
 		if err != nil {
 			return nil, err
