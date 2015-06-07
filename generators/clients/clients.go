@@ -12,33 +12,22 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type client struct {
-	template *template.Template
+type Generator struct{}
+
+func New() *Generator {
+	return &Generator{}
 }
 
-func New() *client {
-	// create a template to process the clients
-	return &client{}
-}
-
-func (c *client) Name() string {
+func (c *Generator) Name() string {
 	return "clients"
 }
 
 // Generate generates the client package for given schema
-func (c *client) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(s.Title)
-	keys := schema.SortedKeys(s.Definitions)
 	outputs := make([]common.Output, 0)
-	tmpl := template.New("clients.tmpl").Funcs(common.TemplateFuncs)
 
-	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
-		return nil, err
-	}
-
-	c.template = tmpl
-
-	for _, key := range keys {
+	for _, key := range schema.SortedKeys(s.Definitions) {
 		def := s.Definitions[key]
 
 		if def.Type != nil {
@@ -49,30 +38,29 @@ func (c *client) Generate(context *common.Context, s *schema.Schema) ([]common.O
 			}
 		}
 
-		f, err := c.generate(moduleName, def)
+		f, err := c.generate(context, moduleName, def)
 		if err != nil {
 			return outputs, err
 		}
 
-		path := fmt.Sprintf(PathForClient,
+		path := fmt.Sprintf(
+			"%s%s/clients/%s.go",
 			context.Config.Target,
 			moduleName,
 			context.FileNameFunc(def.Title),
 		)
 
-		outputs = append(outputs, common.Output{
-			Content: f,
-			Path:    path,
-		})
+		outputs = append(outputs, common.Output{Content: f, Path: path})
 	}
 
 	return outputs, nil
 }
 
-// PathForClient holds the to be formatted string for the path of the client
-var PathForClient = "%sworkers/%s/clients/%s.go"
-
-func (c *client) generate(moduleName string, s *schema.Schema) ([]byte, error) {
+func (c *Generator) generate(context *common.Context, moduleName string, s *schema.Schema) ([]byte, error) {
+	tmpl := template.New("clients.tmpl").Funcs(context.TemplateFuncs)
+	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
+		return nil, err
+	}
 
 	var buf bytes.Buffer
 
@@ -84,7 +72,7 @@ func (c *client) generate(moduleName string, s *schema.Schema) ([]byte, error) {
 		Schema:     s,
 	}
 
-	if err := c.template.Execute(&buf, data); err != nil {
+	if err := tmpl.Execute(&buf, data); err != nil {
 		return nil, err
 	}
 
