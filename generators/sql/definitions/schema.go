@@ -9,7 +9,7 @@ import (
 )
 
 // DefineSchema creates definition for schema
-func DefineSchema(settings schema.Generator, s *schema.Schema) ([]byte, error) {
+func DefineSchema(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_schema.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(SchemaTemplate); err != nil {
 		return nil, err

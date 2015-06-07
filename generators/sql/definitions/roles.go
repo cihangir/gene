@@ -9,8 +9,8 @@ import (
 )
 
 // DefineRole creates definition for types
-func DefineRole(settings schema.Generator, s *schema.Schema) ([]byte, error) {
-	temp := template.New("create_role.tmpl").Funcs(common.TemplateFuncs)
+func DefineRole(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
+	temp := template.New("create_role.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(RoleTemplate); err != nil {
 		return nil, err
 	}

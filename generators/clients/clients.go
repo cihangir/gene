@@ -8,7 +8,6 @@ import (
 
 	"go/format"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
 )
@@ -27,11 +26,11 @@ func (c *client) Name() string {
 }
 
 // Generate generates the client package for given schema
-func (c *client) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
+func (c *client) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(s.Title)
 	keys := schema.SortedKeys(s.Definitions)
 	outputs := make([]common.Output, 0)
-	tmpl := template.New("clients.tmpl").Funcs(context.TemplateFuncs)
+	tmpl := template.New("clients.tmpl").Funcs(common.TemplateFuncs)
 
 	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
 		return nil, err
