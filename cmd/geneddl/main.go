@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	Schema string `required:"true"`
+	Target string `default:"ddl"`
 	DDL    definitions.Generator
 }
 
@@ -33,6 +34,7 @@ func main() {
 
 	c := common.NewContext()
 	c.Config.Schema = conf.Schema
+	c.Config.Target = conf.Target
 	c.FieldNameFunc = definitions.GetFieldNameFunc(conf.DDL.FieldNameCase)
 
 	s, err := common.Read(c.Config.Schema)
