@@ -8,7 +8,6 @@ import (
 
 	"go/format"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
 )
@@ -26,7 +25,7 @@ func (g *generator) Name() string {
 }
 
 // Generate generates and writes the errors of the schema
-func (g *generator) Generate(context *config.Context, s *schema.Schema) ([]common.Output, error) {
+func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 

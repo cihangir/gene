@@ -5,7 +5,6 @@ import (
 
 	"testing"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
@@ -19,7 +18,7 @@ func TestClients(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	a, err := New().Generate(config.NewContext(), s)
+	a, err := New().Generate(common.NewContext(), s)
 	common.TestEquals(t, nil, err)
 	common.TestEquals(t, expected, string(a[0].Content))
 }

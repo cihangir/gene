@@ -10,7 +10,7 @@ import (
 
 	"testing"
 
-	"github.com/cihangir/gene/config"
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 )
@@ -23,7 +23,7 @@ func TestStatements(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	sts, err := New().Generate(config.NewContext(), s)
+	sts, err := New().Generate(common.NewContext(), s)
 	equals(t, nil, err)
 	for _, s := range sts {
 		if strings.HasSuffix(s.Path, "profile_statements.go") {

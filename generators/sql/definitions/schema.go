@@ -9,7 +9,7 @@ import (
 )
 
 // DefineSchema creates definition for schema
-func DefineSchema(settings schema.Generator, s *schema.Schema) ([]byte, error) {
+func DefineSchema(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("create_schema.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(SchemaTemplate); err != nil {
 		return nil, err
@@ -18,13 +18,13 @@ func DefineSchema(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
 	data := struct {
-		Schema     *schema.Schema
-		SchemaName string // postgres schema name
-		RoleName   string
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema:     s,
-		SchemaName: settings.Get("schemaName").(string),
-		RoleName:   settings.Get("roleName").(string),
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
 	if err := temp.ExecuteTemplate(&buf, "create_schema.tmpl", data); err != nil {
 		return nil, err
@@ -36,13 +36,13 @@ func DefineSchema(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 //  SchemaTemplate holds the template for sequences
 var SchemaTemplate = `
 -- ----------------------------
---  Schema structure for {{.SchemaName}}
+--  Schema structure for {{.Settings.schemaName}}
 -- ----------------------------
 -- create schema
-CREATE SCHEMA IF NOT EXISTS "{{.SchemaName}}";
+CREATE SCHEMA IF NOT EXISTS "{{.Settings.schemaName}}";
 
 -- give usage permission
-GRANT usage ON SCHEMA "{{.SchemaName}}" to "{{.RoleName}}";
+GRANT usage ON SCHEMA "{{.Settings.schemaName}}" to "{{.Settings.roleName}}";
 
 -- add new schema to search path -just for convenience
--- SELECT set_config('search_path', current_setting('search_path') || ',{{.SchemaName}}', false);`
+-- SELECT set_config('search_path', current_setting('search_path') || ',{{.Settings.schemaName}}', false);`

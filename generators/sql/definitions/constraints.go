@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // DefineConstraints creates constraints definition for tables
-func DefineConstraints(settings schema.Generator, s *schema.Schema) ([]byte, error) {
+func DefineConstraints(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	primaryKeyConstraint := ""
 	primaryKey := settings.Get("primaryKey")
 	if primaryKey != nil {
@@ -17,7 +17,7 @@ func DefineConstraints(settings schema.Generator, s *schema.Schema) ([]byte, err
 		if len(pmi) > 0 {
 			sl := make([]string, len(pmi))
 			for i, pm := range pmi {
-				sl[i] = stringext.ToFieldName(pm.(string))
+				sl[i] = context.FieldNameFunc(pm.(string))
 			}
 
 			primaryKeyConstraint = fmt.Sprintf(
@@ -42,15 +42,15 @@ func DefineConstraints(settings schema.Generator, s *schema.Schema) ([]byte, err
 				ukcs := ukc.([]interface{})
 				ukcsps := make([]string, len(ukcs))
 				for i, ukc := range ukcs {
-					ukcsps[i] = stringext.ToFieldName(ukc.(string))
+					ukcsps[i] = context.FieldNameFunc(ukc.(string))
 				}
 				keyName := fmt.Sprintf(
-					"key_%s_%s",
-					stringext.ToFieldName(settings.Get("tableName").(string)),
+					"%s_%s_%s",
+					context.FieldNameFunc("key"),
+					context.FieldNameFunc(settings.Get("tableName").(string)),
 					strings.Join(ukcsps, "_"),
 				)
 				uniqueKeyConstraints += fmt.Sprintf(
-
 					"ALTER TABLE %q.%q ADD CONSTRAINT %q UNIQUE (\"%s\") NOT DEFERRABLE INITIALLY IMMEDIATE;\n",
 					settings.Get("schemaName"),
 					settings.Get("tableName"),

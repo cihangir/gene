@@ -9,8 +9,8 @@ import (
 )
 
 // DefineTypes creates definition for types
-func DefineTypes(settings schema.Generator, s *schema.Schema) ([]byte, error) {
-	temp := template.New("create_types.tmpl").Funcs(common.TemplateFuncs)
+func DefineTypes(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
+	temp := template.New("create_types.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(TypeTemplate); err != nil {
 		return nil, err
 	}
@@ -18,16 +18,15 @@ func DefineTypes(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
 	data := struct {
-		Schema     *schema.Schema
-		SchemaName string // postgres schema name
-		RoleName   string // postgres role name
-		TableName  string // postgres table name
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema:     s,
-		SchemaName: settings.Get("schemaName").(string),
-		RoleName:   settings.Get("roleName").(string),
-		TableName:  settings.Get("tableName").(string),
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
+
 	if err := temp.ExecuteTemplate(&buf, "create_types.tmpl", data); err != nil {
 		return nil, err
 	}
@@ -37,20 +36,20 @@ func DefineTypes(settings schema.Generator, s *schema.Schema) ([]byte, error) {
 
 // TypeTemplate holds the template for types
 var TypeTemplate = `
-{{$schemaName := .SchemaName}}
-{{$tableName := .TableName}}
-{{$roleName := .RoleName}}
+{{$schemaName := .Settings.schemaName}}
+{{$tableName := .Settings.tableName}}
+{{$roleName := .Settings.roleName}}
 
 {{range $key, $value := .Schema.Properties}}
 {{if len $value.Enum}}
 -- ----------------------------
 --  Types structure for {{$schemaName}}.{{$tableName}}.{{ToFieldName $value.Title}}
 -- ----------------------------
-DROP TYPE IF EXISTS "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" CASCADE;
-CREATE TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" AS ENUM (
+DROP TYPE IF EXISTS "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_{{ToFieldName "enum"}}" CASCADE;
+CREATE TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_{{ToFieldName "enum"}}" AS ENUM (
   '{{Join $value.Enum "',\n  '"}}'
 );
-ALTER TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_enum" OWNER TO "{{$roleName}}";
+ALTER TYPE "{{$schemaName}}"."{{$tableName}}_{{ToFieldName $value.Title}}_{{ToFieldName "enum"}}" OWNER TO "{{$roleName}}";
 {{end}}
 {{end}}
 `

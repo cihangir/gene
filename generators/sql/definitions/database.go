@@ -9,8 +9,8 @@ import (
 )
 
 // DefineDatabase creates definition for types
-func DefineDatabase(settings schema.Generator, s *schema.Schema) ([]byte, error) {
-	temp := template.New("create_database.tmpl").Funcs(common.TemplateFuncs)
+func DefineDatabase(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
+	temp := template.New("create_database.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(DatabaseTemplate); err != nil {
 		return nil, err
 	}
@@ -18,17 +18,13 @@ func DefineDatabase(settings schema.Generator, s *schema.Schema) ([]byte, error)
 	var buf bytes.Buffer
 
 	data := struct {
-		Schema       *schema.Schema
-		DatabaseName string // postgres database name
-		SchemaName   string // postgres schema name
-		RoleName     string // postgres role name
-		TableName    string // postgres table name
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema:       s,
-		DatabaseName: settings.Get("databaseName").(string),
-		SchemaName:   settings.Get("schemaName").(string),
-		RoleName:     settings.Get("roleName").(string),
-		TableName:    settings.Get("tableName").(string),
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
 
 	if err := temp.ExecuteTemplate(&buf, "create_database.tmpl", data); err != nil {
@@ -39,11 +35,9 @@ func DefineDatabase(settings schema.Generator, s *schema.Schema) ([]byte, error)
 }
 
 //  DatabaseTemplate holds the template for types
-var DatabaseTemplate = `{{$databaseName := .DatabaseName}}
-{{$roleName := .RoleName}}
--- Drop database
-DROP DATABASE IF EXISTS "{{$databaseName}}";
+var DatabaseTemplate = `-- Drop database
+DROP DATABASE IF EXISTS "{{.Settings.databaseName}}";
 
 -- Create database itself
-CREATE DATABASE "{{$databaseName}}" OWNER "{{$roleName}}" ENCODING 'UTF8'  TEMPLATE template0;
+CREATE DATABASE "{{.Settings.databaseName}}" OWNER "{{.Settings.roleName}}" ENCODING 'UTF8'  TEMPLATE template0;
 `

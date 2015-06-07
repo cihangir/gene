@@ -5,7 +5,7 @@ import (
 
 	"testing"
 
-	"github.com/cihangir/gene/config"
+	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
@@ -20,7 +20,7 @@ func TestExtensions(t *testing.T) {
 	s = s.Resolve(s)
 	g := New()
 
-	context := config.NewContext()
+	context := common.NewContext()
 	moduleName := context.ModuleNameFunc(s.Title)
 	settings := g.generateSettings(moduleName, s)
 
@@ -35,7 +35,7 @@ func TestExtensions(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts, err := DefineExtensions(settingsDef, def)
+		sts, err := DefineExtensions(context, settingsDef, def)
 		if err != nil {
 			t.Fatal(err.Error())
 		}

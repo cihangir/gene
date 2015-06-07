@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
@@ -24,7 +23,7 @@ func (g *generator) Name() string {
 }
 
 // Generate generates the basic CRUD statements for the models
-func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(schema.Title)
 	outputs := make([]common.Output, 0)
 

@@ -8,7 +8,6 @@ import (
 
 	"go/format"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
 )
@@ -27,7 +26,7 @@ func (g *generator) Name() string {
 
 // GenerateMainFile handles the main file generation for persistent
 // connection rpc server
-func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(schema.Title)
 	outputs := make([]common.Output, 0)
 

@@ -2,13 +2,8 @@
 package modules
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"path/filepath"
 	"strings"
-
-	"github.com/BurntSushi/toml"
 
 	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/clients"
@@ -23,14 +18,12 @@ import (
 	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/gene/writers"
 
-	"github.com/cihangir/gene/helpers"
 	"github.com/cihangir/schema"
-	"gopkg.in/yaml.v2"
 )
 
 type Generator interface {
 	Name() string
-	Generate(*config.Context, *schema.Schema) ([]common.Output, error)
+	Generate(*common.Context, *schema.Schema) ([]common.Output, error)
 }
 
 var generators []Generator
@@ -54,7 +47,7 @@ func init() {
 type Module struct {
 	schema *schema.Schema
 
-	context *config.Context
+	context *common.Context
 
 	// TargetFolderName holds the folder name for the module
 	TargetFolderName string
@@ -62,12 +55,12 @@ type Module struct {
 
 // NewModule creates a new module with the given Schema
 func New(conf *config.Config) (*Module, error) {
-	s, err := read(conf)
+	s, err := common.Read(conf.Schema)
 	if err != nil {
 		return nil, err
 	}
 
-	context := config.NewContext()
+	context := common.NewContext()
 	context.Config = conf
 
 	return &Module{
@@ -75,40 +68,6 @@ func New(conf *config.Config) (*Module, error) {
 		context:          context,
 		TargetFolderName: "./",
 	}, nil
-}
-
-// NewFromFile reads the given file and creates a new module out of it
-func read(config *config.Config) (*schema.Schema, error) {
-	fileContent, err := helpers.ReadFile(config.Schema)
-	if err != nil {
-		return nil, err
-	}
-
-	return unmarshall(config.Schema, fileContent)
-}
-
-func unmarshall(path string, fileContent []byte) (*schema.Schema, error) {
-	s := &schema.Schema{}
-
-	// Choose what what kind of file is passed
-	switch filepath.Ext(path) {
-	case ".toml":
-		if err := toml.Unmarshal(fileContent, s); err != nil {
-			return nil, err
-		}
-	case ".json":
-		if err := json.Unmarshal(fileContent, s); err != nil {
-			return nil, err
-		}
-	case ".yaml", ".yml":
-		if err := yaml.Unmarshal(fileContent, s); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, errors.New("Unmarshal not implemented")
-	}
-
-	return s, nil
 }
 
 // Create creates the module. While creating the module it handles models,
