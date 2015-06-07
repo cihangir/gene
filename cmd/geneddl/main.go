@@ -1,4 +1,4 @@
-// Package main provides cli for gene package
+// Package main provides cli for gene ddl package
 package main
 
 import (
