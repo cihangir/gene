@@ -6,6 +6,7 @@ import (
 	"go/format"
 	"os"
 	"regexp"
+	"strings"
 
 	"golang.org/x/tools/imports"
 )
@@ -22,6 +23,10 @@ func WriteFormattedFile(fileName string, model []byte) error {
 }
 
 func Write(fileName string, models []byte) error {
+	if err := makeSureFolders(fileName); err != nil {
+		return err
+	}
+
 	f, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -51,4 +56,20 @@ func Clear(buf bytes.Buffer) ([]byte, error) {
 	}
 
 	return clean, nil
+}
+
+func makeSureFolders(path string) error {
+	folders := strings.Split(path, string(os.PathSeparator))
+	if len(folders) == 1 {
+		return nil
+	}
+
+	for i := 1; i < len(folders); i++ {
+		path := strings.Join(folders[:i], string(os.PathSeparator))
+		if err := os.MkdirAll(path, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
