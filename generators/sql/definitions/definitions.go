@@ -227,22 +227,6 @@ func GenerateDefinitions(context *common.Context, settings schema.Generator, s *
 	return buf.Bytes(), nil
 }
 
-func clean(b []byte) []byte {
-	b = writers.NewLinesRegex.ReplaceAll(b, []byte(""))
-
-	// convert tabs to 4 spaces
-	b = bytes.Replace(b, []byte("\t"), []byte("    "), -1)
-
-	// clean extra spaces
-	b = bytes.Replace(b, []byte("  ,"), []byte(","), -1)
-	b = bytes.Replace(b, []byte(" ,"), []byte(","), -1)
-
-	// replace last trailing comma
-	b = bytes.Replace(b, []byte(",\n)"), []byte("\n)"), -1)
-
-	return b
-}
-
 // CreateStatementTemplate holds the template for the create sql statement generator
 var CreateStatementTemplate = `{{DefineSQLSchema .Context .Settings .Schema}}
 
@@ -316,4 +300,20 @@ func (g *Generator) setDefaultSettings(defaultSettings schema.Generator, s *sche
 	settings.Set("grants", grantsS)
 
 	return settings
+}
+
+func clean(b []byte) []byte {
+	b = writers.NewLinesRegex.ReplaceAll(b, []byte(""))
+
+	// convert tabs to 4 spaces
+	b = bytes.Replace(b, []byte("\t"), []byte("    "), -1)
+
+	// clean extra spaces
+	b = bytes.Replace(b, []byte("  ,"), []byte(","), -1)
+	b = bytes.Replace(b, []byte(" ,"), []byte(","), -1)
+
+	// replace last trailing comma
+	b = bytes.Replace(b, []byte(",\n)"), []byte("\n)"), -1)
+
+	return b
 }
