@@ -1,4 +1,3 @@
-
 -- Drop database
 DROP DATABASE IF EXISTS "twitter_db";
 -- Create database itself
