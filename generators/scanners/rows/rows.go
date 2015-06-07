@@ -12,31 +12,22 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct{}
+type Generator struct{}
 
-func New() *generator {
-	return &generator{}
+func New() *Generator {
+	return &Generator{}
 }
 
-var PathForRowScanner = "%smodels/%s_rowscanner.go"
-
-func (g *generator) Name() string {
+func (g *Generator) Name() string {
 	return "scanner-row"
 }
 
 // Generate generates and writes the errors of the schema
-func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(s.Title)
+func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
-
-	keys := schema.SortedKeys(s.Definitions)
-	for _, key := range keys {
+	for _, key := range schema.SortedKeys(s.Definitions) {
 		def := s.Definitions[key]
-		output, err := GenerateScanner(
-			context.Config.Target,
-			moduleName,
-			def,
-		)
+		output, err := GenerateScanner(context.Config.Target, def)
 		if err != nil {
 			return nil, err
 		}
@@ -48,13 +39,13 @@ func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 }
 
 // GenerateScanner generates and writes the api files
-func GenerateScanner(rootPath string, moduleName string, s *schema.Schema) (common.Output, error) {
-	api, err := generate(moduleName, s)
+func GenerateScanner(rootPath string, s *schema.Schema) (common.Output, error) {
+	api, err := generate(s)
 	if err != nil {
 		return common.Output{}, err
 	}
 
-	path := fmt.Sprintf(PathForRowScanner, rootPath, strings.ToLower(s.Title))
+	path := fmt.Sprintf("%s%s_rowscanner.go", rootPath, strings.ToLower(s.Title))
 
 	return common.Output{
 		Content: api,
@@ -96,7 +87,7 @@ func ({{Pointerize $title}} *{{$title}}) RowsScan(rows *sql.Rows, dest interface
 `
 
 // Generate generates the rowscanner for given schema/model
-func generate(moduleName string, s *schema.Schema) ([]byte, error) {
+func generate(s *schema.Schema) ([]byte, error) {
 	temp := template.New("rowscanner.tmpl").Funcs(common.TemplateFuncs)
 
 	if _, err := temp.Parse(RowScannerTemplate); err != nil {
@@ -106,11 +97,9 @@ func generate(moduleName string, s *schema.Schema) ([]byte, error) {
 	var buf bytes.Buffer
 
 	data := struct {
-		ModuleName string
-		Schema     *schema.Schema
+		Schema *schema.Schema
 	}{
-		ModuleName: moduleName,
-		Schema:     s,
+		Schema: s,
 	}
 
 	if err := temp.ExecuteTemplate(&buf, "rowscanner.tmpl", data); err != nil {
