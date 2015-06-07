@@ -3,20 +3,17 @@ package modules
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/clients"
 	"github.com/cihangir/gene/generators/common"
 	gerr "github.com/cihangir/gene/generators/errors"
-	"github.com/cihangir/gene/generators/folders"
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/scanners/rows"
 	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/cihangir/gene/generators/sql/statements"
-	"github.com/cihangir/gene/writers"
 
 	"github.com/cihangir/schema"
 )
@@ -73,25 +70,6 @@ func New(conf *config.Config) (*Module, error) {
 // Create creates the module. While creating the module it handles models,
 // handlers, errors, servers, clients and tests generation
 func (m *Module) Create() error {
-	rootPath := m.TargetFolderName
-
-	// first ensure that we have the correct folder structure for our system
-	if err := folders.EnsureFolders(
-		rootPath, // root folder
-		folders.FolderStucture,
-	); err != nil {
-		return err
-	}
-
-	// create the module folder structure
-	if err := folders.EnsureFolders(
-		rootPath, // root folder
-		createModuleStructure(strings.ToLower(
-			m.schema.Title,
-		)),
-	); err != nil {
-		return err
-	}
 
 	for _, gen := range generators {
 		mgen, err := gen.Generate(m.context, m.schema)
@@ -99,22 +77,8 @@ func (m *Module) Create() error {
 			return err
 		}
 
-		for _, file := range mgen {
-			// do not write empty files
-			if len(file.Content) == 0 {
-				continue
-			}
-
-			if file.DoNotFormat {
-				if err := writers.Write(file.Path, file.Content); err != nil {
-					return err
-				}
-			} else {
-				if err := writers.WriteFormattedFile(file.Path, file.Content); err != nil {
-					return err
-				}
-			}
-
+		if err := common.WriteOutput(mgen); err != nil {
+			return err
 		}
 	}
 
