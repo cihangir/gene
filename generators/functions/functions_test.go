@@ -12,13 +12,13 @@ import (
 
 func TestFunctions(t *testing.T) {
 	s := &schema.Schema{}
-	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
-		t.Fatal(err.Error())
-	}
+	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
+	common.TestEquals(t, nil, err)
 
-	s = s.Resolve(nil)
+	s = s.Resolve(s)
+	context := common.NewContext()
 
-	a, err := generate("test", s.Definitions["Account"])
+	a, err := generate(context, "test", s.Definitions["Account"])
 	common.TestEquals(t, nil, err)
 	common.TestEquals(t, expected, string(a))
 }
