@@ -11,12 +11,14 @@ import (
 )
 
 func TestErrors(t *testing.T) {
-	var s schema.Schema
-	if err := json.Unmarshal([]byte(testdata.JSON1), &s); err != nil {
-		t.Fatal(err.Error())
-	}
+	s := &schema.Schema{}
+	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
+	common.TestEquals(t, nil, err)
 
-	a, err := generate(&s)
+	s = s.Resolve(s)
+	context := common.NewContext()
+
+	a, err := generate(context, s.Definitions["Account"])
 	common.TestEquals(t, nil, err)
 	common.TestEquals(t, expected, string(a))
 }
@@ -35,13 +37,5 @@ var (
 	ErrAccountStatusConstantNotSet         = errors.New("Account.StatusConstant not set")
 	ErrAccountURLNotSet                    = errors.New("Account.URL not set")
 	ErrAccountURLNameNotSet                = errors.New("Account.URLName not set")
-	ErrConfigMongoNotSet                   = errors.New("Config.Mongo not set")
-	ErrConfigPostgresNotSet                = errors.New("Config.Postgres not set")
-	ErrProfileAvatarURLNotSet              = errors.New("Profile.AvatarURL not set")
-	ErrProfileCreatedAtNotSet              = errors.New("Profile.CreatedAt not set")
-	ErrProfileFirstNameNotSet              = errors.New("Profile.FirstName not set")
-	ErrProfileIdNotSet                     = errors.New("Profile.Id not set")
-	ErrProfileLastNameNotSet               = errors.New("Profile.LastName not set")
-	ErrProfileNickNotSet                   = errors.New("Profile.Nick not set")
 )
 `

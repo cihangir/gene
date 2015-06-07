@@ -12,21 +12,18 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct{}
+type Generator struct{}
 
-func New() *generator {
-	return &generator{}
+func New() *Generator {
+	return &Generator{}
 }
 
-func (g *generator) Name() string {
+func (g *Generator) Name() string {
 	return "errors"
 }
 
-var PathForErrors = "%sworkers/%s/errors/%s.go"
-
 // Generate generates and writes the errors of the schema
-func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(s.Title)
+func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
 	for _, def := range s.Definitions {
@@ -39,16 +36,15 @@ func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			}
 		}
 
-		f, err := generate(def)
+		f, err := generate(context, def)
 		if err != nil {
 			return nil, err
 		}
 
 		path := fmt.Sprintf(
-			PathForErrors,
+			"%s/%s.go",
 			context.Config.Target,
-			moduleName,
-			strings.ToLower(s.Title),
+			strings.ToLower(def.Title),
 		)
 
 		outputs = append(outputs, common.Output{
@@ -61,8 +57,8 @@ func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	return outputs, nil
 }
 
-func generate(s *schema.Schema) ([]byte, error) {
-	temp := template.New("errors.tmpl").Funcs(common.TemplateFuncs)
+func generate(context *common.Context, s *schema.Schema) ([]byte, error) {
+	temp := template.New("errors.tmpl").Funcs(context.TemplateFuncs)
 	_, err := temp.Parse(ErrorsTemplate)
 	if err != nil {
 		return nil, err
@@ -76,3 +72,14 @@ func generate(s *schema.Schema) ([]byte, error) {
 
 	return writers.Clear(buf)
 }
+
+// ErrorsTemplate holds the template for the errors package
+var ErrorsTemplate = `
+package errs
+var (
+{{$moduleName := ToUpperFirst .Title}}
+{{range $key, $value := .Properties}}
+    Err{{$moduleName}}{{ToUpperFirst $key}}NotSet = errors.New("{{$moduleName}}.{{ToUpperFirst $key}} not set")
+{{end}}
+)
+`
