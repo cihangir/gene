@@ -16,20 +16,17 @@ import (
 	"github.com/cihangir/stringext"
 )
 
-type generator struct {
-	context *common.Context
-	schema  *schema.Schema
+type Generator struct{}
+
+func New() *Generator {
+	return &Generator{}
 }
 
-func New() *generator {
-	return &generator{}
-}
-
-func (g *generator) Name() string {
+func (g *Generator) Name() string {
 	return "models"
 }
 
-func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
 	for _, def := range schema.Definitions {
@@ -50,7 +47,7 @@ func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]
 		}
 
 		path := fmt.Sprintf(
-			PathForModels,
+			"%s/%s.go",
 			context.Config.Target,
 			moduleName,
 		)
@@ -63,8 +60,6 @@ func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]
 
 	return outputs, nil
 }
-
-var PathForModels = "%smodels/%s.go"
 
 // GenerateModel generates the model itself
 func GenerateModel(s *schema.Schema) ([]byte, error) {

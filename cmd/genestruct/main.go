@@ -1,18 +1,18 @@
-// Package main provides cli for gene ddl package
+// Package main provides cli for gene structs package
 package main
 
 import (
 	"log"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/sql/definitions"
+	"github.com/cihangir/gene/generators/models"
 	"github.com/koding/multiconfig"
 )
 
 type Config struct {
 	Schema string `required:"true"`
 	Target string `default:"ddl"`
-	DDL    definitions.Generator
+	Struct models.Generator
 }
 
 func main() {
@@ -35,16 +35,15 @@ func main() {
 	c := common.NewContext()
 	c.Config.Schema = conf.Schema
 	c.Config.Target = conf.Target
-	c.FieldNameFunc = definitions.GetFieldNameFunc(conf.DDL.FieldNameCase)
 
-	s, err := common.Read(c.Config.Schema)
+	s, err := common.Read(conf.Schema)
 	if err != nil {
 		log.Fatalf("schema read err: %s", err.Error())
 	}
 
-	output, err := conf.DDL.Generate(c, s)
+	output, err := conf.Struct.Generate(c, s)
 	if err != nil {
-		log.Fatal("geneddl err: %s", err.Error())
+		log.Fatal("genestruct err: %s", err.Error())
 	}
 
 	if err := common.WriteOutput(output); err != nil {

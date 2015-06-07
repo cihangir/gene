@@ -1,3 +1,0 @@
-package errs
-
-var ()

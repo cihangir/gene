@@ -12,28 +12,25 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct{}
+type Generator struct{}
 
-func New() *generator {
-	return &generator{}
+func New() *Generator {
+	return &Generator{}
 }
 
-var PathForFunctions = "%sworkers/%s/api/%s.go"
-
-func (g *generator) Name() string {
+func (g *Generator) Name() string {
 	return "functions"
 }
 
 // Generate generates and writes the errors of the schema
-func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 
-	keys := schema.SortedKeys(s.Definitions)
-	for _, key := range keys {
+	for _, key := range schema.SortedKeys(s.Definitions) {
 		def := s.Definitions[key]
 		output, err := GenerateAPI(
-			context.Config.Target,
+			context,
 			moduleName,
 			def,
 		)
@@ -48,18 +45,13 @@ func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 }
 
 // GenerateAPI generates and writes the api files
-func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) (common.Output, error) {
-	api, err := generate(moduleName, s)
+func GenerateAPI(context *common.Context, moduleName string, s *schema.Schema) (common.Output, error) {
+	api, err := generate(context, moduleName, s)
 	if err != nil {
 		return common.Output{}, err
 	}
 
-	path := fmt.Sprintf(
-		"%sworkers/%s/api/%s.go",
-		rootPath,
-		moduleName,
-		strings.ToLower(s.Title),
-	)
+	path := fmt.Sprintf("%s%s/api/%s.go", context.Config.Target, moduleName, strings.ToLower(s.Title))
 
 	return common.Output{
 		Content: api,
@@ -88,9 +80,8 @@ func ({{Pointerize $title}} *{{$title}}) {{$funcKey}}(ctx context.Context, req *
 `
 
 // Generate generates the constructors for given schema/model
-func generate(moduleName string, s *schema.Schema) ([]byte, error) {
-	temp := template.New("constructors.tmpl").Funcs(common.TemplateFuncs)
-
+func generate(context *common.Context, moduleName string, s *schema.Schema) ([]byte, error) {
+	temp := template.New("constructors.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(FunctionsTemplate); err != nil {
 		return nil, err
 	}

@@ -1,29 +1,6 @@
-package errors
+package errs
 
-import (
-	"encoding/json"
-
-	"testing"
-
-	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/testdata"
-	"github.com/cihangir/schema"
-)
-
-func TestErrors(t *testing.T) {
-	s := &schema.Schema{}
-	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
-	common.TestEquals(t, nil, err)
-
-	s = s.Resolve(s)
-	context := common.NewContext()
-
-	a, err := generate(context, s.Definitions["Account"])
-	common.TestEquals(t, nil, err)
-	common.TestEquals(t, expected, string(a))
-}
-
-const expected = `package errs
+import "errors"
 
 var (
 	ErrAccountCreatedAtNotSet              = errors.New("Account.CreatedAt not set")
@@ -38,4 +15,3 @@ var (
 	ErrAccountURLNotSet                    = errors.New("Account.URL not set")
 	ErrAccountURLNameNotSet                = errors.New("Account.URLName not set")
 )
-`

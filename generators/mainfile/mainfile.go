@@ -12,21 +12,19 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct{}
+type Generator struct{}
 
-func New() *generator {
-	return &generator{}
+func New() *Generator {
+	return &Generator{}
 }
 
-var PathForMain = "%scmd/%s/main.go"
-
-func (g *generator) Name() string {
+func (g *Generator) Name() string {
 	return "statements"
 }
 
 // GenerateMainFile handles the main file generation for persistent
 // connection rpc server
-func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(schema.Title)
 	outputs := make([]common.Output, 0)
 
@@ -40,13 +38,13 @@ func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]
 			}
 		}
 
-		f, err := generateMainFile(schema)
+		f, err := generateMainFile(context, schema)
 		if err != nil {
 			return nil, err
 		}
 
 		path := fmt.Sprintf(
-			PathForMain,
+			"%s%s/main.go",
 			context.Config.Target,
 			moduleName,
 		)
@@ -62,9 +60,9 @@ func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]
 
 }
 
-func generateMainFile(s *schema.Schema) ([]byte, error) {
+func generateMainFile(context *common.Context, s *schema.Schema) ([]byte, error) {
 	const templateName = "mainfile.tmpl"
-	temp := template.New(templateName).Funcs(common.TemplateFuncs)
+	temp := template.New(templateName).Funcs(context.TemplateFuncs)
 
 	if _, err := temp.Parse(MainFileTemplate); err != nil {
 		return nil, err
