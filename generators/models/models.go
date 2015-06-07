@@ -7,7 +7,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/generators/constants"
 	"github.com/cihangir/gene/generators/constructors"
@@ -18,7 +17,7 @@ import (
 )
 
 type generator struct {
-	context *config.Context
+	context *common.Context
 	schema  *schema.Schema
 }
 
@@ -30,7 +29,7 @@ func (g *generator) Name() string {
 	return "models"
 }
 
-func (g *generator) Generate(context *config.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
 	for _, def := range schema.Definitions {

@@ -5,7 +5,6 @@ import (
 
 	"testing"
 
-	"github.com/cihangir/gene/config"
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
@@ -20,7 +19,7 @@ func TestDatabase(t *testing.T) {
 	s = s.Resolve(s)
 	g := New()
 
-	context := config.NewContext()
+	context := common.NewContext()
 	moduleName := context.ModuleNameFunc(s.Title)
 	settings := g.generateSettings(moduleName, s)
 
@@ -35,7 +34,7 @@ func TestDatabase(t *testing.T) {
 		settingsDef := g.setDefaultSettings(settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
-		sts, err := DefineDatabase(settingsDef, def)
+		sts, err := DefineDatabase(context, settingsDef, def)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
@@ -46,8 +45,7 @@ func TestDatabase(t *testing.T) {
 }
 
 var expectedDatabases = []string{
-	`
--- Drop database
+	`-- Drop database
 DROP DATABASE IF EXISTS "mydatabase";
 -- Create database itself
 CREATE DATABASE "mydatabase" OWNER "social" ENCODING 'UTF8'  TEMPLATE template0;`,

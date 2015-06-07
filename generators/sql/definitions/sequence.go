@@ -18,16 +18,15 @@ func DefineSequence(context *common.Context, settings schema.Generator, s *schem
 	var buf bytes.Buffer
 
 	data := struct {
-		Schema     *schema.Schema
-		SchemaName string // postgres schema name
-		RoleName   string // postgres role name
-		TableName  string // postgres table name
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema:     s,
-		SchemaName: settings.Get("schemaName").(string),
-		RoleName:   settings.Get("roleName").(string),
-		TableName:  settings.Get("tableName").(string),
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
+
 	if err := temp.ExecuteTemplate(&buf, "create_sequences.tmpl", data); err != nil {
 		return nil, err
 	}
@@ -38,9 +37,9 @@ func DefineSequence(context *common.Context, settings schema.Generator, s *schem
 // SequenceTemplate holds the template for sequences
 var SequenceTemplate = `
 -- ----------------------------
---  Sequence structure for {{.SchemaName}}.{{.TableName}}_id
+--  Sequence structure for {{.Settings.schemaName}}.{{.Settings.tableName}}_id
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "{{.SchemaName}}"."{{.TableName}}_id_seq" CASCADE;
-CREATE SEQUENCE "{{.SchemaName}}"."{{.TableName}}_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
-GRANT USAGE ON SEQUENCE "{{.SchemaName}}"."{{.TableName}}_id_seq" TO "{{.RoleName}}";
+DROP SEQUENCE IF EXISTS "{{.Settings.schemaName}}"."{{.Settings.tableName}}_id_seq" CASCADE;
+CREATE SEQUENCE "{{.Settings.schemaName}}"."{{.Settings.tableName}}_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
+GRANT USAGE ON SEQUENCE "{{.Settings.schemaName}}"."{{.Settings.tableName}}_id_seq" TO "{{.Settings.roleName}}";
 `

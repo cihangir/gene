@@ -9,7 +9,6 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 // DefineSequence creates definition for sequences
@@ -24,20 +23,17 @@ func DefineTable(context *common.Context, settings schema.Generator, s *schema.S
 	var buf bytes.Buffer
 
 	data := struct {
+		Context    *common.Context
 		Schema     *schema.Schema
 		Properties []*schema.Schema
-		SchemaName string // postgres schema name
-		RoleName   string // postgres role name
-		TableName  string // postgres table name
 		Settings   schema.Generator
 	}{
+		Context:    context,
 		Schema:     s,
 		Properties: schema.SortedSchema(s.Properties),
-		SchemaName: settings.Get("schemaName").(string),
-		RoleName:   settings.Get("roleName").(string),
-		TableName:  settings.Get("tableName").(string),
 		Settings:   settings,
 	}
+
 	if err := temp.ExecuteTemplate(&buf, "create_table.tmpl", data); err != nil {
 		return nil, err
 	}
@@ -46,32 +42,31 @@ func DefineTable(context *common.Context, settings schema.Generator, s *schema.S
 }
 
 // TableTemplate holds the template for sequences
-var TableTemplate = `{{$schema := .Schema}}
-{{$properties := .Properties}}
-{{$settings := .Settings}}
+var TableTemplate = `{{$settings := .Settings}}
+{{$context := .Context}}
 -- ----------------------------
---  Table structure for {{.SchemaName}}.{{.TableName}}
+--  Table structure for {{$settings.schemaName}}.{{$settings.tableName}}
 -- ----------------------------
-DROP TABLE IF EXISTS "{{.SchemaName}}"."{{.TableName}}";
-CREATE TABLE "{{.SchemaName}}"."{{.TableName}}" (
-{{range $key, $value := $properties}}
-    {{GenerateSQLField $settings $value}}
+DROP TABLE IF EXISTS "{{$settings.schemaName}}"."{{$settings.tableName}}";
+CREATE TABLE "{{$settings.schemaName}}"."{{$settings.tableName}}" (
+{{range $key, $value := .Properties}}
+    {{GenerateSQLField $context $settings $value}}
 {{end}}
 ) WITH (OIDS = FALSE);-- end schema creation
-GRANT {{Join $settings.grants ", "}} ON "{{.SchemaName}}"."{{.TableName}}" TO "{{$settings.roleName}}";
+GRANT {{Join $settings.grants ", "}} ON "{{$settings.schemaName}}"."{{$settings.tableName}}" TO "{{$settings.roleName}}";
 `
 
 // DefineTable creates a definition line for a given coloumn
-func GenerateSQLField(settings schema.Generator, s *schema.Schema) (res string) {
+func GenerateSQLField(context *common.Context, settings schema.Generator, s *schema.Schema) (res string) {
 	propertyName := s.Title
 	schemaName := settings.Get("schemaName").(string)
 	tableName := settings.Get("tableName").(string)
 
 	property := s
 
-	fieldName := stringext.ToFieldName(propertyName) // transpiled version of property
+	fieldName := context.FieldNameFunc(propertyName) // transpiled version of property
 	if property.Title != "" {
-		fieldName = stringext.ToFieldName(property.Title)
+		fieldName = context.FieldNameFunc(property.Title)
 	}
 
 	fieldType := "" // will hold the type for coloumn
@@ -110,7 +105,7 @@ func GenerateSQLField(settings schema.Generator, s *schema.Schema) (res string) 
 	case "any":
 		panic("should specify type")
 	case "array":
-		panic("should specify type")
+		panic("array not supported")
 	case "object", "config":
 		// TODO implement embedded struct table creation
 		res = ""
@@ -129,18 +124,23 @@ func GenerateSQLField(settings schema.Generator, s *schema.Schema) (res string) 
 		fieldType = fmt.Sprintf(
 			"%q.\"%s_%s_enum\"",
 			schemaName,
-			stringext.ToFieldName(tableName),
-			stringext.ToFieldName(propertyName),
+			context.FieldNameFunc(tableName),
+			context.FieldNameFunc(propertyName),
 		)
 	}
 
 	res = fmt.Sprintf(
 		"%q %s %s %s %s,",
-		fieldName, // first name comes
-		fieldType, // then type of the coloumn
-		generateDefaultValue(schemaName, fieldName, tableName, property), // generate default value if exists
-		generateNotNull(s, propertyName),                                 // generate not null statement if requiired
-		generateCheckStatements(tableName, fieldName, property),          // generate validators
+		// first, name comes
+		fieldName,
+		// then type of the coloumn
+		fieldType,
+		//  generate default value if exists
+		generateDefaultValue(schemaName, fieldName, tableName, property),
+		// generate not null statement, if required
+		generateNotNull(s, propertyName),
+		// generate validators
+		generateCheckStatements(tableName, fieldName, property),
 	)
 
 	return res
@@ -148,6 +148,7 @@ func GenerateSQLField(settings schema.Generator, s *schema.Schema) (res string) 
 
 // generateDefaultValue generates `default` string for given coloumn
 func generateDefaultValue(schemaName string, propertyName, tableName string, s *schema.Schema) string {
+	// if property is id, use sequence generator as default value
 	if propertyName == "id" {
 		return fmt.Sprintf("DEFAULT nextval('%s.%s_id_seq' :: regclass) ", schemaName, tableName)
 	}
@@ -172,22 +173,23 @@ func generateDefaultValue(schemaName string, propertyName, tableName string, s *
 		def = fmt.Sprintf("%v", s.Default)
 	default:
 		def = fmt.Sprintf("%v", s.Default)
+
+		// if default is a function call, use it
 		if strings.HasSuffix(def, "()") {
 			return fmt.Sprintf("DEFAULT %s", def)
-		} else {
-			def = fmt.Sprintf("'%v'", s.Default)
 		}
+
+		// it is string, quote it
+		def = fmt.Sprintf("'%v'", s.Default)
 	}
 
 	return fmt.Sprintf("DEFAULT %s", strings.ToUpper(def))
 }
 
-// generateNotNull if field is int required values, set NOT NULL
+// generateNotNull if field is in required values, set NOT NULL
 func generateNotNull(s *schema.Schema, name string) string {
-	for _, n := range s.Required {
-		if name == n {
-			return "NOT NULL"
-		}
+	if schema.Required(name, s) {
+		return "NOT NULL"
 	}
 
 	return ""

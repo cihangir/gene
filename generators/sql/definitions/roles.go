@@ -18,18 +18,15 @@ func DefineRole(context *common.Context, settings schema.Generator, s *schema.Sc
 	var buf bytes.Buffer
 
 	data := struct {
-		Schema       *schema.Schema
-		DatabaseName string // postgres database name
-		SchemaName   string // postgres schema name
-		RoleName     string // postgres role name
-		TableName    string // postgres table name
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema:       s,
-		DatabaseName: settings.Get("databaseName").(string),
-		SchemaName:   settings.Get("schemaName").(string),
-		RoleName:     settings.Get("roleName").(string),
-		TableName:    settings.Get("tableName").(string),
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
+
 	if err := temp.ExecuteTemplate(&buf, "create_role.tmpl", data); err != nil {
 		return nil, err
 	}
@@ -39,12 +36,9 @@ func DefineRole(context *common.Context, settings schema.Generator, s *schema.Sc
 
 // RoleTemplate holds the template for types
 var RoleTemplate = `
-{{$databaseName := .DatabaseName}}
-{{$roleName := .RoleName}}
-
 -- Drop role
-DROP ROLE IF EXISTS "{{$roleName}}";
+DROP ROLE IF EXISTS "{{.Settings.roleName}}";
 
 -- Create role
-CREATE ROLE "{{$roleName}}";
+CREATE ROLE "{{.Settings.roleName}}";
 `
