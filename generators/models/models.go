@@ -17,20 +17,10 @@ import (
 
 type Generator struct{}
 
-func New() *Generator {
-	return &Generator{}
-}
-
-func (g *Generator) Name() string {
-	return "models"
-}
-
 func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
-		moduleName := strings.ToLower(def.Title)
-
 		f, err := GenerateModel(def)
 		if err != nil {
 			return nil, err
@@ -39,7 +29,7 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 		path := fmt.Sprintf(
 			"%s/%s.go",
 			context.Config.Target,
-			moduleName,
+			strings.ToLower(def.Title),
 		)
 
 		outputs = append(outputs, common.Output{
