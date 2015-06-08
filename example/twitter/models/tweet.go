@@ -1,4 +1,4 @@
-// Generated struct for models.
+// Generated struct for Tweet.
 package models
 
 import (

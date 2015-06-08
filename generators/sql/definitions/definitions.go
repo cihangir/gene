@@ -220,6 +220,7 @@ func GenerateDefinitions(context *common.Context, settings schema.Generator, s *
 		Schema:   s,
 		Settings: settings,
 	}
+
 	if err := temp.ExecuteTemplate(&buf, "create_statement.tmpl", data); err != nil {
 		return nil, err
 	}

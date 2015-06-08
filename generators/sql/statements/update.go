@@ -13,14 +13,19 @@ import (
 // GenerateUpdate generates the update sql statement for the given schema
 func GenerateUpdate(s *schema.Schema) ([]byte, error) {
 	temp := template.New("update_statement.tmpl").Funcs(common.TemplateFuncs)
-
 	if _, err := temp.Parse(UpdateStatementTemplate); err != nil {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "update_statement.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "update_statement.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -29,12 +34,12 @@ func GenerateUpdate(s *schema.Schema) ([]byte, error) {
 
 // UpdateStatementTemplate holds the template for the update sql statement generator
 var UpdateStatementTemplate = `
-// GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Title}}
-{{$title := Pointerize .Title}}
-func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateUpdateSQL() (string, []interface{}, error) {
+// GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
+{{$title := Pointerize .Schema.Title}}
+func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateUpdateSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update({{$title}}.TableName())
 
-    {{range $key, $value := .Properties}}
+    {{range $key, $value := .Schema.Properties}}
         {{/* handle strings */}}
         {{if Equal "string" $value.Type}}
             {{/* strings can have special formatting */}}

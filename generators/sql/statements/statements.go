@@ -27,16 +27,7 @@ func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]
 	moduleName := context.ModuleNameFunc(schema.Title)
 	outputs := make([]common.Output, 0)
 
-	for _, def := range schema.Definitions {
-		// create models only for objects
-		if def.Type != nil {
-			if t, ok := def.Type.(string); ok {
-				if t != "object" {
-					continue
-				}
-			}
-		}
-
+	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
 		f, err := GenerateModelStatements(def)
 		if err != nil {
 			return outputs, err
@@ -104,17 +95,19 @@ func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 // TODO remove this function
 func GeneratePackage(s *schema.Schema) ([]byte, error) {
 	temp := template.New("package.tmpl")
-	_, err := temp.Parse(PackageTemplate)
-	if err != nil {
+	if _, err := temp.Parse(PackageTemplate); err != nil {
 		return nil, err
+	}
+
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
 	}
 
 	var buf bytes.Buffer
 
-	// name := strings.ToLower(strings.Split(s.Title, " ")[0])
-	name := "models"
-	err = temp.ExecuteTemplate(&buf, "package.tmpl", name)
-	if err != nil {
+	if err := temp.ExecuteTemplate(&buf, "package.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -122,6 +115,6 @@ func GeneratePackage(s *schema.Schema) ([]byte, error) {
 }
 
 // PackageTemplate holds the template for the packages of the models
-var PackageTemplate = `// Generated struct for {{.}}.
-package {{.}}
+var PackageTemplate = `// Generated struct for {{.Schema.Title}}.
+package models
 `
