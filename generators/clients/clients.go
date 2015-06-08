@@ -14,31 +14,35 @@ import (
 
 type Generator struct{}
 
-func New() *Generator {
-	return &Generator{}
-}
-
-func (c *Generator) Name() string {
-	return "clients"
-}
-
 // Generate generates the client package for given schema
 func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+	tmpl := template.New("clients.tmpl").Funcs(context.TemplateFuncs)
+	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
+		return nil, err
+	}
+
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 
-	for _, def := range schema.SortedSchema(s.Definitions) {
-		if def.Type != nil {
-			if t, ok := def.Type.(string); ok {
-				if t != "object" {
-					continue
-				}
-			}
+	for _, def := range common.SortedObjectSchemas(s.Definitions) {
+
+		var buf bytes.Buffer
+
+		data := struct {
+			ModuleName string
+			Schema     *schema.Schema
+		}{
+			ModuleName: moduleName,
+			Schema:     def,
 		}
 
-		f, err := c.generate(context, moduleName, def)
+		if err := tmpl.Execute(&buf, data); err != nil {
+			return nil, err
+		}
+
+		f, err := format.Source(buf.Bytes())
 		if err != nil {
-			return outputs, err
+			return nil, err
 		}
 
 		path := fmt.Sprintf(
@@ -52,27 +56,4 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	}
 
 	return outputs, nil
-}
-
-func (c *Generator) generate(context *common.Context, moduleName string, s *schema.Schema) ([]byte, error) {
-	tmpl := template.New("clients.tmpl").Funcs(context.TemplateFuncs)
-	if _, err := tmpl.Parse(ClientsTemplate); err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-
-	data := struct {
-		ModuleName string
-		Schema     *schema.Schema
-	}{
-		ModuleName: moduleName,
-		Schema:     s,
-	}
-
-	if err := tmpl.Execute(&buf, data); err != nil {
-		return nil, err
-	}
-
-	return format.Source(buf.Bytes())
 }
