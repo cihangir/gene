@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+
+	"github.com/cihangir/schema"
 )
 
 // IsIn checks if the first param is in the following ones
@@ -17,6 +19,21 @@ func IsIn(s string, ts ...string) bool {
 	}
 
 	return false
+}
+
+func SortedObjectSchemas(m map[string]*schema.Schema) []*schema.Schema {
+	objectSchemas := make([]*schema.Schema, 0)
+	for _, def := range schema.SortedSchema(m) {
+		if def.Type != nil {
+			if t, ok := def.Type.(string); ok {
+				if t == "object" {
+					objectSchemas = append(objectSchemas, def)
+				}
+			}
+		}
+	}
+
+	return objectSchemas
 }
 
 func TestEquals(tb testing.TB, exp, act interface{}) {
