@@ -12,18 +12,21 @@ import (
 
 func TestErrors(t *testing.T) {
 	s := &schema.Schema{}
-	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
-	common.TestEquals(t, nil, err)
+	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
+		t.Fatal(err.Error())
+	}
 
 	s = s.Resolve(s)
-	context := common.NewContext()
 
-	a, err := generate(context, s.Definitions["Account"])
+	sts, err := (&Generator{}).Generate(common.NewContext(), s)
 	common.TestEquals(t, nil, err)
-	common.TestEquals(t, expected, string(a))
+
+	for i, s := range sts {
+		common.TestEquals(t, expecteds[i], string(s.Content))
+	}
 }
 
-const expected = `package errs
+var expecteds = []string{`package errs
 
 var (
 	ErrAccountCreatedAtNotSet              = errors.New("Account.CreatedAt not set")
@@ -38,4 +41,16 @@ var (
 	ErrAccountURLNotSet                    = errors.New("Account.URL not set")
 	ErrAccountURLNameNotSet                = errors.New("Account.URLName not set")
 )
-`
+`,
+	`package errs
+
+var (
+	ErrProfileAvatarURLNotSet = errors.New("Profile.AvatarURL not set")
+	ErrProfileCreatedAtNotSet = errors.New("Profile.CreatedAt not set")
+	ErrProfileFirstNameNotSet = errors.New("Profile.FirstName not set")
+	ErrProfileIdNotSet        = errors.New("Profile.Id not set")
+	ErrProfileLastNameNotSet  = errors.New("Profile.LastName not set")
+	ErrProfileNickNotSet      = errors.New("Profile.Nick not set")
+)
+`,
+}
