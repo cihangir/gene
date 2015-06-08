@@ -27,7 +27,7 @@ func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 
-	for _, def := range schema.SortedSchema(s.Definitions) {
+	for _, def := range common.SortedObjectSchemas(s.Definitions) {
 		output, err := GenerateAPI(context.Config.Target, moduleName, def)
 		if err != nil {
 			return nil, err

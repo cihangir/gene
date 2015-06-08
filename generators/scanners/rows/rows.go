@@ -25,18 +25,7 @@ func (g *Generator) Name() string {
 // Generate generates and writes the errors of the schema
 func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
-	for _, key := range schema.SortedKeys(s.Definitions) {
-		def := s.Definitions[key]
-
-		// create models only for objects
-		if def.Type != nil {
-			if t, ok := def.Type.(string); ok {
-				if t != "object" {
-					continue
-				}
-			}
-		}
-
+	for _, def := range common.SortedObjectSchemas(s.Definitions) {
 		output, err := GenerateScanner(context.Config.Target, def)
 		if err != nil {
 			return nil, err

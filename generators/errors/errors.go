@@ -26,16 +26,7 @@ func (g *Generator) Name() string {
 func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
-	for _, def := range s.Definitions {
-		// create models only for objects
-		if def.Type != nil {
-			if t, ok := def.Type.(string); ok {
-				if t != "object" {
-					continue
-				}
-			}
-		}
-
+	for _, def := range common.SortedObjectSchemas(s.Definitions) {
 		f, err := generate(context, def)
 		if err != nil {
 			return nil, err
