@@ -8,8 +8,8 @@ import (
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/constants"
-	"github.com/cihangir/gene/generators/constructors"
+	"github.com/cihangir/gene/generators/models/constants"
+	"github.com/cihangir/gene/generators/models/constructors"
 	"github.com/cihangir/gene/generators/validators"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
