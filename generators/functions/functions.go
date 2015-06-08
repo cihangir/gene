@@ -14,17 +14,8 @@ import (
 
 type Generator struct{}
 
-func New() *Generator {
-	return &Generator{}
-}
-
-func (g *Generator) Name() string {
-	return "functions"
-}
-
 // Generate generates and writes the errors of the schema
 func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	// prepare template
 	temp := template.New("constructors.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(FunctionsTemplate); err != nil {
 		return nil, err
@@ -70,23 +61,3 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	return outputs, nil
 }
-
-// FunctionsTemplate provides the template for constructors of models
-var FunctionsTemplate = `
-{{$schema := .Schema}}
-{{$title := $schema.Title}}
-
-package {{ToLower .ModuleName}}api
-
-// New creates a new local {{ToUpperFirst $title}} handler
-func New{{ToUpperFirst $title}}() *{{ToUpperFirst $title}} { return &{{ToUpperFirst $title}}{} }
-
-// {{ToUpperFirst $title}} is for holding the api functions
-type {{ToUpperFirst $title}} struct{}
-
-{{range $funcKey, $funcValue := $schema.Functions}}
-func ({{Pointerize $title}} *{{$title}}) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}, res *{{Argumentize $funcValue.Properties.outgoing}}) error {
-    return db.MustGetDB(ctx).{{$funcKey}}(models.New{{ToUpperFirst $title}}(), req, res)
-}
-{{end}}
-`

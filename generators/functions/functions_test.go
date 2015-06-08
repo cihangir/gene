@@ -16,7 +16,7 @@ func TestFunctions(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	sts, err := New().Generate(common.NewContext(), s)
+	sts, err := (&Generator{}).Generate(common.NewContext(), s)
 	common.TestEquals(t, nil, err)
 
 	for i, s := range sts {
