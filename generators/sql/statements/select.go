@@ -18,9 +18,15 @@ func GenerateSelect(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "select_statement.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "select_statement.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -29,15 +35,15 @@ func GenerateSelect(s *schema.Schema) ([]byte, error) {
 
 // SelectStatementTemplate holds the template for the select sql statement generator
 var SelectStatementTemplate = `
-// GenerateSelectSQL generates plain select sql statement for the given {{DepunctWithInitialUpper .Title}}
-{{$title := Pointerize .Title}}
-func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateSelectSQL() (string, []interface{}, error) {
+// GenerateSelectSQL generates plain select sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
+{{$title := Pointerize .Schema.Title}}
+func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateSelectSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("*").From({{$title}}.TableName())
 
     columns := make([]string, 0)
     values := make([]interface{}, 0)
 
-    {{range $key, $value := .Properties}}
+    {{range $key, $value := .Schema.Properties}}
         {{/* handle strings */}}
         {{if Equal "string" $value.Type}}
             {{/* strings can have special formatting */}}

@@ -68,9 +68,15 @@ func generateMainFile(context *common.Context, s *schema.Schema) ([]byte, error)
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, templateName, s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, templateName, data); err != nil {
 		return nil, err
 	}
 
@@ -90,7 +96,7 @@ import (
 )
 
 var (
-    Name    = "{{.Title}}"
+    Name    = "{{.Schema.Title}}"
     VERSION string
 )
 
@@ -102,9 +108,9 @@ var Mux = http.NewServeMux()
 
 func main() {
 
-    {{$Name := .Title}}
+    {{$Name := .Schema.Title}}
     server := rpcplus.NewServer()
-    {{range $key, $value := .Definitions}}
+    {{range $key, $value := .Schema.Definitions}}
         {{$type := .Type}}
         {{/* export functions if they have any exported function */}}
         {{if len .Functions}}

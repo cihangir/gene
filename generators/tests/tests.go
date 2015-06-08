@@ -93,9 +93,15 @@ func GenerateMainTestFileForModule(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "mainTestFile.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "mainTestFile.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -106,14 +112,19 @@ func GenerateMainTestFileForModule(s *schema.Schema) ([]byte, error) {
 func GenerateTestFuncs(s *schema.Schema) ([]byte, error) {
 	// TODO check if file is there, no need to continue
 	temp := template.New("testFuncs.tmpl")
-
 	if _, err := temp.Parse(TestFuncs); err != nil {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "testFuncs.tmpl", nil); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "testFuncs.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -128,8 +139,6 @@ func GenerateTests(moduleName string, s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	var buf bytes.Buffer
-
 	data := struct {
 		ModuleName string
 		Schema     *schema.Schema
@@ -137,6 +146,8 @@ func GenerateTests(moduleName string, s *schema.Schema) ([]byte, error) {
 		ModuleName: strings.ToLower(moduleName),
 		Schema:     s,
 	}
+
+	var buf bytes.Buffer
 
 	if err := temp.ExecuteTemplate(&buf, "tests.tmpl", data); err != nil {
 		return nil, err

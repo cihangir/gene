@@ -17,9 +17,15 @@ func Generate(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "constants.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "constants.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -28,8 +34,8 @@ func Generate(s *schema.Schema) ([]byte, error) {
 
 // ConstantsTemplate holds the template for the constant generation
 var ConstantsTemplate = `
-{{$title := .Title}}
-{{range $key, $value := .Properties}}
+{{$title := .Schema.Title}}
+{{range $key, $value := .Schema.Properties}}
     {{if len $value.Enum}}
         // {{DepunctWithInitialUpper $title}}{{DepunctWithInitialUpper $key}} holds the predefined enums
         var {{DepunctWithInitialUpper $title}}{{DepunctWithInitialUpper $key}}  = struct {

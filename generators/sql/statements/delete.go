@@ -17,10 +17,15 @@ func GenerateDelete(s *schema.Schema) ([]byte, error) {
 	if _, err := temp.Parse(DeleteStatementTemplate); err != nil {
 		return nil, err
 	}
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
 
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "delete_statement.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "delete_statement.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -29,15 +34,15 @@ func GenerateDelete(s *schema.Schema) ([]byte, error) {
 
 // DeleteStatementTemplate holds the template for the delete sql statement generator
 var DeleteStatementTemplate = `
-// GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Title}}
-{{$title := Pointerize .Title}}
-func ({{$title}} *{{DepunctWithInitialUpper .Title}}) GenerateDeleteSQL() (string, []interface{}, error) {
+// GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
+{{$title := Pointerize .Schema.Title}}
+func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateDeleteSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Delete({{$title}}.TableName())
 
     columns := make([]string, 0)
     values := make([]interface{}, 0)
 
-    {{range $key, $value := .Properties}}
+    {{range $key, $value := .Schema.Properties}}
         {{/* handle strings */}}
         {{if Equal "string" $value.Type}}
             {{/* strings can have special formatting */}}

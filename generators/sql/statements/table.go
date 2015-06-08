@@ -18,9 +18,15 @@ func GenerateTableName(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "table_name_statement.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "table_name_statement.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -29,9 +35,9 @@ func GenerateTableName(s *schema.Schema) ([]byte, error) {
 
 // TableNameTemplate holds the template for the TableName function
 var TableNameTemplate = `
-// TableName returns the table name for {{DepunctWithInitialUpper .Title}}
-{{$title := Pointerize .Title}}
-func ({{$title}} *{{DepunctWithInitialUpper .Title}}) TableName() string {
-    return "{{ToLower .Title}}"
+// TableName returns the table name for {{DepunctWithInitialUpper .Schema.Title}}
+{{$title := Pointerize .Schema.Title}}
+func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) TableName() string {
+    return "{{ToLower .Schema.Title}}"
 }
 `

@@ -89,11 +89,15 @@ func GeneratePackage(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	// name := strings.ToLower(strings.Split(s.Title, " ")[0])
-	name := "models"
-	err = temp.ExecuteTemplate(&buf, "package.tmpl", name)
+	err = temp.ExecuteTemplate(&buf, "package.tmpl", data)
 	if err != nil {
 		return nil, err
 	}
@@ -113,15 +117,13 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	context := struct {
-		Name       string
-		Definition *schema.Schema
+	data := struct {
+		Schema *schema.Schema
 	}{
-		Name:       s.Title,
-		Definition: s,
+		Schema: s,
 	}
 
-	err = temp.ExecuteTemplate(&buf, "schema.tmpl", context)
+	err = temp.ExecuteTemplate(&buf, "schema.tmpl", data)
 	if err != nil {
 		return nil, err
 	}

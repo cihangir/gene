@@ -42,7 +42,7 @@ func Equals(tb testing.TB, exp, act interface{}) {
 
 // MainTestsTemplate holds the test file template
 var MainTestsTemplate = `
-{{$ModuleName := ToLower .Title}}
+{{$ModuleName := ToLower .Schema.Title}}
 
 package {{$ModuleName}}tests
 
@@ -69,7 +69,7 @@ func createClient(tb testing.TB) *rpcplus.Client {
     return client
 }
 
-{{range $defKey, $def := .Definitions}}
+{{range $defKey, $def := .Schema.Definitions}}
 
 func with{{$defKey}}Client(tb testing.TB, f func(*{{$ModuleName}}client.{{$defKey}})) {
     client := createClient(tb)

@@ -24,10 +24,15 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
+		data := struct {
+			Schema *schema.Schema
+		}{
+			Schema: def,
+		}
 
 		var buf bytes.Buffer
 
-		if err := temp.ExecuteTemplate(&buf, "errors.tmpl", def); err != nil {
+		if err := temp.ExecuteTemplate(&buf, "errors.tmpl", data); err != nil {
 			return nil, err
 		}
 

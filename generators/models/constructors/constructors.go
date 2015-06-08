@@ -18,9 +18,15 @@ func Generate(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
+	data := struct {
+		Schema *schema.Schema
+	}{
+		Schema: s,
+	}
+
 	var buf bytes.Buffer
 
-	if err := temp.ExecuteTemplate(&buf, "constructors.tmpl", s); err != nil {
+	if err := temp.ExecuteTemplate(&buf, "constructors.tmpl", data); err != nil {
 		return nil, err
 	}
 
@@ -29,11 +35,11 @@ func Generate(s *schema.Schema) ([]byte, error) {
 
 // ConstructorsTemplate provides the template for constructors of models
 var ConstructorsTemplate = `
-{{$title := DepunctWithInitialUpper .Title}}
+{{$title := DepunctWithInitialUpper .Schema.Title}}
 // New{{$title}} creates a new {{$title}} struct with default values
 func New{{$title}}() *{{$title}} {
-    return &{{DepunctWithInitialUpper .Title}}{
-        {{range $key, $value := .Properties}}
+    return &{{DepunctWithInitialUpper .Schema.Title}}{
+        {{range $key, $value := .Schema.Properties}}
             {{/* only process if default value is set */}}
             {{if $value.Default}}
                 {{/* handle strings */}}
