@@ -18,6 +18,7 @@ func Generate(s *schema.Schema) ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
+
 	if err := temp.ExecuteTemplate(&buf, "constants.tmpl", s); err != nil {
 		return nil, err
 	}

@@ -8,39 +8,19 @@ import (
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/constants"
-	"github.com/cihangir/gene/generators/constructors"
-	"github.com/cihangir/gene/generators/validators"
+	"github.com/cihangir/gene/generators/models/constants"
+	"github.com/cihangir/gene/generators/models/constructors"
+	"github.com/cihangir/gene/generators/models/validators"
 	"github.com/cihangir/gene/writers"
 	"github.com/cihangir/schema"
-	"github.com/cihangir/stringext"
 )
 
 type Generator struct{}
 
-func New() *Generator {
-	return &Generator{}
-}
-
-func (g *Generator) Name() string {
-	return "models"
-}
-
 func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
 
-	for _, def := range schema.Definitions {
-		// create models only for objects
-		if def.Type != nil {
-			if t, ok := def.Type.(string); ok {
-				if t == "config" {
-					continue
-				}
-			}
-		}
-
-		moduleName := strings.ToLower(def.Title)
-
+	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
 		f, err := GenerateModel(def)
 		if err != nil {
 			return nil, err
@@ -49,7 +29,7 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 		path := fmt.Sprintf(
 			"%s/%s.go",
 			context.Config.Target,
-			moduleName,
+			strings.ToLower(def.Title),
 		)
 
 		outputs = append(outputs, common.Output{
@@ -143,38 +123,6 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 
 	err = temp.ExecuteTemplate(&buf, "schema.tmpl", context)
 	if err != nil {
-		return nil, err
-	}
-
-	return writers.Clear(buf)
-}
-
-// GenerateFunctions generates the functions according to the schema.
-func GenerateFunctions(s *schema.Schema) ([]byte, error) {
-	temp := template.New("functions.tmpl")
-	temp.Funcs(template.FuncMap{
-		"Pointerize": stringext.Pointerize,
-	})
-
-	_, err := temp.Parse(FunctionsTemplate)
-	if err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-
-	context := struct {
-		Name  string
-		Funcs []string
-	}{
-		Name: s.Title,
-		Funcs: []string{
-			"Create", "Update", "Delete", "ById",
-			"Some", "One",
-		},
-	}
-
-	if err := temp.ExecuteTemplate(&buf, "functions.tmpl", context); err != nil {
 		return nil, err
 	}
 

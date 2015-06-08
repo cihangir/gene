@@ -13,17 +13,18 @@ import (
 func TestFunctions(t *testing.T) {
 	s := &schema.Schema{}
 	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
-	common.TestEquals(t, nil, err)
 
 	s = s.Resolve(s)
-	context := common.NewContext()
 
-	a, err := generate(context, "test", s.Definitions["Account"])
+	sts, err := (&Generator{}).Generate(common.NewContext(), s)
 	common.TestEquals(t, nil, err)
-	common.TestEquals(t, expected, string(a))
+
+	for i, s := range sts {
+		common.TestEquals(t, expecteds[i], string(s.Content))
+	}
 }
 
-const expected = `package testapi
+var expecteds = []string{`package accountapi
 
 // New creates a new local Account handler
 func NewAccount() *Account { return &Account{} }
@@ -50,4 +51,33 @@ func (a *Account) Some(ctx context.Context, req *models.Account, res *[]*models.
 func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {
 	return db.MustGetDB(ctx).Update(models.NewAccount(), req, res)
 }
-`
+`,
+	`package accountapi
+
+// New creates a new local Profile handler
+func NewProfile() *Profile { return &Profile{} }
+
+// Profile is for holding the api functions
+type Profile struct{}
+
+func (p *Profile) Create(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return db.MustGetDB(ctx).Create(models.NewProfile(), req, res)
+}
+
+func (p *Profile) Delete(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return db.MustGetDB(ctx).Delete(models.NewProfile(), req, res)
+}
+
+func (p *Profile) One(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return db.MustGetDB(ctx).One(models.NewProfile(), req, res)
+}
+
+func (p *Profile) Some(ctx context.Context, req *models.Profile, res *[]*models.Profile) error {
+	return db.MustGetDB(ctx).Some(models.NewProfile(), req, res)
+}
+
+func (p *Profile) Update(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return db.MustGetDB(ctx).Update(models.NewProfile(), req, res)
+}
+`,
+}

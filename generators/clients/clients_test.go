@@ -18,12 +18,15 @@ func TestClients(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	a, err := New().Generate(common.NewContext(), s)
+	sts, err := (&Generator{}).Generate(common.NewContext(), s)
 	common.TestEquals(t, nil, err)
-	common.TestEquals(t, expected, string(a[0].Content))
+
+	for i, s := range sts {
+		common.TestEquals(t, expecteds[i], string(s.Content))
+	}
 }
 
-const expected = `package accountclient
+var expecteds = []string{`package accountclient
 
 import (
 	"github.com/youtube/vitess/go/rpcplus"
@@ -61,4 +64,44 @@ func (a *Account) Some(ctx context.Context, req *models.Account, res *[]*models.
 func (a *Account) Update(ctx context.Context, req *models.Account, res *models.Account) error {
 	return a.client.Call(ctx, "Account.Update", req, res)
 }
-`
+`,
+	`package accountclient
+
+import (
+	"github.com/youtube/vitess/go/rpcplus"
+	"golang.org/x/net/context"
+)
+
+// New creates a new local Profile rpc client
+func NewProfile(client *rpcplus.Client) *Profile {
+	return &Profile{
+		client: client,
+	}
+}
+
+// Profile is for holding the api functions
+type Profile struct {
+	client *rpcplus.Client
+}
+
+func (p *Profile) Create(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return p.client.Call(ctx, "Profile.Create", req, res)
+}
+
+func (p *Profile) Delete(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return p.client.Call(ctx, "Profile.Delete", req, res)
+}
+
+func (p *Profile) One(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return p.client.Call(ctx, "Profile.One", req, res)
+}
+
+func (p *Profile) Some(ctx context.Context, req *models.Profile, res *[]*models.Profile) error {
+	return p.client.Call(ctx, "Profile.Some", req, res)
+}
+
+func (p *Profile) Update(ctx context.Context, req *models.Profile, res *models.Profile) error {
+	return p.client.Call(ctx, "Profile.Update", req, res)
+}
+`,
+}
