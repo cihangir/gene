@@ -23,24 +23,19 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	outputs := make([]common.Output, 0)
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
-
-		var buf bytes.Buffer
-
 		data := struct {
 			Schema *schema.Schema
 		}{
 			Schema: def,
 		}
 
+		var buf bytes.Buffer
+
 		if err := temp.ExecuteTemplate(&buf, "rowscanner.tmpl", data); err != nil {
 			return nil, err
 		}
 
 		f, err := format.Source(buf.Bytes())
-		if err != nil {
-			return nil, err
-		}
-
 		if err != nil {
 			return nil, err
 		}

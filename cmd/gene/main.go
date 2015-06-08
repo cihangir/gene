@@ -10,7 +10,7 @@ import (
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
-	"github.com/cihangir/gene/generators/scanners/rows"
+	"github.com/cihangir/gene/generators/models/rowsscanner"
 	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/koding/multiconfig"
 
