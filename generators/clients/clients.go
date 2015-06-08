@@ -27,9 +27,7 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 
-	for _, key := range schema.SortedKeys(s.Definitions) {
-		def := s.Definitions[key]
-
+	for _, def := range schema.SortedSchema(s.Definitions) {
 		if def.Type != nil {
 			if t, ok := def.Type.(string); ok {
 				if t != "object" {

@@ -27,36 +27,26 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 
-	for _, key := range schema.SortedKeys(s.Definitions) {
-		def := s.Definitions[key]
-		output, err := GenerateAPI(
-			context,
-			moduleName,
-			def,
-		)
+	for _, def := range schema.SortedSchema(s.Definitions) {
+		api, err := generate(context, moduleName, def)
 		if err != nil {
 			return nil, err
 		}
 
-		outputs = append(outputs, output)
+		path := fmt.Sprintf(
+			"%s%s/api/%s.go",
+			context.Config.Target,
+			moduleName,
+			strings.ToLower(s.Title),
+		)
+
+		outputs = append(outputs, common.Output{
+			Content: api,
+			Path:    path,
+		})
 	}
 
 	return outputs, nil
-}
-
-// GenerateAPI generates and writes the api files
-func GenerateAPI(context *common.Context, moduleName string, s *schema.Schema) (common.Output, error) {
-	api, err := generate(context, moduleName, s)
-	if err != nil {
-		return common.Output{}, err
-	}
-
-	path := fmt.Sprintf("%s%s/api/%s.go", context.Config.Target, moduleName, strings.ToLower(s.Title))
-
-	return common.Output{
-		Content: api,
-		Path:    path,
-	}, nil
 }
 
 // FunctionsTemplate provides the template for constructors of models

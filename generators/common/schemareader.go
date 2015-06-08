@@ -42,6 +42,5 @@ func unmarshall(path string, fileContent []byte) (*schema.Schema, error) {
 		return nil, errors.New("Unmarshal not implemented")
 	}
 
-	// return s.Resolve(s), nil
 	return s, nil
 }
