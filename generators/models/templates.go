@@ -10,12 +10,3 @@ var StructTemplate = `
 {{AsComment .Definition.Description}}
 type {{ToUpperFirst .Name}} {{goType .Definition}}
 `
-
-// FunctionsTemplate holds the template for the functions of the models
-var FunctionsTemplate = `{{$Name := .Name}}
-{{range .Funcs}}
-    func ({{Pointerize $Name}} *{{$Name}}){{.}}() {
-
-    }
-{{end}}
-`

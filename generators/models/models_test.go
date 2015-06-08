@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/validators"
+	"github.com/cihangir/gene/generators/models/validators"
 	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 )
@@ -82,13 +82,4 @@ func (a *Account) Validate() error {
 	code, err := validators.Generate(s.Definitions["Account"])
 	common.TestEquals(t, nil, err)
 	common.TestEquals(t, result, string(code))
-}
-
-func TestGenerateFunctions(t *testing.T) {
-	s := &schema.Schema{}
-	err := json.Unmarshal([]byte(testdata.JSON1), s)
-	common.TestEquals(t, nil, err)
-
-	_, err = GenerateFunctions(s)
-	common.TestEquals(t, nil, err)
 }
