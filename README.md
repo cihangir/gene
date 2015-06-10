@@ -21,7 +21,7 @@ for various cases, like validation, documentation, and interaction control.  A
 JSON Schema provides a contract for the JSON data required by a given
 application, and how that data can be modified.
 
-TLDR: here is an example [account.json](https://github.com/cihangir/gene/blob/master/example/account.json)
+TLDR: here is an example [twitter.json](https://github.com/cihangir/gene/blob/master/example/twitter.json)
 
 ## Features
 
@@ -69,40 +69,56 @@ After having gene executable in your path
 Pass schema flag for your base json-schema, and target as the existing path for your app
 
 ```
-gene  -schema ./testdata/test.json -target ./
+gene -schema ./example/twitter.json -target ./example/
 ```
+
 
 For now, it is generating the following folder/file structure
 ```
-├── app
-├── cmd
-│   └── account
-│       └── main.go
-├── models
-│   ├── account.go
-│   ├── account_statements.go
-│   ├── profile.go
-│   └── profile_statements.go
-├── tests
-│   └── testfuncs.go
-└── workers
-    └── account
-        ├── api
-        │   ├── account.go
-        │   ├── config.go
-        │   └── profile.go
-        ├── clients
-        │   ├── account.go
-        │   └── profile.go
-        ├── errors
-        │   └── account.go
-        ├── js
-        │   ├── account.js
-        │   ├── config.js
-        │   └── profile.js
-        └── tests
-            ├── common_test.go
-            └── config_test.go
+➜  gene git:(master.statements) ✗ tree ./example
+./example
+├── twitter
+│   ├── cmd
+│   │   └── twitter
+│   │       └── main.go
+│   ├── db
+│   │   ├── 001-twitter_db_roles.sql
+│   │   ├── 002-twitter_db_database.sql
+│   │   ├── account
+│   │   │   ├── 004-schema.sql
+│   │   │   ├── 005-account-sequence.sql
+│   │   │   ├── 005-profile-sequence.sql
+│   │   │   ├── 006-account-types.sql
+│   │   │   ├── 007-account-table.sql
+│   │   │   └── 007-profile-table.sql
+│   │   └── tweet
+│   │       ├── 004-schema.sql
+│   │       ├── 005-tweet-sequence.sql
+│   │       ├── 007-tweet-constraints.sql
+│   │       └── 007-tweet-table.sql
+│   ├── errors
+│   │   ├── account.go
+│   │   ├── profile.go
+│   │   └── tweet.go
+│   ├── models
+│   │   ├── account.go
+│   │   ├── account_rowscanner.go
+│   │   ├── profile.go
+│   │   ├── profile_rowscanner.go
+│   │   ├── tweet.go
+│   │   └── tweet_rowscanner.go
+│   └── workers
+│       └── twitter
+│           ├── api
+│           │   ├── account.go
+│           │   ├── config.go
+│           │   ├── profile.go
+│           │   └── twitter.go
+│           └── clients
+│               ├── account.go
+│               ├── profile.go
+│               └── tweet.go
+└── twitter.json
 
-12 directories, 17 files
+12 directories, 30 files
 ```
