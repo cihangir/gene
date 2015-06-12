@@ -15,7 +15,7 @@ func ({{Pointerize $title}} *{{$title}}) RowsScan(rows *sql.Rows, dest interface
     for rows.Next() {
         m := New{{ToUpperFirst $title}}()
         err := rows.Scan(
-        {{range $n, $p := $schema.Properties}} &m.{{DepunctWithInitialUpper $p.Title}},
+        {{range $n, $p := SortedSchema $schema.Properties}} &m.{{DepunctWithInitialUpper $p.Title}},
         {{end}} )
         if err != nil {
             return err
