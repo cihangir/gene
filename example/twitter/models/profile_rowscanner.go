@@ -11,14 +11,14 @@ func (p *Profile) RowsScan(rows *sql.Rows, dest interface{}) error {
 	for rows.Next() {
 		m := NewProfile()
 		err := rows.Scan(
-			&m.AvatarURL,
-			&m.CreatedAt,
-			&m.Description,
 			&m.ID,
-			&m.LinkColor,
-			&m.Location,
 			&m.ScreenName,
 			&m.URL,
+			&m.Location,
+			&m.Description,
+			&m.LinkColor,
+			&m.AvatarURL,
+			&m.CreatedAt,
 		)
 		if err != nil {
 			return err

@@ -23,4 +23,6 @@ var TemplateFuncs = template.FuncMap{
 	"Equal":                   stringext.Equal,
 	"ToFieldName":             stringext.ToFieldName,
 	"Argumentize":             schema.Argumentize,
+	"SortedObjectSchemas":     SortedObjectSchemas,
+	"SortedSchema":            schema.SortedSchema,
 }

@@ -11,14 +11,14 @@ func (t *Tweet) RowsScan(rows *sql.Rows, dest interface{}) error {
 	for rows.Next() {
 		m := NewTweet()
 		err := rows.Scan(
-			&m.Body,
-			&m.CreatedAt,
-			&m.FavouritesCount,
 			&m.ID,
-			&m.Location,
-			&m.PossiblySensitive,
 			&m.ProfileID,
+			&m.Body,
+			&m.Location,
 			&m.RetweetCount,
+			&m.FavouritesCount,
+			&m.PossiblySensitive,
+			&m.CreatedAt,
 		)
 		if err != nil {
 			return err
