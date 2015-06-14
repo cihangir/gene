@@ -90,6 +90,9 @@ var TestDataFull = `{
                                 "BooleanBare",
                                 "StringBare"
                             ]
+                        ],
+                        "foreignKeys": [
+                            ["AccountId", "Account.Account.Id"]
                         ]
                     }
                 }

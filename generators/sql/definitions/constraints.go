@@ -59,7 +59,7 @@ func DefineConstraints(context *common.Context, settings schema.Generator, s *sc
 				)
 
 			}
-			uniqueKeyConstraints = fmt.Sprintf("-------------------------------\n--  Uniqueu key structure for table %s\n-- ----------------------------\n%s",
+			uniqueKeyConstraints = fmt.Sprintf("-------------------------------\n--  Unique key structure for table %s\n-- ----------------------------\n%s",
 				settings.Get("tableName"),
 				uniqueKeyConstraints,
 			)
@@ -67,5 +67,44 @@ func DefineConstraints(context *common.Context, settings schema.Generator, s *sc
 		}
 	}
 
-	return clean([]byte(primaryKeyConstraint + uniqueKeyConstraints)), nil
+	foreignKeyConstraints := ""
+	foreignKeys := settings.Get("foreignKeys")
+	if foreignKeys != nil {
+		ukci := foreignKeys.([]interface{})
+		if len(ukci) > 0 {
+			for _, fkc := range ukci {
+				fkcs := fkc.([]interface{})
+				localField := context.FieldNameFunc(fkcs[0].(string))
+				refFields := strings.Split(fkcs[1].(string), ".")
+				if len(refFields) != 3 {
+					return nil, fmt.Errorf("need schemaName.tableName.fieldName")
+				}
+				keyName := fmt.Sprintf(
+					"%s_%s_%s",
+					context.FieldNameFunc("fkey"),
+					context.FieldNameFunc(settings.Get("tableName").(string)),
+					localField,
+				)
+
+				foreignKeyConstraints += fmt.Sprintf(
+					"ALTER TABLE %q.%q ADD CONSTRAINT %q FOREIGN KEY (\"%s\") REFERENCES %s.%s (%s) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE;\n",
+					settings.Get("schemaName"),
+					settings.Get("tableName"),
+					keyName,
+					localField,
+					context.FieldNameFunc(refFields[0]), // first item schema name
+					context.FieldNameFunc(refFields[1]), // second item table name
+					context.FieldNameFunc(refFields[2]), // third item field name
+
+				)
+
+				foreignKeyConstraints = fmt.Sprintf("-------------------------------\n--  Foreign keys structure for table %s\n-- ----------------------------\n%s",
+					settings.Get("tableName"),
+					foreignKeyConstraints,
+				)
+			}
+		}
+	}
+
+	return clean([]byte(primaryKeyConstraint + uniqueKeyConstraints + foreignKeyConstraints)), nil
 }

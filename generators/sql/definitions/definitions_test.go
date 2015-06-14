@@ -195,8 +195,12 @@ GRANT SELECT, UPDATE ON "account"."profile" TO "social";`,
 -- ----------------------------
 ALTER TABLE "account"."profile" ADD PRIMARY KEY ("id") NOT DEFERRABLE INITIALLY IMMEDIATE;
 -------------------------------
---  Uniqueu key structure for table profile
+--  Unique key structure for table profile
 -- ----------------------------
 ALTER TABLE "account"."profile" ADD CONSTRAINT "key_profile_id" UNIQUE ("id") NOT DEFERRABLE INITIALLY IMMEDIATE;
-ALTER TABLE "account"."profile" ADD CONSTRAINT "key_profile_boolean_bare_string_bare" UNIQUE ("boolean_bare", "string_bare") NOT DEFERRABLE INITIALLY IMMEDIATE;`,
+ALTER TABLE "account"."profile" ADD CONSTRAINT "key_profile_boolean_bare_string_bare" UNIQUE ("boolean_bare", "string_bare") NOT DEFERRABLE INITIALLY IMMEDIATE;
+-------------------------------
+--  Foreign keys structure for table profile
+-- ----------------------------
+ALTER TABLE "account"."profile" ADD CONSTRAINT "fkey_profile_account_id" FOREIGN KEY ("account_id") REFERENCES account.account (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE;`,
 }
