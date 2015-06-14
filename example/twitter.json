@@ -203,6 +203,13 @@
                             "SELECT",
                             "INSERT",
                             "DELETE"
+                        ],
+                        "primaryKey": [
+                            "Id"
+                        ],
+                        "uniqueKeys": [
+                            [ "Id" ],
+                            [ "URL" ]
                         ]
                     }
                 }
@@ -225,13 +232,8 @@
                     "type": "string",
                     "minLength": 6
                 },
-                "URLName": {
-                    "description": "Salted Password of the Account",
-                    "type": "string",
-                    "minLength": 6
-                },
                 "URL": {
-                    "description": "Salted Password of the Account",
+                    "description": "Unique URL of the Account",
                     "type": "string",
                     "minLength": 6
                 },

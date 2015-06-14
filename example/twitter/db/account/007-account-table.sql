@@ -17,8 +17,6 @@ CREATE TABLE "account"."account" (
     "salt" VARCHAR (255) COLLATE "default",
     "status_constant" "account"."account_status_constant_enum" DEFAULT 'registered',
     "url" TEXT COLLATE "default"
-        CONSTRAINT "check_account_url_min_length_6" CHECK (char_length("url") > 6 ),
-    "url_name" TEXT COLLATE "default"
-        CONSTRAINT "check_account_url_name_min_length_6" CHECK (char_length("url_name") > 6 )
+        CONSTRAINT "check_account_url_min_length_6" CHECK (char_length("url") > 6 )
 ) WITH (OIDS = FALSE);-- end schema creation
 GRANT SELECT, INSERT, DELETE ON "account"."account" TO "twitter_db_role";

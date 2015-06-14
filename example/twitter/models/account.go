@@ -49,8 +49,7 @@ type Account struct {
 	ProfileID              int64     `json:"profileId,omitempty,string"`       // The unique identifier for a Account's Profile
 	Salt                   string    `json:"salt,omitempty"`                   // Salt used to hash Password of the Account
 	StatusConstant         string    `json:"statusConstant,omitempty"`         // Status of the Account
-	URL                    string    `json:"url,omitempty"`                    // Salted Password of the Account
-	URLName                string    `json:"urlName,omitempty"`                // Salted Password of the Account
+	URL                    string    `json:"url,omitempty"`                    // Unique URL of the Account
 }
 
 // NewAccount creates a new Account struct with default values
@@ -71,7 +70,6 @@ func (a *Account) Validate() error {
 		govalidator.Min(float64(a.ProfileID), 1.000000),
 		govalidator.MinLength(a.Password, 6),
 		govalidator.MinLength(a.URL, 6),
-		govalidator.MinLength(a.URLName, 6),
 		govalidator.OneOf(a.EmailStatusConstant, []string{
 			AccountEmailStatusConstant.Verified,
 			AccountEmailStatusConstant.NotVerified,
