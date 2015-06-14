@@ -11,16 +11,16 @@ func (a *Account) RowsScan(rows *sql.Rows, dest interface{}) error {
 	for rows.Next() {
 		m := NewAccount()
 		err := rows.Scan(
-			&m.CreatedAt,
+			&m.ID,
+			&m.ProfileID,
+			&m.Password,
+			&m.URL,
+			&m.PasswordStatusConstant,
+			&m.Salt,
 			&m.EmailAddress,
 			&m.EmailStatusConstant,
-			&m.ID,
-			&m.Password,
-			&m.PasswordStatusConstant,
-			&m.ProfileID,
-			&m.Salt,
 			&m.StatusConstant,
-			&m.URL,
+			&m.CreatedAt,
 		)
 		if err != nil {
 			return err

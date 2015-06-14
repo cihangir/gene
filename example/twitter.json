@@ -222,23 +222,27 @@
                     "description": "The unique identifier for a Account",
                     "type": "number",
                     "format": "int64",
-                    "minimum": 1
+                    "minimum": 1,
+                    "propertyOrder": 10
                 },
                 "ProfileId": {
                     "description": "The unique identifier for a Account's Profile",
                     "type": "number",
                     "format": "int64",
-                    "minimum": 1
+                    "minimum": 1,
+                    "propertyOrder": 20
                 },
                 "Password": {
                     "description": "Salted Password of the Account",
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "propertyOrder": 30
                 },
                 "URL": {
                     "description": "Unique URL of the Account",
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "propertyOrder": 40
                 },
                 "PasswordStatusConstant": {
                     "description": "Status of the Account's Password",
@@ -248,18 +252,21 @@
                         "needsReset",
                         "generated"
                     ],
-                    "default": "valid"
+                    "default": "valid",
+                    "propertyOrder": 50
                 },
                 "Salt": {
                     "description": "Salt used to hash Password of the Account",
                     "type": "string",
                     "minLength": 0,
-                    "maxLength": 255
+                    "maxLength": 255,
+                    "propertyOrder": 60
                 },
                 "EmailAddress": {
                     "description": "Email Address of the Account",
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "propertyOrder": 70
                 },
                 "EmailStatusConstant": {
                     "description": "Status of the Account's Email",
@@ -268,7 +275,8 @@
                         "verified",
                         "notVerified"
                     ],
-                    "default": "notVerified"
+                    "default": "notVerified",
+                    "propertyOrder": 80
                 },
                 "StatusConstant": {
                     "description": "Status of the Account",
@@ -278,13 +286,15 @@
                         "unregistered",
                         "needsManualVerification"
                     ],
-                    "default": "registered"
+                    "default": "registered",
+                    "propertyOrder": 90
                 },
                 "CreatedAt": {
                     "description": "Profile's creation time",
                     "type": "string",
                     "format": "date-time",
-                    "default": "now()"
+                    "default": "now()",
+                    "propertyOrder": 100
                 }
             },
             "required": [
