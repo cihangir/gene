@@ -40,16 +40,16 @@ var AccountStatusConstant = struct {
 
 // Account represents a registered User
 type Account struct {
-	CreatedAt              time.Time `json:"createdAt,omitempty"`              // Profile's creation time
+	ID                     int64     `json:"id,omitempty,string"`              // The unique identifier for a Account
+	ProfileID              int64     `json:"profileId,omitempty,string"`       // The unique identifier for a Account's Profile
+	Password               string    `json:"password"`                         // Salted Password of the Account
+	URL                    string    `json:"url,omitempty"`                    // Unique URL of the Account
+	PasswordStatusConstant string    `json:"passwordStatusConstant,omitempty"` // Status of the Account's Password
+	Salt                   string    `json:"salt,omitempty"`                   // Salt used to hash Password of the Account
 	EmailAddress           string    `json:"emailAddress"`                     // Email Address of the Account
 	EmailStatusConstant    string    `json:"emailStatusConstant,omitempty"`    // Status of the Account's Email
-	ID                     int64     `json:"id,omitempty,string"`              // The unique identifier for a Account
-	Password               string    `json:"password"`                         // Salted Password of the Account
-	PasswordStatusConstant string    `json:"passwordStatusConstant,omitempty"` // Status of the Account's Password
-	ProfileID              int64     `json:"profileId,omitempty,string"`       // The unique identifier for a Account's Profile
-	Salt                   string    `json:"salt,omitempty"`                   // Salt used to hash Password of the Account
 	StatusConstant         string    `json:"statusConstant,omitempty"`         // Status of the Account
-	URL                    string    `json:"url,omitempty"`                    // Unique URL of the Account
+	CreatedAt              time.Time `json:"createdAt,omitempty"`              // Profile's creation time
 }
 
 // NewAccount creates a new Account struct with default values
