@@ -43,7 +43,11 @@ var expecteds = []string{`
 -- Drop role
 DROP ROLE IF EXISTS "social";
 -- Create role
-CREATE ROLE "social";`,
+CREATE ROLE "social";
+-- Create shadow user for future extensibility
+DROP USER IF EXISTS "socialapplication";
+CREATE USER "socialapplication" PASSWORD 'socialapplication';
+GRANT "social" TO "socialapplication";`,
 	`-- Drop database
 DROP DATABASE IF EXISTS "mydatabase";
 -- Create database itself

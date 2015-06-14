@@ -184,7 +184,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 		outputs = append(outputs, common.Output{
 			Content: constraints,
 			Path: fmt.Sprintf(
-				"%s/%s/007-%s-constraints.sql",
+				"%s/%s/008-%s-constraints.sql",
 				context.Config.Target,
 				settingsDef.Get("schemaName").(string),
 				settingsDef.Get("tableName").(string),

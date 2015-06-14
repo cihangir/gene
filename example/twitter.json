@@ -75,6 +75,9 @@
                             "SELECT",
                             "INSERT",
                             "DELETE"
+                        ],
+                        "primaryKey": [
+                            "Id"
                         ]
                     }
                 }

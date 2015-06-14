@@ -50,5 +50,9 @@ var expectedRoles = []string{
 -- Drop role
 DROP ROLE IF EXISTS "social";
 -- Create role
-CREATE ROLE "social";`,
+CREATE ROLE "social";
+-- Create shadow user for future extensibility
+DROP USER IF EXISTS "socialapplication";
+CREATE USER "socialapplication" PASSWORD 'socialapplication';
+GRANT "social" TO "socialapplication";`,
 }
