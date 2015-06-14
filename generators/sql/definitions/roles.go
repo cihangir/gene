@@ -41,4 +41,10 @@ DROP ROLE IF EXISTS "{{.Settings.roleName}}";
 
 -- Create role
 CREATE ROLE "{{.Settings.roleName}}";
+
+-- Create shadow user for future extensibility
+DROP USER IF EXISTS "{{.Settings.roleName}}application";
+CREATE USER "{{.Settings.roleName}}application" PASSWORD '{{.Settings.roleName}}application';
+GRANT "{{.Settings.roleName}}" TO "{{.Settings.roleName}}application";
+
 `
