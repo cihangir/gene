@@ -70,9 +70,9 @@ func DefineConstraints(context *common.Context, settings schema.Generator, s *sc
 	foreignKeyConstraints := ""
 	foreignKeys := settings.Get("foreignKeys")
 	if foreignKeys != nil {
-		ukci := foreignKeys.([]interface{})
-		if len(ukci) > 0 {
-			for _, fkc := range ukci {
+		fkci := foreignKeys.([]interface{})
+		if len(fkci) > 0 {
+			for _, fkc := range fkci {
 				fkcs := fkc.([]interface{})
 				localField := context.FieldNameFunc(fkcs[0].(string))
 				refFields := strings.Split(fkcs[1].(string), ".")
