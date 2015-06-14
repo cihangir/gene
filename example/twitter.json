@@ -210,6 +210,9 @@
                         "uniqueKeys": [
                             [ "Id" ],
                             [ "URL" ]
+                        ],
+                        "foreignKeys": [
+                            ["ProfileId", "Account.Profile.Id"]
                         ]
                     }
                 }

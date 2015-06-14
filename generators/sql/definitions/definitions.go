@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/gene/writers"
@@ -195,37 +194,6 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 	}
 
 	return outputs, nil
-}
-
-func GenerateDefinitions(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
-	context.TemplateFuncs["DefineSQLTable"] = DefineTable
-	context.TemplateFuncs["DefineSQLSchema"] = DefineSchema
-	context.TemplateFuncs["DefineSQLExtensions"] = DefineExtensions
-	context.TemplateFuncs["DefineSQLTypes"] = DefineTypes
-	context.TemplateFuncs["DefineSQLSequnce"] = DefineSequence
-
-	temp := template.New("create_statement.tmpl").Funcs(context.TemplateFuncs)
-	if _, err := temp.Parse(CreateStatementTemplate); err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-
-	data := struct {
-		Context  *common.Context
-		Schema   *schema.Schema
-		Settings schema.Generator
-	}{
-		Context:  context,
-		Schema:   s,
-		Settings: settings,
-	}
-
-	if err := temp.ExecuteTemplate(&buf, "create_statement.tmpl", data); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
 }
 
 // CreateStatementTemplate holds the template for the create sql statement generator
