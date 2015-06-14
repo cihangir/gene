@@ -21,7 +21,6 @@ func (a *Account) RowsScan(rows *sql.Rows, dest interface{}) error {
 			&m.Salt,
 			&m.StatusConstant,
 			&m.URL,
-			&m.URLName,
 		)
 		if err != nil {
 			return err

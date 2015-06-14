@@ -13,5 +13,4 @@ var (
 	ErrAccountSaltNotSet                   = errors.New("Account.Salt not set")
 	ErrAccountStatusConstantNotSet         = errors.New("Account.StatusConstant not set")
 	ErrAccountURLNotSet                    = errors.New("Account.URL not set")
-	ErrAccountURLNameNotSet                = errors.New("Account.URLName not set")
 )
