@@ -75,8 +75,7 @@ gene -schema ./example/twitter.json -target ./example/
 
 For now, it is generating the following folder/file structure
 ```
-➜  gene git:(master.statements) ✗ tree ./example
-./example
+./src/github.com/cihangir/gene/example
 ├── twitter
 │   ├── cmd
 │   │   └── twitter
@@ -84,18 +83,22 @@ For now, it is generating the following folder/file structure
 │   ├── db
 │   │   ├── 001-twitter_db_roles.sql
 │   │   ├── 002-twitter_db_database.sql
+│   │   ├── Dockerfile
 │   │   ├── account
 │   │   │   ├── 004-schema.sql
 │   │   │   ├── 005-account-sequence.sql
 │   │   │   ├── 005-profile-sequence.sql
 │   │   │   ├── 006-account-types.sql
 │   │   │   ├── 007-account-table.sql
-│   │   │   └── 007-profile-table.sql
+│   │   │   ├── 007-profile-table.sql
+│   │   │   ├── 008-account-constraints.sql
+│   │   │   └── 008-profile-constraints.sql
+│   │   ├── create.sh
 │   │   └── tweet
 │   │       ├── 004-schema.sql
 │   │       ├── 005-tweet-sequence.sql
-│   │       ├── 007-tweet-constraints.sql
-│   │       └── 007-tweet-table.sql
+│   │       ├── 007-tweet-table.sql
+│   │       └── 008-tweet-constraints.sql
 │   ├── errors
 │   │   ├── account.go
 │   │   ├── profile.go
@@ -103,10 +106,13 @@ For now, it is generating the following folder/file structure
 │   ├── models
 │   │   ├── account.go
 │   │   ├── account_rowscanner.go
+│   │   ├── account_statements.go
 │   │   ├── profile.go
 │   │   ├── profile_rowscanner.go
+│   │   ├── profile_statements.go
 │   │   ├── tweet.go
-│   │   └── tweet_rowscanner.go
+│   │   ├── tweet_rowscanner.go
+│   │   └── tweet_statements.go
 │   └── workers
 │       └── twitter
 │           ├── api
@@ -120,5 +126,5 @@ For now, it is generating the following folder/file structure
 │               └── tweet.go
 └── twitter.json
 
-12 directories, 30 files
+12 directories, 37 files
 ```
