@@ -35,8 +35,8 @@ func GenerateCreate(context *common.Context, s *schema.Schema) ([]byte, error) {
 
 // CreateStatementTemplate holds the template for the create sql statement generator
 var CreateStatementTemplate = `
-// GenerateCreateSQL generates plain sql for the given {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// GenerateCreateSQL generates plain sql for the given {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateCreateSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Insert({{$title}}.TableName())
     columns := make([]string, 0)

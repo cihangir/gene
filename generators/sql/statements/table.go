@@ -35,8 +35,8 @@ func GenerateTableName(context *common.Context, s *schema.Schema) ([]byte, error
 
 // TableNameTemplate holds the template for the TableName function
 var TableNameTemplate = `
-// TableName returns the table name for {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// TableName returns the table name for {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) TableName() string {
     return "{{ToLower .Schema.Title}}"
 }

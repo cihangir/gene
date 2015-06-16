@@ -35,8 +35,8 @@ func GenerateSelect(context *common.Context, s *schema.Schema) ([]byte, error) {
 
 // SelectStatementTemplate holds the template for the select sql statement generator
 var SelectStatementTemplate = `
-// GenerateSelectSQL generates plain select sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// GenerateSelectSQL generates plain select sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateSelectSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("*").From({{$title}}.TableName())
 

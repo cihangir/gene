@@ -34,8 +34,8 @@ func GenerateUpdate(context *common.Context, s *schema.Schema) ([]byte, error) {
 
 // UpdateStatementTemplate holds the template for the update sql statement generator
 var UpdateStatementTemplate = `
-// GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateUpdateSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update({{$title}}.TableName())
 

@@ -34,8 +34,8 @@ func GenerateDelete(context *common.Context, s *schema.Schema) ([]byte, error) {
 
 // DeleteStatementTemplate holds the template for the delete sql statement generator
 var DeleteStatementTemplate = `
-// GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateDeleteSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Delete({{$title}}.TableName())
 
