@@ -11,8 +11,8 @@ import (
 )
 
 // GenerateTableName generates a simple table name getter function
-func GenerateTableName(s *schema.Schema) ([]byte, error) {
-	temp := template.New("table_name_statement.tmpl").Funcs(common.TemplateFuncs)
+func GenerateTableName(context *common.Context, s *schema.Schema) ([]byte, error) {
+	temp := template.New("table_name_statement.tmpl").Funcs(context.TemplateFuncs)
 
 	if _, err := temp.Parse(TableNameTemplate); err != nil {
 		return nil, err
