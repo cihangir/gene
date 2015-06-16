@@ -11,8 +11,8 @@ import (
 )
 
 // GenerateUpdate generates the update sql statement for the given schema
-func GenerateUpdate(s *schema.Schema) ([]byte, error) {
-	temp := template.New("update_statement.tmpl").Funcs(common.TemplateFuncs)
+func GenerateUpdate(context *common.Context, s *schema.Schema) ([]byte, error) {
+	temp := template.New("update_statement.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(UpdateStatementTemplate); err != nil {
 		return nil, err
 	}
@@ -34,32 +34,32 @@ func GenerateUpdate(s *schema.Schema) ([]byte, error) {
 
 // UpdateStatementTemplate holds the template for the update sql statement generator
 var UpdateStatementTemplate = `
-// GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// GenerateUpdateSQL generates plain update sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateUpdateSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update({{$title}}.TableName())
 
-    {{range $key, $value := .Schema.Properties}}
+    {{range $key, $value := SortedSchema .Schema.Properties}}
         {{/* handle strings */}}
         {{if Equal "string" $value.Type}}
             {{/* strings can have special formatting */}}
             {{if Equal "date-time" $value.Format}}
-            if !{{$title}}.{{DepunctWithInitialUpper $key}}.IsZero(){
-                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+            if !{{$title}}.{{DepunctWithInitialUpper $value.Title}}.IsZero(){
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
             {{else}}
-            if {{$title}}.{{DepunctWithInitialUpper $key}} != "" {
-                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+            if {{$title}}.{{DepunctWithInitialUpper $value.Title}} != "" {
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
             {{end}}
 
         {{else if Equal "boolean" $value.Type}}
-            if {{$title}}.{{DepunctWithInitialUpper $key}} != false {
-                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+            if {{$title}}.{{DepunctWithInitialUpper $value.Title}} != false {
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
         {{else if Equal "number" $value.Type}}
-            if float64({{$title}}.{{DepunctWithInitialUpper $key}}) != float64(0) {
-                psql = psql.Set("{{ToFieldName $key}}", {{$title}}.{{DepunctWithInitialUpper $key}})
+            if float64({{$title}}.{{DepunctWithInitialUpper $value.Title}}) != float64(0) {
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
         {{end}}
     {{end}}

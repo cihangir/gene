@@ -3,6 +3,7 @@ package statements
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
@@ -10,72 +11,59 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct{}
-
-func New() *generator {
-	return &generator{}
-}
-
-var PathForStatements = "%smodels/%s_statements.go"
-
-func (g *generator) Name() string {
-	return "statements"
-}
+type Generator struct{}
 
 // Generate generates the basic CRUD statements for the models
-func (g *generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(schema.Title)
+func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	outputs := make([]common.Output, 0)
-
 	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
-		f, err := GenerateModelStatements(def)
+		f, err := GenerateModelStatements(context, def)
 		if err != nil {
 			return outputs, err
 		}
 
-		path := fmt.Sprintf(
-			PathForStatements,
-			context.Config.Target,
-			moduleName,
-		)
-
 		outputs = append(outputs, common.Output{
 			Content: f,
-			Path:    path,
+			Path: fmt.Sprintf(
+				"%s%s_statements.go",
+				context.Config.Target,
+				strings.ToLower(def.Title),
+			),
 		})
 
 	}
+
 	return outputs, nil
 }
 
 // GenerateModelStatements generates the CRUD statements for the model struct
-func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
-	packageLine, err := GeneratePackage(s)
+func GenerateModelStatements(context *common.Context, s *schema.Schema) ([]byte, error) {
+	packageLine, err := GeneratePackage(context, s)
 	if err != nil {
 		return nil, err
 	}
 
-	createStatements, err := GenerateCreate(s)
+	createStatements, err := GenerateCreate(context, s)
 	if err != nil {
 		return nil, err
 	}
 
-	updateStatements, err := GenerateUpdate(s)
+	updateStatements, err := GenerateUpdate(context, s)
 	if err != nil {
 		return nil, err
 	}
 
-	deleteStatements, err := GenerateDelete(s)
+	deleteStatements, err := GenerateDelete(context, s)
 	if err != nil {
 		return nil, err
 	}
 
-	selectStatements, err := GenerateSelect(s)
+	selectStatements, err := GenerateSelect(context, s)
 	if err != nil {
 		return nil, err
 	}
 
-	tableName, err := GenerateTableName(s)
+	tableName, err := GenerateTableName(context, s)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +81,7 @@ func GenerateModelStatements(s *schema.Schema) ([]byte, error) {
 
 // GeneratePackage generates the imports according to the schema.
 // TODO remove this function
-func GeneratePackage(s *schema.Schema) ([]byte, error) {
+func GeneratePackage(context *common.Context, s *schema.Schema) ([]byte, error) {
 	temp := template.New("package.tmpl")
 	if _, err := temp.Parse(PackageTemplate); err != nil {
 		return nil, err

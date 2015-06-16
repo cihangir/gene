@@ -11,8 +11,8 @@ import (
 )
 
 // GenerateDelete generates the delete sql statement for the given schema
-func GenerateDelete(s *schema.Schema) ([]byte, error) {
-	temp := template.New("delete_statement.tmpl").Funcs(common.TemplateFuncs)
+func GenerateDelete(context *common.Context, s *schema.Schema) ([]byte, error) {
+	temp := template.New("delete_statement.tmpl").Funcs(context.TemplateFuncs)
 
 	if _, err := temp.Parse(DeleteStatementTemplate); err != nil {
 		return nil, err
@@ -34,39 +34,39 @@ func GenerateDelete(s *schema.Schema) ([]byte, error) {
 
 // DeleteStatementTemplate holds the template for the delete sql statement generator
 var DeleteStatementTemplate = `
-// GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 {{$title := Pointerize .Schema.Title}}
+// GenerateDeleteSQL generates plain delete sql statement for the given {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateDeleteSQL() (string, []interface{}, error) {
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Delete({{$title}}.TableName())
 
     columns := make([]string, 0)
     values := make([]interface{}, 0)
 
-    {{range $key, $value := .Schema.Properties}}
+    {{range $key, $value := SortedSchema .Schema.Properties}}
         {{/* handle strings */}}
         {{if Equal "string" $value.Type}}
             {{/* strings can have special formatting */}}
             {{if Equal "date-time" $value.Format}}
-            if !{{$title}}.{{DepunctWithInitialUpper $key}}.IsZero(){
-                columns = append(columns, "{{ToFieldName $key}} = ?")
-                values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
+            if !{{$title}}.{{DepunctWithInitialUpper $value.Title}}.IsZero(){
+                columns = append(columns, "{{ToFieldName $value.Title}} = ?")
+                values = append(values, {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
             {{else}}
-            if {{$title}}.{{DepunctWithInitialUpper $key}} != "" {
-                columns = append(columns, "{{ToFieldName $key}} = ?")
-                values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
+            if {{$title}}.{{DepunctWithInitialUpper $value.Title}} != "" {
+                columns = append(columns, "{{ToFieldName $value.Title}} = ?")
+                values = append(values, {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
             {{end}}
 
         {{else if Equal "boolean" $value.Type}}
-            if {{$title}}.{{DepunctWithInitialUpper $key}} != false {
-                columns = append(columns, "{{ToFieldName $key}} = ?")
-                values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
+            if {{$title}}.{{DepunctWithInitialUpper $value.Title}} != false {
+                columns = append(columns, "{{ToFieldName $value.Title}} = ?")
+                values = append(values, {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
         {{else if Equal "number" $value.Type}}
-            if float64({{$title}}.{{DepunctWithInitialUpper $key}}) != float64(0) {
-                columns = append(columns, "{{ToFieldName $key}} = ?")
-                values = append(values, {{$title}}.{{DepunctWithInitialUpper $key}})
+            if float64({{$title}}.{{DepunctWithInitialUpper $value.Title}}) != float64(0) {
+                columns = append(columns, "{{ToFieldName $value.Title}} = ?")
+                values = append(values, {{$title}}.{{DepunctWithInitialUpper $value.Title}})
             }
         {{end}}
     {{end}}

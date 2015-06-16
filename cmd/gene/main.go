@@ -12,6 +12,7 @@ import (
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/models/rowsscanner"
 	"github.com/cihangir/gene/generators/sql/definitions"
+	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/koding/multiconfig"
 
 	_ "github.com/cihangir/govalidator"
@@ -28,13 +29,15 @@ type Config struct {
 	// Target holds the target folder
 	Target string `required:"true" default:"./"`
 
-	DDL       definitions.Generator
-	Models    models.Generator
-	Rows      rows.Generator
-	Errors    gerr.Generator
-	Mainfile  mainfile.Generator
-	Clients   clients.Generator
-	Functions functions.Generator
+	DDL    definitions.Generator
+	Models models.Generator
+
+	Rows       rows.Generator
+	Statements statements.Generator
+	Errors     gerr.Generator
+	Mainfile   mainfile.Generator
+	Clients    clients.Generator
+	Functions  functions.Generator
 }
 
 func main() {
@@ -98,6 +101,19 @@ func main() {
 	output, err = conf.Rows.Generate(c, s)
 	if err != nil {
 		log.Fatalf("err while generating rows", err.Error())
+	}
+
+	if err := common.WriteOutput(output); err != nil {
+		log.Fatal("output write err: %s", err.Error())
+	}
+
+	//
+	// generate crud statements
+	//
+	c.Config.Target = conf.Target + "models" + "/"
+	output, err = conf.Statements.Generate(c, s)
+	if err != nil {
+		log.Fatalf("err while generating crud statements", err.Error())
 	}
 
 	if err := common.WriteOutput(output); err != nil {
