@@ -50,9 +50,6 @@ func (t *Tweet) GenerateCreateSQL() (string, []interface{}, error) {
 // GenerateUpdateSQL generates plain update sql statement for the given Tweet
 func (t *Tweet) GenerateUpdateSQL() (string, []interface{}, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(t.TableName())
-	if float64(t.ID) != float64(0) {
-		psql = psql.Set("id", t.ID)
-	}
 	if float64(t.ProfileID) != float64(0) {
 		psql = psql.Set("profile_id", t.ProfileID)
 	}

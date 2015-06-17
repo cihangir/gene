@@ -282,9 +282,6 @@ func (p *Profile) GenerateCreateSQL() (string, []interface{}, error) {
 // GenerateUpdateSQL generates plain update sql statement for the given Profile
 func (p *Profile) GenerateUpdateSQL() (string, []interface{}, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(p.TableName())
-	if float64(p.ID) != float64(0) {
-		psql = psql.Set("id", p.ID)
-	}
 	if p.BooleanWithMaxLength != false {
 		psql = psql.Set("boolean_with_max_length", p.BooleanWithMaxLength)
 	}

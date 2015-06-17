@@ -58,9 +58,6 @@ func (a *Account) GenerateCreateSQL() (string, []interface{}, error) {
 // GenerateUpdateSQL generates plain update sql statement for the given Account
 func (a *Account) GenerateUpdateSQL() (string, []interface{}, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(a.TableName())
-	if float64(a.ID) != float64(0) {
-		psql = psql.Set("id", a.ID)
-	}
 	if float64(a.ProfileID) != float64(0) {
 		psql = psql.Set("profile_id", a.ProfileID)
 	}
