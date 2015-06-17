@@ -12,7 +12,7 @@ import (
 	"github.com/cihangir/stringext"
 )
 
-const generatorName = "sql-definition"
+const GeneratorName = "sql-definition"
 
 type Generator struct {
 	DatabaseName  string
@@ -27,7 +27,7 @@ func New() *Generator {
 }
 
 func (g *Generator) Name() string {
-	return generatorName
+	return GeneratorName
 }
 
 // Generate generates the basic CRUD statements for the models
@@ -40,7 +40,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	moduleName := context.FieldNameFunc(s.Title)
 
-	settings := g.generateSettings(moduleName, s)
+	settings := GenerateSettings(g.Name(), moduleName, s)
 
 	for _, name := range schema.SortedKeys(s.Definitions) {
 		def := s.Definitions[name]
@@ -50,7 +50,7 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			continue
 		}
 
-		settingsDef := g.setDefaultSettings(settings, def)
+		settingsDef := SetDefaultSettings(g.Name(), settings, def)
 		settingsDef.Set("tableName", context.FieldNameFunc(def.Title))
 
 		//
@@ -217,8 +217,8 @@ func GetFieldNameFunc(name string) func(string) string {
 	}
 }
 
-func (g *Generator) generateSettings(moduleName string, s *schema.Schema) schema.Generator {
-	settings, ok := s.Generators.Get(g.Name())
+func GenerateSettings(genName string, moduleName string, s *schema.Schema) schema.Generator {
+	settings, ok := s.Generators.Get(genName)
 	if !ok {
 		settings = schema.Generator{}
 	}
@@ -245,8 +245,8 @@ func (g *Generator) generateSettings(moduleName string, s *schema.Schema) schema
 	return settings
 }
 
-func (g *Generator) setDefaultSettings(defaultSettings schema.Generator, s *schema.Schema) schema.Generator {
-	settings, _ := s.Generators.Get(g.Name())
+func SetDefaultSettings(genName string, defaultSettings schema.Generator, s *schema.Schema) schema.Generator {
+	settings, _ := s.Generators.Get(genName)
 
 	settings.SetNX("databaseName", defaultSettings.Get("databaseName").(string))
 	settings.SetNX("schemaName", defaultSettings.Get("schemaName").(string))

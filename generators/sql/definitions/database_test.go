@@ -21,7 +21,7 @@ func TestDatabase(t *testing.T) {
 
 	context := common.NewContext()
 	moduleName := context.ModuleNameFunc(s.Title)
-	settings := g.generateSettings(moduleName, s)
+	settings := GenerateSettings(g.Name(), moduleName, s)
 
 	index := 0
 	for _, def := range s.Definitions {
@@ -31,7 +31,7 @@ func TestDatabase(t *testing.T) {
 			continue
 		}
 
-		settingsDef := g.setDefaultSettings(settings, def)
+		settingsDef := SetDefaultSettings(g.Name(), settings, def)
 		settingsDef.Set("tableName", stringext.ToFieldName(def.Title))
 
 		sts, err := DefineDatabase(context, settingsDef, def)

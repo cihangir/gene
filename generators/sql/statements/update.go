@@ -11,16 +11,20 @@ import (
 )
 
 // GenerateUpdate generates the update sql statement for the given schema
-func GenerateUpdate(context *common.Context, s *schema.Schema) ([]byte, error) {
+func GenerateUpdate(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("update_statement.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(UpdateStatementTemplate); err != nil {
 		return nil, err
 	}
 
 	data := struct {
-		Schema *schema.Schema
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema: s,
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
 
 	var buf bytes.Buffer

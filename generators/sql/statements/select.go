@@ -11,7 +11,7 @@ import (
 )
 
 // GenerateSelect generates the select sql statement for the given schema
-func GenerateSelect(context *common.Context, s *schema.Schema) ([]byte, error) {
+func GenerateSelect(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("select_statement.tmpl").Funcs(context.TemplateFuncs)
 
 	if _, err := temp.Parse(SelectStatementTemplate); err != nil {
@@ -19,9 +19,13 @@ func GenerateSelect(context *common.Context, s *schema.Schema) ([]byte, error) {
 	}
 
 	data := struct {
-		Schema *schema.Schema
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema: s,
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
 
 	var buf bytes.Buffer
