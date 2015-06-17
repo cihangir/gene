@@ -11,16 +11,20 @@ import (
 )
 
 // GenerateDelete generates the delete sql statement for the given schema
-func GenerateDelete(context *common.Context, s *schema.Schema) ([]byte, error) {
+func GenerateDelete(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("delete_statement.tmpl").Funcs(context.TemplateFuncs)
 
 	if _, err := temp.Parse(DeleteStatementTemplate); err != nil {
 		return nil, err
 	}
 	data := struct {
-		Schema *schema.Schema
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema: s,
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
 
 	var buf bytes.Buffer
@@ -70,7 +74,10 @@ func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateDeleteSQL()
             }
         {{end}}
     {{end}}
+    if len(columns) != 0 {
+        psql = psql.Where(strings.Join(columns, " AND "), values...)
+    }
 
-    return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+    return psql.ToSql()
 }
 `

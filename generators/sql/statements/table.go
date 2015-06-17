@@ -11,7 +11,7 @@ import (
 )
 
 // GenerateTableName generates a simple table name getter function
-func GenerateTableName(context *common.Context, s *schema.Schema) ([]byte, error) {
+func GenerateTableName(context *common.Context, settings schema.Generator, s *schema.Schema) ([]byte, error) {
 	temp := template.New("table_name_statement.tmpl").Funcs(context.TemplateFuncs)
 
 	if _, err := temp.Parse(TableNameTemplate); err != nil {
@@ -19,9 +19,13 @@ func GenerateTableName(context *common.Context, s *schema.Schema) ([]byte, error
 	}
 
 	data := struct {
-		Schema *schema.Schema
+		Context  *common.Context
+		Schema   *schema.Schema
+		Settings schema.Generator
 	}{
-		Schema: s,
+		Context:  context,
+		Schema:   s,
+		Settings: settings,
 	}
 
 	var buf bytes.Buffer
@@ -38,6 +42,6 @@ var TableNameTemplate = `
 {{$title := Pointerize .Schema.Title}}
 // TableName returns the table name for {{DepunctWithInitialUpper .Schema.Title}}
 func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) TableName() string {
-    return "{{ToLower .Schema.Title}}"
+    return "{{.Settings.schemaName}}.{{.Settings.tableName}}"
 }
 `

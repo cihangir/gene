@@ -6,7 +6,7 @@ package errs
 var (
 {{$moduleName := ToUpperFirst .Schema.Title}}
 {{range $key, $value := .Schema.Properties}}
-    Err{{$moduleName}}{{ToUpperFirst $key}}NotSet = errors.New("{{$moduleName}}.{{ToUpperFirst $key}} not set")
+    Err{{$moduleName}}{{DepunctWithInitialUpper $key}}NotSet = errors.New("{{$moduleName}}.{{DepunctWithInitialUpper $key}} not set")
 {{end}}
 )
 `

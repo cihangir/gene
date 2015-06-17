@@ -50,9 +50,6 @@ func (t *Tweet) GenerateCreateSQL() (string, []interface{}, error) {
 // GenerateUpdateSQL generates plain update sql statement for the given Tweet
 func (t *Tweet) GenerateUpdateSQL() (string, []interface{}, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(t.TableName())
-	if float64(t.ID) != float64(0) {
-		psql = psql.Set("id", t.ID)
-	}
 	if float64(t.ProfileID) != float64(0) {
 		psql = psql.Set("profile_id", t.ProfileID)
 	}
@@ -114,7 +111,10 @@ func (t *Tweet) GenerateDeleteSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, t.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // GenerateSelectSQL generates plain select sql statement for the given Tweet
@@ -154,10 +154,13 @@ func (t *Tweet) GenerateSelectSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, t.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // TableName returns the table name for Tweet
 func (t *Tweet) TableName() string {
-	return "tweet"
+	return "tweet.tweet"
 }

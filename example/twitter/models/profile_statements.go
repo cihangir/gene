@@ -50,9 +50,6 @@ func (p *Profile) GenerateCreateSQL() (string, []interface{}, error) {
 // GenerateUpdateSQL generates plain update sql statement for the given Profile
 func (p *Profile) GenerateUpdateSQL() (string, []interface{}, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update(p.TableName())
-	if float64(p.ID) != float64(0) {
-		psql = psql.Set("id", p.ID)
-	}
 	if p.ScreenName != "" {
 		psql = psql.Set("screen_name", p.ScreenName)
 	}
@@ -114,7 +111,10 @@ func (p *Profile) GenerateDeleteSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, p.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // GenerateSelectSQL generates plain select sql statement for the given Profile
@@ -154,10 +154,13 @@ func (p *Profile) GenerateSelectSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, p.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // TableName returns the table name for Profile
 func (p *Profile) TableName() string {
-	return "profile"
+	return "account.profile"
 }
