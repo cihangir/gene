@@ -28,7 +28,7 @@ func TestExtensions(t *testing.T) {
 	for _, def := range s.Definitions {
 
 		// schema should have our generator
-		if !def.Generators.Has(generatorName) {
+		if !def.Generators.Has(GeneratorName) {
 			continue
 		}
 
