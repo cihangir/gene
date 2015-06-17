@@ -111,7 +111,10 @@ func (t *Tweet) GenerateDeleteSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, t.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // GenerateSelectSQL generates plain select sql statement for the given Tweet
@@ -151,7 +154,10 @@ func (t *Tweet) GenerateSelectSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, t.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // TableName returns the table name for Tweet

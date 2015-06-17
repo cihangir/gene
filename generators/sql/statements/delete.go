@@ -74,7 +74,10 @@ func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateDeleteSQL()
             }
         {{end}}
     {{end}}
+    if len(columns) != 0 {
+        psql = psql.Where(strings.Join(columns, " AND "), values...)
+    }
 
-    return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+    return psql.ToSql()
 }
 `

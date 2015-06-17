@@ -133,7 +133,10 @@ func (a *Account) GenerateDeleteSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, a.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // GenerateSelectSQL generates plain select sql statement for the given Account
@@ -181,7 +184,10 @@ func (a *Account) GenerateSelectSQL() (string, []interface{}, error) {
 		columns = append(columns, "created_at = ?")
 		values = append(values, a.CreatedAt)
 	}
-	return psql.Where(strings.Join(columns, " AND "), values...).ToSql()
+	if len(columns) != 0 {
+		psql = psql.Where(strings.Join(columns, " AND "), values...)
+	}
+	return psql.ToSql()
 }
 
 // TableName returns the table name for Account
