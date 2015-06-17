@@ -40,26 +40,29 @@ func ({{$title}} *{{DepunctWithInitialUpper .Schema.Title}}) GenerateUpdateSQL()
     psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Update({{$title}}.TableName())
 
     {{range $key, $value := SortedSchema .Schema.Properties}}
+        {{$name := DepunctWithInitialUpper $value.Title}}
+        {{if Equal "ID" $name}}
+        {{/* do not add id into statements */}}
         {{/* handle strings */}}
-        {{if Equal "string" $value.Type}}
+        {{else if Equal "string" $value.Type}}
             {{/* strings can have special formatting */}}
             {{if Equal "date-time" $value.Format}}
-            if !{{$title}}.{{DepunctWithInitialUpper $value.Title}}.IsZero(){
-                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
+            if !{{$title}}.{{$name}}.IsZero(){
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{$name}})
             }
             {{else}}
-            if {{$title}}.{{DepunctWithInitialUpper $value.Title}} != "" {
-                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
+            if {{$title}}.{{$name}} != "" {
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{$name}})
             }
             {{end}}
 
         {{else if Equal "boolean" $value.Type}}
-            if {{$title}}.{{DepunctWithInitialUpper $value.Title}} != false {
-                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
+            if {{$title}}.{{$name}} != false {
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{$name}})
             }
         {{else if Equal "number" $value.Type}}
-            if float64({{$title}}.{{DepunctWithInitialUpper $value.Title}}) != float64(0) {
-                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{DepunctWithInitialUpper $value.Title}})
+            if float64({{$title}}.{{$name}}) != float64(0) {
+                psql = psql.Set("{{ToFieldName $value.Title}}", {{$title}}.{{$name}})
             }
         {{end}}
     {{end}}
