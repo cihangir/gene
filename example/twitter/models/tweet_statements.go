@@ -162,5 +162,5 @@ func (t *Tweet) GenerateSelectSQL() (string, []interface{}, error) {
 
 // TableName returns the table name for Tweet
 func (t *Tweet) TableName() string {
-	return "tweet"
+	return "tweet.tweet"
 }

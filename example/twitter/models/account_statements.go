@@ -192,5 +192,5 @@ func (a *Account) GenerateSelectSQL() (string, []interface{}, error) {
 
 // TableName returns the table name for Account
 func (a *Account) TableName() string {
-	return "account"
+	return "account.account"
 }

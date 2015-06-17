@@ -162,5 +162,5 @@ func (p *Profile) GenerateSelectSQL() (string, []interface{}, error) {
 
 // TableName returns the table name for Profile
 func (p *Profile) TableName() string {
-	return "profile"
+	return "account.profile"
 }
