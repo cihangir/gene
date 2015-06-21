@@ -1,4 +1,3 @@
-
 -- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------

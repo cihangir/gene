@@ -1,4 +1,3 @@
-
 -- ----------------------------
 --  Sequence structure for account.account_id
 -- ----------------------------
