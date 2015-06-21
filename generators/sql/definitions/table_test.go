@@ -46,8 +46,7 @@ func TestTable(t *testing.T) {
 }
 
 var expectedTables = []string{
-	`
--- ----------------------------
+	`-- ----------------------------
 --  Table structure for account.profile
 -- ----------------------------
 DROP TABLE IF EXISTS "account"."profile";

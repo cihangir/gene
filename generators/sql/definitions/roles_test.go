@@ -46,13 +46,18 @@ func TestRoles(t *testing.T) {
 }
 
 var expectedRoles = []string{
-	`
--- Drop role
+	`--
+-- Create Parent Role
+--
 DROP ROLE IF EXISTS "social";
--- Create role
 CREATE ROLE "social";
+--
 -- Create shadow user for future extensibility
+--
 DROP USER IF EXISTS "socialapplication";
 CREATE USER "socialapplication" PASSWORD 'socialapplication';
+--
+-- Convert our application user to parent
+--
 GRANT "social" TO "socialapplication";`,
 }

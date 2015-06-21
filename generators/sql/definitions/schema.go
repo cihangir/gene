@@ -34,15 +34,14 @@ func DefineSchema(context *common.Context, settings schema.Generator, s *schema.
 }
 
 //  SchemaTemplate holds the template for sequences
-var SchemaTemplate = `
--- ----------------------------
+var SchemaTemplate = `-- ----------------------------
 --  Schema structure for {{.Settings.schemaName}}
 -- ----------------------------
--- create schema
 CREATE SCHEMA IF NOT EXISTS "{{.Settings.schemaName}}";
-
--- give usage permission
+--
+-- Give usage permission
+--
 GRANT usage ON SCHEMA "{{.Settings.schemaName}}" to "{{.Settings.roleName}}";
-
+--
 -- add new schema to search path -just for convenience
 -- SELECT set_config('search_path', current_setting('search_path') || ',{{.Settings.schemaName}}', false);`

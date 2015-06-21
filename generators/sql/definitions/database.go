@@ -35,9 +35,13 @@ func DefineDatabase(context *common.Context, settings schema.Generator, s *schem
 }
 
 //  DatabaseTemplate holds the template for types
-var DatabaseTemplate = `-- Drop database
+var DatabaseTemplate = `--
+-- Clear previously created database
+--
 DROP DATABASE IF EXISTS "{{.Settings.databaseName}}";
 
+--
 -- Create database itself
+--
 CREATE DATABASE "{{.Settings.databaseName}}" OWNER "{{.Settings.roleName}}" ENCODING 'UTF8'  TEMPLATE template0;
 `

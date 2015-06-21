@@ -35,8 +35,7 @@ func DefineSequence(context *common.Context, settings schema.Generator, s *schem
 }
 
 // SequenceTemplate holds the template for sequences
-var SequenceTemplate = `
--- ----------------------------
+var SequenceTemplate = `-- ----------------------------
 --  Sequence structure for {{.Settings.schemaName}}.{{.Settings.tableName}}_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "{{.Settings.schemaName}}"."{{.Settings.tableName}}_id_seq" CASCADE;

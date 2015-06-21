@@ -45,8 +45,12 @@ func TestDatabase(t *testing.T) {
 }
 
 var expectedDatabases = []string{
-	`-- Drop database
+	`--
+-- Clear previously created database
+--
 DROP DATABASE IF EXISTS "mydatabase";
+--
 -- Create database itself
+--
 CREATE DATABASE "mydatabase" OWNER "social" ENCODING 'UTF8'  TEMPLATE template0;`,
 }

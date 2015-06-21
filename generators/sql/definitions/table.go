@@ -42,9 +42,7 @@ func DefineTable(context *common.Context, settings schema.Generator, s *schema.S
 }
 
 // TableTemplate holds the template for sequences
-var TableTemplate = `{{$settings := .Settings}}
-{{$context := .Context}}
--- ----------------------------
+var TableTemplate = `{{$settings := .Settings}}{{$context := .Context}}-- ----------------------------
 --  Table structure for {{$settings.schemaName}}.{{$settings.tableName}}
 -- ----------------------------
 DROP TABLE IF EXISTS "{{$settings.schemaName}}"."{{$settings.tableName}}";

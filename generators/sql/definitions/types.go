@@ -35,11 +35,9 @@ func DefineTypes(context *common.Context, settings schema.Generator, s *schema.S
 }
 
 // TypeTemplate holds the template for types
-var TypeTemplate = `
-{{$schemaName := .Settings.schemaName}}
+var TypeTemplate = `{{$schemaName := .Settings.schemaName}}
 {{$tableName := .Settings.tableName}}
 {{$roleName := .Settings.roleName}}
-
 {{range $key, $value := .Schema.Properties}}
 {{if len $value.Enum}}
 -- ----------------------------

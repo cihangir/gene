@@ -39,36 +39,45 @@ func equals(tb testing.TB, exp, act string) {
 	}
 }
 
-var expecteds = []string{`
--- Drop role
+var expecteds = []string{`--
+-- Create Parent Role
+--
 DROP ROLE IF EXISTS "social";
--- Create role
 CREATE ROLE "social";
+--
 -- Create shadow user for future extensibility
+--
 DROP USER IF EXISTS "socialapplication";
 CREATE USER "socialapplication" PASSWORD 'socialapplication';
+--
+-- Convert our application user to parent
+--
 GRANT "social" TO "socialapplication";`,
-	`-- Drop database
+	`--
+-- Clear previously created database
+--
 DROP DATABASE IF EXISTS "mydatabase";
+--
 -- Create database itself
+--
 CREATE DATABASE "mydatabase" OWNER "social" ENCODING 'UTF8'  TEMPLATE template0;`,
 	`
 -- ----------------------------
 --  Required extensions
 -- ----------------------------
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
-	`
--- ----------------------------
+	`-- ----------------------------
 --  Schema structure for account
 -- ----------------------------
--- create schema
 CREATE SCHEMA IF NOT EXISTS "account";
--- give usage permission
+--
+-- Give usage permission
+--
 GRANT usage ON SCHEMA "account" to "social";
+--
 -- add new schema to search path -just for convenience
 -- SELECT set_config('search_path', current_setting('search_path') || ',account', false);`,
-	`
--- ----------------------------
+	`-- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;
@@ -85,8 +94,7 @@ CREATE TYPE "account"."profile_enum_bare_enum" AS ENUM (
   'enum3'
 );
 ALTER TYPE "account"."profile_enum_bare_enum" OWNER TO "social";`,
-	`
--- ----------------------------
+	`-- ----------------------------
 --  Table structure for account.profile
 -- ----------------------------
 DROP TABLE IF EXISTS "account"."profile";

@@ -46,8 +46,7 @@ func TestSequence(t *testing.T) {
 }
 
 var expectedSequences = []string{
-	`
--- ----------------------------
+	`-- ----------------------------
 --  Sequence structure for account.profile_id
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "account"."profile_id_seq" CASCADE;

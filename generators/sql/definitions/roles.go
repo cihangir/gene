@@ -35,16 +35,18 @@ func DefineRole(context *common.Context, settings schema.Generator, s *schema.Sc
 }
 
 // RoleTemplate holds the template for types
-var RoleTemplate = `
--- Drop role
+var RoleTemplate = `--
+-- Create Parent Role
+--
 DROP ROLE IF EXISTS "{{.Settings.roleName}}";
-
--- Create role
 CREATE ROLE "{{.Settings.roleName}}";
-
+--
 -- Create shadow user for future extensibility
+--
 DROP USER IF EXISTS "{{.Settings.roleName}}application";
 CREATE USER "{{.Settings.roleName}}application" PASSWORD '{{.Settings.roleName}}application';
+--
+-- Convert our application user to parent
+--
 GRANT "{{.Settings.roleName}}" TO "{{.Settings.roleName}}application";
-
 `
