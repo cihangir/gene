@@ -11,8 +11,8 @@ import (
 	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/models/rowsscanner"
-	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/cihangir/gene/generators/sql/statements"
+	"github.com/cihangir/geneddl"
 	"github.com/koding/multiconfig"
 
 	_ "github.com/cihangir/govalidator"
@@ -29,7 +29,7 @@ type Config struct {
 	// Target holds the target folder
 	Target string `required:"true" default:"./"`
 
-	DDL    definitions.Generator
+	DDL    geneddl.Generator
 	Models models.Generator
 
 	Rows       rows.Generator
@@ -59,7 +59,7 @@ func main() {
 	c := common.NewContext()
 	c.Config.Schema = conf.Schema
 	c.Config.Target = conf.Target
-	c.FieldNameFunc = definitions.GetFieldNameFunc(conf.DDL.FieldNameCase)
+	c.FieldNameFunc = geneddl.GetFieldNameFunc(conf.DDL.FieldNameCase)
 
 	s, err := common.Read(c.Config.Schema)
 	if err != nil {

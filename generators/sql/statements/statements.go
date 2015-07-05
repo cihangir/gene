@@ -7,8 +7,8 @@ import (
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/sql/definitions"
 	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/geneddl"
 	"github.com/cihangir/schema"
 )
 
@@ -20,11 +20,11 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	moduleName := context.FieldNameFunc(s.Title)
 
-	settings := definitions.GenerateSettings(definitions.GeneratorName, moduleName, s)
+	settings := geneddl.GenerateSettings(geneddl.GeneratorName, moduleName, s)
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
 
-		settingsDef := definitions.SetDefaultSettings(definitions.GeneratorName, settings, def)
+		settingsDef := geneddl.SetDefaultSettings(geneddl.GeneratorName, settings, def)
 		settingsDef.Set("tableName", context.FieldNameFunc(def.Title))
 
 		f, err := GenerateModelStatements(context, settingsDef, def)
