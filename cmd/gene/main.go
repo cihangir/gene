@@ -10,9 +10,9 @@ import (
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
-	"github.com/cihangir/gene/generators/models/rowsscanner"
 	"github.com/cihangir/gene/generators/sql/statements"
 	"github.com/cihangir/geneddl"
+	"github.com/cihangir/generows"
 	"github.com/koding/multiconfig"
 
 	_ "github.com/cihangir/govalidator"
@@ -32,7 +32,7 @@ type Config struct {
 	DDL    geneddl.Generator
 	Models models.Generator
 
-	Rows       rows.Generator
+	Rows       generows.Generator
 	Statements statements.Generator
 	Errors     gerr.Generator
 	Mainfile   mainfile.Generator
