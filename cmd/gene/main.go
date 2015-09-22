@@ -8,6 +8,7 @@ import (
 	"github.com/cihangir/gene/generators/common"
 	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/functions"
+	"github.com/cihangir/gene/generators/kit"
 	"github.com/cihangir/gene/generators/mainfile"
 	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/sql/statements"
@@ -38,6 +39,7 @@ type Config struct {
 	Mainfile   mainfile.Generator
 	Clients    clients.Generator
 	Functions  functions.Generator
+	Kit        kit.Generator
 }
 
 func main() {
@@ -170,6 +172,19 @@ func main() {
 
 	if err := common.WriteOutput(output); err != nil {
 		log.Fatal("output write err: %s", err.Error())
+	}
+
+	//
+	// generate kit server handlers
+	//
+	c.Config.Target = conf.Target + "kit" + "/"
+	output, err = conf.Kit.Generate(c, s)
+	if err != nil {
+		log.Fatalf("err while generating kit server", err.Error())
+	}
+
+	if err := common.WriteOutput(output); err != nil {
+		log.Fatal("kit output write err: %s", err.Error())
 	}
 
 	log.Println("module created with success")
