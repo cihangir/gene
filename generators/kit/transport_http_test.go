@@ -32,35 +32,35 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-func makeCreateEndpoint(ctx context.Context, svc AccountService) endpoint.Endpoint {
+func makeCreateEndpoint(svc AccountService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*models.Account)
 		return svc.Create(ctx, req)
 	}
 }
 
-func makeDeleteEndpoint(ctx context.Context, svc AccountService) endpoint.Endpoint {
+func makeDeleteEndpoint(svc AccountService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*models.Account)
 		return svc.Delete(ctx, req)
 	}
 }
 
-func makeOneEndpoint(ctx context.Context, svc AccountService) endpoint.Endpoint {
+func makeOneEndpoint(svc AccountService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*models.Account)
 		return svc.One(ctx, req)
 	}
 }
 
-func makeSomeEndpoint(ctx context.Context, svc AccountService) endpoint.Endpoint {
+func makeSomeEndpoint(svc AccountService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*models.Account)
 		return svc.Some(ctx, req)
 	}
 }
 
-func makeUpdateEndpoint(ctx context.Context, svc AccountService) endpoint.Endpoint {
+func makeUpdateEndpoint(svc AccountService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*models.Account)
 		return svc.Update(ctx, req)

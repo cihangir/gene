@@ -107,7 +107,7 @@ import (
 )
 
 {{range $funcKey, $funcValue := $schema.Functions}}
-func make{{$funcKey}}Endpoint(ctx context.Context, svc {{$title}}Service) endpoint.Endpoint {
+func make{{$funcKey}}Endpoint(svc {{$title}}Service) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         req := request.(*{{Argumentize $funcValue.Properties.incoming}})
         return svc.{{$funcKey}}(ctx, req)
