@@ -10,20 +10,12 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type generator struct{}
-
-func New() *generator {
-	return &generator{}
-}
+type Generator struct{}
 
 var PathForStatements = "%smodels/%s_statements.go"
 
-func (g *generator) Name() string {
-	return "js"
-}
-
 // Generate generates and writes the errors of the schema
-func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
 	moduleName := context.ModuleNameFunc(s.Title)
 	outputs := make([]common.Output, 0)
 
@@ -47,15 +39,16 @@ func GenerateAPI(rootPath string, moduleName string, s *schema.Schema) (common.O
 	}
 
 	path := fmt.Sprintf(
-		"%sworkers/%s/js/%s.js",
+		"%s/%s/%s.js",
 		rootPath,
 		moduleName,
 		strings.ToLower(s.Title),
 	)
 
 	return common.Output{
-		Content: api,
-		Path:    path,
+		Content:     api,
+		Path:        path,
+		DoNotFormat: true,
 	}, nil
 
 }
