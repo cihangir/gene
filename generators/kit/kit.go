@@ -71,7 +71,7 @@ func generate(context *common.Context, s *schema.Schema, templ string, sectionNa
 		}
 
 		path := fmt.Sprintf(
-			"%s/api/%s/%s.go",
+			"%s/%s/%s.go",
 			context.Config.Target,
 			strings.ToLower(def.Title),
 			sectionName,
