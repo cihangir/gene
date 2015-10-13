@@ -36,6 +36,49 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 			Content: f,
 			Path:    path,
 		})
+
+		for _, funcDef := range def.Functions {
+			if incoming, ok := funcDef.Properties["incoming"]; ok {
+				if incoming.Type.(string) == "object" {
+					f, err := GenerateModel(incoming)
+					if err != nil {
+						return nil, err
+					}
+
+					path := fmt.Sprintf(
+						"%s/%s.go",
+						context.Config.Target,
+						strings.ToLower(incoming.Title),
+					)
+
+					outputs = append(outputs, common.Output{
+						Content: f,
+						Path:    path,
+					})
+				}
+			}
+
+			if outgoing, ok := funcDef.Properties["outgoing"]; ok {
+
+				if outgoing.Type.(string) == "object" {
+					f, err := GenerateModel(outgoing)
+					if err != nil {
+						return nil, err
+					}
+
+					path := fmt.Sprintf(
+						"%s/%s.go",
+						context.Config.Target,
+						strings.ToLower(outgoing.Title),
+					)
+
+					outputs = append(outputs, common.Output{
+						Content: f,
+						Path:    path,
+					})
+				}
+			}
+		}
 	}
 
 	return outputs, nil
