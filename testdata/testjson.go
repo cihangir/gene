@@ -220,7 +220,7 @@ const JSON1 = `
       "type": "object",
       "additionalProperties": true,
       "title": "Account",
-      "description": "Account represents a registered User",
+      "description": "Account represents a registered User",
       "properties": {
         "Id": {
           "description": "The unique identifier for a Account's Profile",
