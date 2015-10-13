@@ -40,16 +40,26 @@ var AccountStatusConstant = struct {
 
 // Account represents a registered User
 type Account struct {
-	ID                     int64     `json:"id,omitempty,string"`              // The unique identifier for a Account
-	ProfileID              int64     `json:"profileId,omitempty,string"`       // The unique identifier for a Account's Profile
-	Password               string    `json:"password"`                         // Salted Password of the Account
-	URL                    string    `json:"url,omitempty"`                    // Unique URL of the Account
-	PasswordStatusConstant string    `json:"passwordStatusConstant,omitempty"` // Status of the Account's Password
-	Salt                   string    `json:"salt,omitempty"`                   // Salt used to hash Password of the Account
-	EmailAddress           string    `json:"emailAddress"`                     // Email Address of the Account
-	EmailStatusConstant    string    `json:"emailStatusConstant,omitempty"`    // Status of the Account's Email
-	StatusConstant         string    `json:"statusConstant,omitempty"`         // Status of the Account
-	CreatedAt              time.Time `json:"createdAt,omitempty"`              // Profile's creation time
+	// The unique identifier for a Account
+	ID int64 `json:"id,omitempty,string"`
+	// The unique identifier for a Account's Profile
+	ProfileID int64 `json:"profileId,omitempty,string"`
+	// Salted Password of the Account
+	Password string `json:"password"`
+	// Unique URL of the Account
+	URL string `json:"url,omitempty"`
+	// Status of the Account's Password
+	PasswordStatusConstant string `json:"passwordStatusConstant,omitempty"`
+	// Salt used to hash Password of the Account
+	Salt string `json:"salt,omitempty"`
+	// Email Address of the Account
+	EmailAddress string `json:"emailAddress"`
+	// Status of the Account's Email
+	EmailStatusConstant string `json:"emailStatusConstant,omitempty"`
+	// Status of the Account
+	StatusConstant string `json:"statusConstant,omitempty"`
+	// Profile's creation time
+	CreatedAt time.Time `json:"createdAt,omitempty"`
 }
 
 // NewAccount creates a new Account struct with default values

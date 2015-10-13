@@ -1,7 +1,7 @@
-package main
+package profile
 
 import (
-	"github.com/cihangir/gene/example/twitter/models"
+	"github.com/cihangir/gene/example/tinder/models"
 	"golang.org/x/net/context"
 )
 
