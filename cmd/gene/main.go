@@ -39,7 +39,9 @@ type Config struct {
 	Mainfile   mainfile.Generator
 	Clients    clients.Generator
 	Functions  functions.Generator
-	Kit        kit.Generator
+	// Js         js.Generator
+	// Server     server.Generator
+	Kit kit.Generator
 }
 
 func main() {
@@ -112,15 +114,15 @@ func main() {
 	//
 	// generate crud statements
 	//
-	c.Config.Target = conf.Target + "models" + "/"
-	output, err = conf.Statements.Generate(c, s)
-	if err != nil {
-		log.Fatalf("err while generating crud statements", err.Error())
-	}
+	// c.Config.Target = conf.Target + "models" + "/"
+	// output, err = conf.Statements.Generate(c, s)
+	// if err != nil {
+	// 	log.Fatalf("err while generating crud statements", err.Error())
+	// }
 
-	if err := common.WriteOutput(output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
+	// if err := common.WriteOutput(output); err != nil {
+	// 	log.Fatal("output write err: %s", err.Error())
+	// }
 
 	//
 	// generate errors
@@ -138,46 +140,72 @@ func main() {
 	//
 	// generate main file
 	//
-	c.Config.Target = conf.Target + "cmd" + "/"
-	output, err = conf.Mainfile.Generate(c, s)
-	if err != nil {
-		log.Fatalf("err while generating main file", err.Error())
-	}
+	// c.Config.Target = conf.Target + "cmd" + "/"
+	// output, err = conf.Mainfile.Generate(c, s)
+	// if err != nil {
+	// 	log.Fatalf("err while generating main file", err.Error())
+	// }
 
-	if err := common.WriteOutput(output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
+	// if err := common.WriteOutput(output); err != nil {
+	// 	log.Fatal("output write err: %s", err.Error())
+	// }
 
 	//
 	// generate clients
 	//
-	c.Config.Target = conf.Target + "workers" + "/"
-	output, err = conf.Clients.Generate(c, s)
-	if err != nil {
-		log.Fatalf("err while generating clients", err.Error())
-	}
+	// c.Config.Target = conf.Target + "workers" + "/"
+	// output, err = conf.Clients.Generate(c, s)
+	// if err != nil {
+	// 	log.Fatalf("err while generating clients", err.Error())
+	// }
 
-	if err := common.WriteOutput(output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
+	// if err := common.WriteOutput(output); err != nil {
+	// 	log.Fatal("output write err: %s", err.Error())
+	// }
 
 	//
 	// generate exported functions
 	//
-	c.Config.Target = conf.Target + "workers" + "/"
-	output, err = conf.Functions.Generate(c, s)
-	if err != nil {
-		log.Fatalf("err while generating clients", err.Error())
-	}
+	// c.Config.Target = conf.Target + "workers" + "/"
+	// output, err = conf.Functions.Generate(c, s)
+	// if err != nil {
+	// 	log.Fatalf("err while generating clients", err.Error())
+	// }
 
-	if err := common.WriteOutput(output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
+	// if err := common.WriteOutput(output); err != nil {
+	// 	log.Fatal("output write err: %s", err.Error())
+	// }
+
+	//
+	// generate js client functions
+	//
+	// c.Config.Target = conf.Target + "js" + "/"
+	// output, err = conf.Js.Generate(c, s)
+	// if err != nil {
+	// 	log.Fatalf("err while generating js clients", err.Error())
+	// }
+
+	// if err := common.WriteOutput(output); err != nil {
+	// 	log.Fatal("output write err: %s", err.Error())
+	// }
+
+	//
+	// generate api server handlers
+	//
+	// c.Config.Target = conf.Target + "api" + "/"
+	// output, err = conf.Server.Generate(c, s)
+	// if err != nil {
+	// 	log.Fatalf("err while generating api server", err.Error())
+	// }
+
+	// if err := common.WriteOutput(output); err != nil {
+	// 	log.Fatal("api output write err: %s", err.Error())
+	// }
 
 	//
 	// generate kit server handlers
 	//
-	c.Config.Target = conf.Target + "kit" + "/"
+	c.Config.Target = conf.Target + "workers" + "/"
 	output, err = conf.Kit.Generate(c, s)
 	if err != nil {
 		log.Fatalf("err while generating kit server", err.Error())
