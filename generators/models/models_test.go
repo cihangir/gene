@@ -28,19 +28,30 @@ func TestGenerateSchema(t *testing.T) {
 
 	// replace "~" with "`"
 	result := strings.Replace(`
-// Account represents a registered User
+// Account represents a registered User
 type Account struct {
-	CreatedAt              time.Time ~json:"createdAt,omitempty"~              // Profile's creation time
-	EmailAddress           string    ~json:"emailAddress"~                     // Email Address of the Account
-	EmailStatusConstant    string    ~json:"emailStatusConstant,omitempty"~    // Status of the Account's Email
-	ID                     int64     ~json:"id,omitempty,string"~              // The unique identifier for a Account's Profile
-	Password               string    ~json:"password"~                         // Salted Password of the Account
-	PasswordStatusConstant string    ~json:"passwordStatusConstant,omitempty"~ // Status of the Account's Password
-	ProfileID              int64     ~json:"profileId,omitempty,string"~       // The unique identifier for a Account's Profile
-	Salt                   string    ~json:"salt,omitempty"~                   // Salt used to hash Password of the Account
-	StatusConstant         string    ~json:"statusConstant,omitempty"~         // Status of the Account
-	URL                    string    ~json:"url,omitempty"~                    // Salted Password of the Account
-	URLName                string    ~json:"urlName,omitempty"~                // Salted Password of the Account
+	// Profile's creation time
+	CreatedAt time.Time ~json:"createdAt,omitempty"~
+	// Email Address of the Account
+	EmailAddress string ~json:"emailAddress"~
+	// Status of the Account's Email
+	EmailStatusConstant string ~json:"emailStatusConstant,omitempty"~
+	// The unique identifier for a Account's Profile
+	ID int64 ~json:"id,omitempty,string"~
+	// Salted Password of the Account
+	Password string ~json:"password"~
+	// Status of the Account's Password
+	PasswordStatusConstant string ~json:"passwordStatusConstant,omitempty"~
+	// The unique identifier for a Account's Profile
+	ProfileID int64 ~json:"profileId,omitempty,string"~
+	// Salt used to hash Password of the Account
+	Salt string ~json:"salt,omitempty"~
+	// Status of the Account
+	StatusConstant string ~json:"statusConstant,omitempty"~
+	// Salted Password of the Account
+	URL string ~json:"url,omitempty"~
+	// Salted Password of the Account
+	URLName string ~json:"urlName,omitempty"~
 }`, "~", "`", -1)
 
 	code, err := GenerateSchema(s.Definitions["Account"])
