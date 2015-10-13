@@ -21,7 +21,7 @@ func TestInterface(t *testing.T) {
 	common.TestEquals(t, expectedInterface[0], string(sts[0].Content))
 }
 
-var expectedInterface = []string{`package main
+var expectedInterface = []string{`package account
 
 type AccountService interface {
 	Create(ctx context.Context, req *models.Account) (res *models.Account, err error)

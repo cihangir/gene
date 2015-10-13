@@ -28,13 +28,6 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	outputs = append(outputs, output...)
 
-	output, err = GenerateLogging(context, s)
-	if err != nil {
-		return nil, err
-	}
-
-	outputs = append(outputs, output...)
-
 	output, err = GenerateTransportHTTP(context, s)
 	if err != nil {
 		return nil, err
