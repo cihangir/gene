@@ -10,18 +10,18 @@ import (
 	"github.com/cihangir/schema"
 )
 
-func TestTransportHTTP(t *testing.T) {
+func TestTransportHTTPServer(t *testing.T) {
 	s := &schema.Schema{}
 	err := json.Unmarshal([]byte(testdata.TestDataFull), s)
 
 	s = s.Resolve(s)
 
-	sts, err := GenerateTransportHTTP(common.NewContext(), s)
+	sts, err := GenerateTransportHTTPServer(common.NewContext(), s)
 	common.TestEquals(t, nil, err)
-	common.TestEquals(t, transportHTTPExpecteds[0], string(sts[0].Content))
+	common.TestEquals(t, transportHTTPServerExpecteds[0], string(sts[0].Content))
 }
 
-var transportHTTPExpecteds = []string{`package account
+var transportHTTPServerExpecteds = []string{`package account
 
 import (
 	"encoding/json"
@@ -120,101 +120,5 @@ func makeUpdateEndpoint(svc AccountService) endpoint.Endpoint {
 		req := request.(*models.Account)
 		return svc.Update(ctx, req)
 	}
-}
-
-// Decode Request functions
-
-func decodeCreateRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeDeleteRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeOneRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeSomeRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeUpdateRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-// Decode Response functions
-
-func decodeCreateResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeDeleteResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeOneResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeSomeResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeUpdateResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-// Encode request function
-
-func encodeRequest(rw http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(rw).Encode(response)
-}
-
-// Encode response function
-
-func encodeResponse(rw http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(rw).Encode(response)
 }
 `}
