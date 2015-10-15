@@ -10,7 +10,6 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
-	"github.com/kr/pretty"
 )
 
 ///
