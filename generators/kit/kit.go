@@ -10,8 +10,16 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
+	"github.com/kr/pretty"
 )
 
+///
+/// metric - implement dogstatsd
+/// throttling - implement one with shared backend
+/// logging - leveled - filtered
+///
+///
+///
 type Generator struct{}
 
 // Generate generates and writes the errors of the schema
@@ -28,7 +36,20 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	outputs = append(outputs, output...)
 
-	output, err = GenerateTransportHTTP(context, s)
+	output, err = GenerateTransportHTTPSemiotics(context, s)
+	if err != nil {
+		return nil, err
+	}
+	outputs = append(outputs, output...)
+
+	output, err = GenerateTransportHTTPServer(context, s)
+	if err != nil {
+		return nil, err
+	}
+
+	outputs = append(outputs, output...)
+
+	output, err = GenerateTransportHTTPClient(context, s)
 	if err != nil {
 		return nil, err
 	}
