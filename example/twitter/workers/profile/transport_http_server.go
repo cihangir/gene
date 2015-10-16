@@ -1,9 +1,6 @@
 package profile
 
 import (
-	"encoding/json"
-	"net/http"
-
 	"golang.org/x/net/context"
 
 	"github.com/cihangir/gene/example/tinder/models"
@@ -81,84 +78,4 @@ func makeUpdateEndpoint(svc ProfileService) endpoint.Endpoint {
 		req := request.(*models.Account)
 		return svc.Update(ctx, req)
 	}
-}
-
-// Decode Request functions
-
-func decodeCreateRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeDeleteRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeOneRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-func decodeUpdateRequest(r *http.Request) (interface{}, error) {
-	var req models.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return &req, nil
-}
-
-// Decode Response functions
-
-func decodeCreateResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeDeleteResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeOneResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func decodeUpdateResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
-	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-// Encode request function
-
-func encodeRequest(rw http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(rw).Encode(response)
-}
-
-// Encode response function
-
-func encodeResponse(rw http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(rw).Encode(response)
 }
