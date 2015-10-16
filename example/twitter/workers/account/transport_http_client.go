@@ -67,24 +67,6 @@ func defaultClientEndpointCreator(
 	return loadbalancer.Retry(maxAttempts, maxTime, lb)
 }
 
-func makeByFacebookIDsProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "byfacebookids"),
-		encodeRequest,
-		decodeByFacebookIDsResponse,
-	).Endpoint()
-}
-
-func makeByIDsProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "byids"),
-		encodeRequest,
-		decodeByIDsResponse,
-	).Endpoint()
-}
-
 func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
 	return httptransport.NewClient(
 		"POST",
@@ -123,14 +105,6 @@ func makeUpdateProxy(ctx context.Context, instance string) endpoint.Endpoint {
 
 // Factory functions
 
-func makeByFacebookIDsFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeByFacebookIDsProxy)
-}
-
-func makeByIDsFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeByIDsProxy)
-}
-
 func makeCreateFactory(ctx context.Context, qps int) loadbalancer.Factory {
 	return createFactory(ctx, qps, makeCreateProxy)
 }
@@ -148,16 +122,6 @@ func makeUpdateFactory(ctx context.Context, qps int) loadbalancer.Factory {
 }
 
 // Client Endpoint functions
-
-func newByFacebookIDsClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeByFacebookIDsProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newByIDsClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeByIDsProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
 
 func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
 	factory := createFactory(ctx, qps, makeCreateProxy)
@@ -181,10 +145,6 @@ func newUpdateClientEndpoint(proxies []string, ctx context.Context, maxAttempt i
 
 // client
 type accountClient struct {
-	ByFacebookIDsEndpoint endpoint.Endpoint
-
-	ByIDsEndpoint endpoint.Endpoint
-
 	CreateEndpoint endpoint.Endpoint
 
 	DeleteEndpoint endpoint.Endpoint
@@ -197,10 +157,6 @@ type accountClient struct {
 // constructor
 func NewaccountClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *accountClient {
 	return &accountClient{
-
-		ByFacebookIDsEndpoint: newByFacebookIDsClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		ByIDsEndpoint: newByIDsClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
 
 		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
 
