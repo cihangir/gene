@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cihangir/gene/example/twitter/models"
 	jujuratelimit "github.com/juju/ratelimit"
 	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
@@ -18,6 +19,96 @@ import (
 	kitratelimit "github.com/go-kit/kit/ratelimit"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+// client
+type TweetClient struct {
+	CreateEndpoint endpoint.Endpoint
+
+	DeleteEndpoint endpoint.Endpoint
+
+	OneEndpoint endpoint.Endpoint
+}
+
+// constructor
+func NewTweetClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *TweetClient {
+	return &TweetClient{
+
+		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		DeleteEndpoint: newDeleteClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		OneEndpoint:    newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+	}
+}
+
+func (t *TweetClient) Create(ctx context.Context, req *models.Account) (*models.Account, error) {
+	res, err := t.CreateEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.Account), nil
+}
+
+func (t *TweetClient) Delete(ctx context.Context, req *models.Account) (*models.Account, error) {
+	res, err := t.DeleteEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.Account), nil
+}
+
+func (t *TweetClient) One(ctx context.Context, req *models.Account) (*models.Account, error) {
+	res, err := t.OneEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.Account), nil
+}
+
+// Client Endpoint functions
+
+func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeCreateProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newDeleteClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeDeleteProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newOneClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeOneProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "create"),
+		encodeRequest,
+		decodeCreateResponse,
+	).Endpoint()
+}
+
+func makeDeleteProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "delete"),
+		encodeRequest,
+		decodeDeleteResponse,
+	).Endpoint()
+}
+
+func makeOneProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "one"),
+		encodeRequest,
+		decodeOneResponse,
+	).Endpoint()
+}
 
 // Proxy functions
 
@@ -65,81 +156,4 @@ func defaultClientEndpointCreator(
 	lb := loadbalancer.NewRoundRobin(publisher)
 
 	return loadbalancer.Retry(maxAttempts, maxTime, lb)
-}
-
-func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "create"),
-		encodeRequest,
-		decodeCreateResponse,
-	).Endpoint()
-}
-
-func makeDeleteProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "delete"),
-		encodeRequest,
-		decodeDeleteResponse,
-	).Endpoint()
-}
-
-func makeOneProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "one"),
-		encodeRequest,
-		decodeOneResponse,
-	).Endpoint()
-}
-
-// Factory functions
-
-func makeCreateFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeCreateProxy)
-}
-
-func makeDeleteFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeDeleteProxy)
-}
-
-func makeOneFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeOneProxy)
-}
-
-// Client Endpoint functions
-
-func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeCreateProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newDeleteClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeDeleteProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newOneClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeOneProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-// client
-type tweetClient struct {
-	CreateEndpoint endpoint.Endpoint
-
-	DeleteEndpoint endpoint.Endpoint
-
-	OneEndpoint endpoint.Endpoint
-}
-
-// constructor
-func NewtweetClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *tweetClient {
-	return &tweetClient{
-
-		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-		DeleteEndpoint: newDeleteClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-		OneEndpoint:    newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-	}
 }
