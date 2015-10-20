@@ -157,6 +157,53 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
+
+// client
+type {{$title}}Client struct {
+{{range $funcKey, $funcValue := $schema.Functions}}
+	{{$funcKey}}Endpoint endpoint.Endpoint
+{{end}}}
+
+// constructor
+func  New{{$title}}Client(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *{{$title}}Client {
+return &{{$title}}Client{
+{{range $funcKey, $funcValue := $schema.Functions}}
+{{$funcKey}}Endpoint : new{{$funcKey}}ClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),{{end}}
+}
+}
+
+{{range $funcKey, $funcValue := $schema.Functions}}
+func ({{Pointerize $title}} *{{$title}}Client) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (*{{Argumentize $funcValue.Properties.outgoing}}, error) {
+	res, err := {{Pointerize $title}}.{{$funcKey}}Endpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*{{Argumentize $funcValue.Properties.outgoing}}), nil
+}
+{{end}}
+
+
+// Client Endpoint functions
+{{range $funcKey, $funcValue := $schema.Functions}}
+func new{{$funcKey}}ClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, make{{$funcKey}}Proxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+{{end}}
+
+
+{{range $funcKey, $funcValue := $schema.Functions}}
+func make{{$funcKey}}Proxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "{{ToLower $funcKey}}"),
+		encodeRequest,
+		decode{{$funcKey}}Response,
+	).Endpoint()
+}
+{{end}}
+
 // Proxy functions
 
 func createProxyURL(instance, endpoint string) *url.URL {
@@ -205,48 +252,7 @@ func defaultClientEndpointCreator(
 	return loadbalancer.Retry(maxAttempts, maxTime, lb)
 }
 
-{{range $funcKey, $funcValue := $schema.Functions}}
-func make{{$funcKey}}Proxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "{{ToLower $funcKey}}"),
-		encodeRequest,
-		decode{{$funcKey}}Response,
-	).Endpoint()
-}
-{{end}}
-
-// Factory functions
-
-{{range $funcKey, $funcValue := $schema.Functions}}
-func make{{$funcKey}}Factory(ctx context.Context, qps int) loadbalancer.Factory {
-	return  createFactory(ctx, qps, make{{$funcKey}}Proxy)
-}
-{{end}}
-
-
-// Client Endpoint functions
-{{range $funcKey, $funcValue := $schema.Functions}}
-func new{{$funcKey}}ClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, make{{$funcKey}}Proxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-{{end}}
-
-// client
-type {{ToLower $title}}Client struct {
-{{range $funcKey, $funcValue := $schema.Functions}}
-	{{$funcKey}}Endpoint endpoint.Endpoint
-{{end}}}
-
-// constructor
-func  New{{ToLower $title}}Client(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *{{ToLower $title}}Client {
-return &{{ToLower $title}}Client{
-{{range $funcKey, $funcValue := $schema.Functions}}
-	{{$funcKey}}Endpoint : new{{$funcKey}}ClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-{{end}}
-}
-}`
+`
 
 // TransportHTTPSemioticsTemplate
 var TransportHTTPSemioticsTemplate = `
