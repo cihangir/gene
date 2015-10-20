@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cihangir/gene/example/tinder/models"
 	jujuratelimit "github.com/juju/ratelimit"
 	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
@@ -18,6 +19,122 @@ import (
 	kitratelimit "github.com/go-kit/kit/ratelimit"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+// client
+type FacebookFriendsClient struct {
+	CreateEndpoint endpoint.Endpoint
+
+	DeleteEndpoint endpoint.Endpoint
+
+	MutualsEndpoint endpoint.Endpoint
+
+	OneEndpoint endpoint.Endpoint
+}
+
+// constructor
+func NewFacebookFriendsClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *FacebookFriendsClient {
+	return &FacebookFriendsClient{
+
+		CreateEndpoint:  newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		DeleteEndpoint:  newDeleteClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		MutualsEndpoint: newMutualsClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		OneEndpoint:     newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+	}
+}
+
+func (f *FacebookFriendsClient) Create(ctx context.Context, req *models.FacebookFriends) (*models.FacebookFriends, error) {
+	res, err := f.CreateEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.FacebookFriends), nil
+}
+
+func (f *FacebookFriendsClient) Delete(ctx context.Context, req *models.FacebookFriends) (*models.FacebookFriends, error) {
+	res, err := f.DeleteEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.FacebookFriends), nil
+}
+
+func (f *FacebookFriendsClient) Mutuals(ctx context.Context, req *[]*models.FacebookFriends) (*[]string, error) {
+	res, err := f.MutualsEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*[]string), nil
+}
+
+func (f *FacebookFriendsClient) One(ctx context.Context, req *models.FacebookFriends) (*models.FacebookFriends, error) {
+	res, err := f.OneEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.FacebookFriends), nil
+}
+
+// Client Endpoint functions
+
+func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeCreateProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newDeleteClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeDeleteProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newMutualsClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeMutualsProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newOneClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeOneProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "create"),
+		encodeRequest,
+		decodeCreateResponse,
+	).Endpoint()
+}
+
+func makeDeleteProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "delete"),
+		encodeRequest,
+		decodeDeleteResponse,
+	).Endpoint()
+}
+
+func makeMutualsProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "mutuals"),
+		encodeRequest,
+		decodeMutualsResponse,
+	).Endpoint()
+}
+
+func makeOneProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "one"),
+		encodeRequest,
+		decodeOneResponse,
+	).Endpoint()
+}
 
 // Proxy functions
 
@@ -65,105 +182,4 @@ func defaultClientEndpointCreator(
 	lb := loadbalancer.NewRoundRobin(publisher)
 
 	return loadbalancer.Retry(maxAttempts, maxTime, lb)
-}
-
-func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "create"),
-		encodeRequest,
-		decodeCreateResponse,
-	).Endpoint()
-}
-
-func makeDeleteProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "delete"),
-		encodeRequest,
-		decodeDeleteResponse,
-	).Endpoint()
-}
-
-func makeMutualsProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "mutuals"),
-		encodeRequest,
-		decodeMutualsResponse,
-	).Endpoint()
-}
-
-func makeOneProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "one"),
-		encodeRequest,
-		decodeOneResponse,
-	).Endpoint()
-}
-
-// Factory functions
-
-func makeCreateFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeCreateProxy)
-}
-
-func makeDeleteFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeDeleteProxy)
-}
-
-func makeMutualsFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeMutualsProxy)
-}
-
-func makeOneFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeOneProxy)
-}
-
-// Client Endpoint functions
-
-func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeCreateProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newDeleteClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeDeleteProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newMutualsClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeMutualsProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newOneClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeOneProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-// client
-type facebookfriendsClient struct {
-	CreateEndpoint endpoint.Endpoint
-
-	DeleteEndpoint endpoint.Endpoint
-
-	MutualsEndpoint endpoint.Endpoint
-
-	OneEndpoint endpoint.Endpoint
-}
-
-// constructor
-func NewfacebookfriendsClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *facebookfriendsClient {
-	return &facebookfriendsClient{
-
-		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		DeleteEndpoint: newDeleteClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		MutualsEndpoint: newMutualsClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		OneEndpoint: newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-	}
 }

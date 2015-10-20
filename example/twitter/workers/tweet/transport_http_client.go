@@ -139,9 +139,7 @@ func NewtweetClient(proxies []string, ctx context.Context, maxAttempt int, maxTi
 	return &tweetClient{
 
 		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
 		DeleteEndpoint: newDeleteClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		OneEndpoint: newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		OneEndpoint:    newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
 	}
 }

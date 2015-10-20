@@ -2,17 +2,15 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/cihangir/gene/example/tinder/workers/account"
-	"github.com/kr/pretty"
+	"github.com/cihangir/gene/example/tinder/workers/profile"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
-	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
@@ -32,51 +30,50 @@ func main() {
 
 	fieldKeys := []string{"method", "error"}
 	requestCount := kitprometheus.NewCounter(stdprometheus.CounterOpts{
-		Namespace: "my_group",
-		Subsystem: "string_service",
+		Namespace: "tinder_api",
+		Subsystem: "account_service",
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
+
 	requestLatency := metrics.NewTimeHistogram(time.Microsecond, kitprometheus.NewSummary(stdprometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "string_service",
+		Namespace: "tinder_api",
+		Subsystem: "account_service",
 		Name:      "request_latency_microseconds",
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys))
 
+	profileApiEndpoints := []string{
+		"profile1.tinder_api.tinder.com",
+		"profile2.tinder_api.tinder.com",
+	}
+
+	maxAttempt := 5
+	maxTime := 10 * time.Second
+	qps := 100
+
+	profileService := profile.NewProfileClient(profileApiEndpoints, ctx, maxAttempt, maxTime, qps, logger)
+
+	ctx = context.WithValue(ctx, "profileService", profileService)
+
 	var svc account.AccountService
 	svc = account.NewAccount()
-	// svc = account.NewLoggingMiddleware(svc, logger)
-	// svc = account.NewInstrumentingMiddleware(svc, requestCount, requestLatency)
 
-	e := endpoint.Chain(
-		annotate("first"),
-		annotate("second"),
-		annotate("third"),
-		account.DefaultMiddlewares("foo", requestCount, requestLatency, logger),
-		// account.RequestLoggingMiddleware("foo", logger),
-	)
+	byFacebookIDsHandler := account.NewByFacebookIDsHandler(ctx, svc, account.DefaultMiddlewares("byfacebookids", requestCount, requestLatency, logger))
+	byIDsHandler := account.NewByIDsHandler(ctx, svc, account.DefaultMiddlewares("byids", requestCount, requestLatency, logger))
+	createHandler := account.NewCreateHandler(ctx, svc, account.DefaultMiddlewares("create", requestCount, requestLatency, logger))
+	deleteHandler := account.NewDeleteHandler(ctx, svc, account.DefaultMiddlewares("Delete", requestCount, requestLatency, logger))
+	oneHandler := account.NewOneHandler(ctx, svc, account.DefaultMiddlewares("One", requestCount, requestLatency, logger))
+	updateHandler := account.NewUpdateHandler(ctx, svc, account.DefaultMiddlewares("Update", requestCount, requestLatency, logger))
 
-	fmt.Printf("1 %# v", pretty.Formatter(1))
-	byFacebookIDsHandler := account.NewUpdateHandler(ctx, svc, e)
-
-	http.Handle("/uppercase", byFacebookIDsHandler)
+	http.Handle("/byfacebookids", byFacebookIDsHandler)
+	http.Handle("/byids", byIDsHandler)
+	http.Handle("/createhandler", createHandler)
+	http.Handle("/delete", deleteHandler)
+	http.Handle("/one", oneHandler)
+	http.Handle("/update", updateHandler)
 	http.Handle("/metrics", stdprometheus.Handler())
+
 	_ = logger.Log("msg", "HTTP", "addr", *listen)
 	_ = logger.Log("err", http.ListenAndServe(*listen, nil))
-}
-
-func annotate(s string) endpoint.Middleware {
-	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (interface{}, error) {
-			fmt.Println(s, "pre")
-			defer fmt.Println(s, "post")
-			return next(ctx, request)
-		}
-	}
-}
-
-func myEndpoint(context.Context, interface{}) (interface{}, error) {
-	fmt.Println("my endpoint!")
-	return struct{}{}, nil
 }

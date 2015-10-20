@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cihangir/gene/example/tinder/models"
 	jujuratelimit "github.com/juju/ratelimit"
 	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
@@ -18,6 +19,122 @@ import (
 	kitratelimit "github.com/go-kit/kit/ratelimit"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+// client
+type FacebookProfileClient struct {
+	ByIDsEndpoint endpoint.Endpoint
+
+	CreateEndpoint endpoint.Endpoint
+
+	OneEndpoint endpoint.Endpoint
+
+	UpdateEndpoint endpoint.Endpoint
+}
+
+// constructor
+func NewFacebookProfileClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *FacebookProfileClient {
+	return &FacebookProfileClient{
+
+		ByIDsEndpoint:  newByIDsClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		OneEndpoint:    newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+		UpdateEndpoint: newUpdateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
+	}
+}
+
+func (f *FacebookProfileClient) ByIDs(ctx context.Context, req *[]string) (*[]*models.FacebookProfile, error) {
+	res, err := f.ByIDsEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*[]*models.FacebookProfile), nil
+}
+
+func (f *FacebookProfileClient) Create(ctx context.Context, req *models.FacebookProfile) (*models.FacebookProfile, error) {
+	res, err := f.CreateEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.FacebookProfile), nil
+}
+
+func (f *FacebookProfileClient) One(ctx context.Context, req *int64) (*models.FacebookProfile, error) {
+	res, err := f.OneEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.FacebookProfile), nil
+}
+
+func (f *FacebookProfileClient) Update(ctx context.Context, req *models.FacebookProfile) (*models.FacebookProfile, error) {
+	res, err := f.UpdateEndpoint(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*models.FacebookProfile), nil
+}
+
+// Client Endpoint functions
+
+func newByIDsClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeByIDsProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeCreateProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newOneClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeOneProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func newUpdateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
+	factory := createFactory(ctx, qps, makeUpdateProxy)
+	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+}
+
+func makeByIDsProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "byids"),
+		encodeRequest,
+		decodeByIDsResponse,
+	).Endpoint()
+}
+
+func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "create"),
+		encodeRequest,
+		decodeCreateResponse,
+	).Endpoint()
+}
+
+func makeOneProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "one"),
+		encodeRequest,
+		decodeOneResponse,
+	).Endpoint()
+}
+
+func makeUpdateProxy(ctx context.Context, instance string) endpoint.Endpoint {
+	return httptransport.NewClient(
+		"POST",
+		createProxyURL(instance, "update"),
+		encodeRequest,
+		decodeUpdateResponse,
+	).Endpoint()
+}
 
 // Proxy functions
 
@@ -65,105 +182,4 @@ func defaultClientEndpointCreator(
 	lb := loadbalancer.NewRoundRobin(publisher)
 
 	return loadbalancer.Retry(maxAttempts, maxTime, lb)
-}
-
-func makeByIDsProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "byids"),
-		encodeRequest,
-		decodeByIDsResponse,
-	).Endpoint()
-}
-
-func makeCreateProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "create"),
-		encodeRequest,
-		decodeCreateResponse,
-	).Endpoint()
-}
-
-func makeOneProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "one"),
-		encodeRequest,
-		decodeOneResponse,
-	).Endpoint()
-}
-
-func makeUpdateProxy(ctx context.Context, instance string) endpoint.Endpoint {
-	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "update"),
-		encodeRequest,
-		decodeUpdateResponse,
-	).Endpoint()
-}
-
-// Factory functions
-
-func makeByIDsFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeByIDsProxy)
-}
-
-func makeCreateFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeCreateProxy)
-}
-
-func makeOneFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeOneProxy)
-}
-
-func makeUpdateFactory(ctx context.Context, qps int) loadbalancer.Factory {
-	return createFactory(ctx, qps, makeUpdateProxy)
-}
-
-// Client Endpoint functions
-
-func newByIDsClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeByIDsProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newCreateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeCreateProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newOneClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeOneProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-func newUpdateClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, makeUpdateProxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
-}
-
-// client
-type facebookprofileClient struct {
-	ByIDsEndpoint endpoint.Endpoint
-
-	CreateEndpoint endpoint.Endpoint
-
-	OneEndpoint endpoint.Endpoint
-
-	UpdateEndpoint endpoint.Endpoint
-}
-
-// constructor
-func NewfacebookprofileClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *facebookprofileClient {
-	return &facebookprofileClient{
-
-		ByIDsEndpoint: newByIDsClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		CreateEndpoint: newCreateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		OneEndpoint: newOneClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-
-		UpdateEndpoint: newUpdateClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),
-	}
 }

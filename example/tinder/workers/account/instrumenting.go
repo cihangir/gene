@@ -11,6 +11,94 @@ import (
 	"golang.org/x/net/context"
 )
 
+// // instrumenting middleware
+// type AccountInstrumentingMiddleware struct {
+//
+// 	ByFacebookIDsEndpoint endpoint.Endpoint
+//
+// 	ByIDsEndpoint endpoint.Endpoint
+//
+// 	CreateEndpoint endpoint.Endpoint
+//
+// 	DeleteEndpoint endpoint.Endpoint
+//
+// 	OneEndpoint endpoint.Endpoint
+//
+// 	UpdateEndpoint endpoint.Endpoint
+// }
+
+// // constructor
+// func  NewAccountInstrumentingMiddleware(requestCount metrics.Counter, requestLatency metrics.TimeHistogram, logger log.Logger) *AccountInstrumentingMiddleware {
+// return &AccountClient{
+//
+// ByFacebookIDsEndpoint : DefaultMiddlewares("ByFacebookIDs", requestCount, requestLatency, logger),
+// ByIDsEndpoint : DefaultMiddlewares("ByIDs", requestCount, requestLatency, logger),
+// CreateEndpoint : DefaultMiddlewares("Create", requestCount, requestLatency, logger),
+// DeleteEndpoint : DefaultMiddlewares("Delete", requestCount, requestLatency, logger),
+// OneEndpoint : DefaultMiddlewares("One", requestCount, requestLatency, logger),
+// UpdateEndpoint : DefaultMiddlewares("Update", requestCount, requestLatency, logger),
+// }
+// }
+
+//
+// func (a *AccountClient) ByFacebookIDs(ctx context.Context, req *[]string) (*[]*models.Account, error) {
+// 	res, err := a.ByFacebookIDsEndpoint(ctx, req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res.(*[]*models.Account), nil
+// }
+//
+// func (a *AccountClient) ByIDs(ctx context.Context, req *[]int64) (*[]*models.Account, error) {
+// 	res, err := a.ByIDsEndpoint(ctx, req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res.(*[]*models.Account), nil
+// }
+//
+// func (a *AccountClient) Create(ctx context.Context, req *models.Account) (*models.Account, error) {
+// 	res, err := a.CreateEndpoint(ctx, req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res.(*models.Account), nil
+// }
+//
+// func (a *AccountClient) Delete(ctx context.Context, req *int64) (*models.Account, error) {
+// 	res, err := a.DeleteEndpoint(ctx, req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res.(*models.Account), nil
+// }
+//
+// func (a *AccountClient) One(ctx context.Context, req *int64) (*models.Account, error) {
+// 	res, err := a.OneEndpoint(ctx, req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res.(*models.Account), nil
+// }
+//
+// func (a *AccountClient) Update(ctx context.Context, req *models.Account) (*models.Account, error) {
+// 	res, err := a.UpdateEndpoint(ctx, req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res.(*models.Account), nil
+// }
+//
+
+// functions
+////////
+
 func DefaultMiddlewares(method string, requestCount metrics.Counter, requestLatency metrics.TimeHistogram, logger log.Logger) endpoint.Middleware {
 	return endpoint.Chain(
 		RequestLatencyMiddleware(method, requestLatency),
