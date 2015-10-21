@@ -223,7 +223,6 @@ func defaultClientEndpointCreator(
 	)
 
 	lb := loadbalancer.NewRoundRobin(publisher)
-
 	return loadbalancer.Retry(maxAttempts, maxTime, lb)
 }
 `}
