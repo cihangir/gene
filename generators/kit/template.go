@@ -158,13 +158,15 @@ import (
 )
 
 
-// client
+// {{$title}}Client holds remote endpoint functions
+// Satisfies {{$title}}Service interface
 type {{$title}}Client struct {
-{{range $funcKey, $funcValue := $schema.Functions}}
+{{range $funcKey, $funcValue := $schema.Functions}}// {{$funcKey}}Endpoint provides remote call to {{ToLower $funcKey}} endpoint
 	{{$funcKey}}Endpoint endpoint.Endpoint
+
 {{end}}}
 
-// constructor
+// New{{$title}}Client creates a new client for {{$title}}Service
 func  New{{$title}}Client(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *{{$title}}Client {
 return &{{$title}}Client{
 {{range $funcKey, $funcValue := $schema.Functions}}
@@ -173,7 +175,7 @@ return &{{$title}}Client{
 }
 
 {{range $funcKey, $funcValue := $schema.Functions}}
-func ({{Pointerize $title}} *{{$title}}Client) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (*{{Argumentize $funcValue.Properties.outgoing}}, error) {
+{{AsComment $funcValue.Description}}func ({{Pointerize $title}} *{{$title}}Client) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (*{{Argumentize $funcValue.Properties.outgoing}}, error) {
 	res, err := {{Pointerize $title}}.{{$funcKey}}Endpoint(ctx, req)
 	if err != nil {
 		return nil, err
