@@ -20,20 +20,26 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// client
+// ProfileClient holds remote endpoint functions
+// Satisfies ProfileService interface
 type ProfileClient struct {
+	// CreateEndpoint provides remote call to create endpoint
 	CreateEndpoint endpoint.Endpoint
 
+	// DeleteEndpoint provides remote call to delete endpoint
 	DeleteEndpoint endpoint.Endpoint
 
+	// MarkAsEndpoint provides remote call to markas endpoint
 	MarkAsEndpoint endpoint.Endpoint
 
+	// OneEndpoint provides remote call to one endpoint
 	OneEndpoint endpoint.Endpoint
 
+	// UpdateEndpoint provides remote call to update endpoint
 	UpdateEndpoint endpoint.Endpoint
 }
 
-// constructor
+// NewProfileClient creates a new client for ProfileService
 func NewProfileClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *ProfileClient {
 	return &ProfileClient{
 
@@ -45,6 +51,7 @@ func NewProfileClient(proxies []string, ctx context.Context, maxAttempt int, max
 	}
 }
 
+// Create creates a new profile on the system with given profile data.
 func (p *ProfileClient) Create(ctx context.Context, req *models.Profile) (*models.Profile, error) {
 	res, err := p.CreateEndpoint(ctx, req)
 	if err != nil {
@@ -54,6 +61,8 @@ func (p *ProfileClient) Create(ctx context.Context, req *models.Profile) (*model
 	return res.(*models.Profile), nil
 }
 
+// Delete deletes the profile from the system with given profile id. Deletes are
+// soft.
 func (p *ProfileClient) Delete(ctx context.Context, req *int64) (*models.Profile, error) {
 	res, err := p.DeleteEndpoint(ctx, req)
 	if err != nil {
@@ -63,6 +72,8 @@ func (p *ProfileClient) Delete(ctx context.Context, req *int64) (*models.Profile
 	return res.(*models.Profile), nil
 }
 
+// Marks given account with given type constant, will be used mostly for marking
+// as bot.
 func (p *ProfileClient) MarkAs(ctx context.Context, req *models.MarkAsRequest) (*models.Profile, error) {
 	res, err := p.MarkAsEndpoint(ctx, req)
 	if err != nil {
@@ -72,6 +83,7 @@ func (p *ProfileClient) MarkAs(ctx context.Context, req *models.MarkAsRequest) (
 	return res.(*models.Profile), nil
 }
 
+// One returns the respective account with the given ID.
 func (p *ProfileClient) One(ctx context.Context, req *int64) (*models.Profile, error) {
 	res, err := p.OneEndpoint(ctx, req)
 	if err != nil {
@@ -81,6 +93,7 @@ func (p *ProfileClient) One(ctx context.Context, req *int64) (*models.Profile, e
 	return res.(*models.Profile), nil
 }
 
+// Update updates a new profile on the system with given profile data.
 func (p *ProfileClient) Update(ctx context.Context, req *models.Profile) (*models.Profile, error) {
 	res, err := p.UpdateEndpoint(ctx, req)
 	if err != nil {

@@ -20,18 +20,23 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// client
+// FacebookProfileClient holds remote endpoint functions
+// Satisfies FacebookProfileService interface
 type FacebookProfileClient struct {
+	// ByIDsEndpoint provides remote call to byids endpoint
 	ByIDsEndpoint endpoint.Endpoint
 
+	// CreateEndpoint provides remote call to create endpoint
 	CreateEndpoint endpoint.Endpoint
 
+	// OneEndpoint provides remote call to one endpoint
 	OneEndpoint endpoint.Endpoint
 
+	// UpdateEndpoint provides remote call to update endpoint
 	UpdateEndpoint endpoint.Endpoint
 }
 
-// constructor
+// NewFacebookProfileClient creates a new client for FacebookProfileService
 func NewFacebookProfileClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *FacebookProfileClient {
 	return &FacebookProfileClient{
 
@@ -69,6 +74,7 @@ func (f *FacebookProfileClient) One(ctx context.Context, req *int64) (*models.Fa
 	return res.(*models.FacebookProfile), nil
 }
 
+// Update updates the account on the system with given account data.
 func (f *FacebookProfileClient) Update(ctx context.Context, req *models.FacebookProfile) (*models.FacebookProfile, error) {
 	res, err := f.UpdateEndpoint(ctx, req)
 	if err != nil {

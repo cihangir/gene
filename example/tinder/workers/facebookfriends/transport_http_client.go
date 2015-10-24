@@ -20,18 +20,23 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// client
+// FacebookFriendsClient holds remote endpoint functions
+// Satisfies FacebookFriendsService interface
 type FacebookFriendsClient struct {
+	// CreateEndpoint provides remote call to create endpoint
 	CreateEndpoint endpoint.Endpoint
 
+	// DeleteEndpoint provides remote call to delete endpoint
 	DeleteEndpoint endpoint.Endpoint
 
+	// MutualsEndpoint provides remote call to mutuals endpoint
 	MutualsEndpoint endpoint.Endpoint
 
+	// OneEndpoint provides remote call to one endpoint
 	OneEndpoint endpoint.Endpoint
 }
 
-// constructor
+// NewFacebookFriendsClient creates a new client for FacebookFriendsService
 func NewFacebookFriendsClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *FacebookFriendsClient {
 	return &FacebookFriendsClient{
 
@@ -42,6 +47,8 @@ func NewFacebookFriendsClient(proxies []string, ctx context.Context, maxAttempt 
 	}
 }
 
+// Create creates a relationship between two facebook account. This function is
+// idempotent
 func (f *FacebookFriendsClient) Create(ctx context.Context, req *models.FacebookFriends) (*models.FacebookFriends, error) {
 	res, err := f.CreateEndpoint(ctx, req)
 	if err != nil {
@@ -51,6 +58,7 @@ func (f *FacebookFriendsClient) Create(ctx context.Context, req *models.Facebook
 	return res.(*models.FacebookFriends), nil
 }
 
+// Delete removes friendship.
 func (f *FacebookFriendsClient) Delete(ctx context.Context, req *models.FacebookFriends) (*models.FacebookFriends, error) {
 	res, err := f.DeleteEndpoint(ctx, req)
 	if err != nil {
@@ -60,6 +68,8 @@ func (f *FacebookFriendsClient) Delete(ctx context.Context, req *models.Facebook
 	return res.(*models.FacebookFriends), nil
 }
 
+// Mutuals return mutual friend's Facebook IDs between given source id and
+// target id. Source and Target are inclusive.
 func (f *FacebookFriendsClient) Mutuals(ctx context.Context, req *[]*models.FacebookFriends) (*[]string, error) {
 	res, err := f.MutualsEndpoint(ctx, req)
 	if err != nil {

@@ -20,22 +20,29 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// client
+// AccountClient holds remote endpoint functions
+// Satisfies AccountService interface
 type AccountClient struct {
+	// ByFacebookIDsEndpoint provides remote call to byfacebookids endpoint
 	ByFacebookIDsEndpoint endpoint.Endpoint
 
+	// ByIDsEndpoint provides remote call to byids endpoint
 	ByIDsEndpoint endpoint.Endpoint
 
+	// CreateEndpoint provides remote call to create endpoint
 	CreateEndpoint endpoint.Endpoint
 
+	// DeleteEndpoint provides remote call to delete endpoint
 	DeleteEndpoint endpoint.Endpoint
 
+	// OneEndpoint provides remote call to one endpoint
 	OneEndpoint endpoint.Endpoint
 
+	// UpdateEndpoint provides remote call to update endpoint
 	UpdateEndpoint endpoint.Endpoint
 }
 
-// constructor
+// NewAccountClient creates a new client for AccountService
 func NewAccountClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *AccountClient {
 	return &AccountClient{
 
@@ -75,6 +82,8 @@ func (a *AccountClient) Create(ctx context.Context, req *models.Account) (*model
 	return res.(*models.Account), nil
 }
 
+// Delete deletes the account from the system with given account id. Deletes are
+// soft.
 func (a *AccountClient) Delete(ctx context.Context, req *int64) (*models.Account, error) {
 	res, err := a.DeleteEndpoint(ctx, req)
 	if err != nil {
@@ -93,6 +102,7 @@ func (a *AccountClient) One(ctx context.Context, req *int64) (*models.Account, e
 	return res.(*models.Account), nil
 }
 
+// Update updates the account on the system with given account data.
 func (a *AccountClient) Update(ctx context.Context, req *models.Account) (*models.Account, error) {
 	res, err := a.UpdateEndpoint(ctx, req)
 	if err != nil {
