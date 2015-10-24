@@ -37,20 +37,26 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// client
+// AccountClient holds remote endpoint functions
+// Satisfies AccountService interface
 type AccountClient struct {
+	// CreateEndpoint provides remote call to create endpoint
 	CreateEndpoint endpoint.Endpoint
 
+	// DeleteEndpoint provides remote call to delete endpoint
 	DeleteEndpoint endpoint.Endpoint
 
+	// OneEndpoint provides remote call to one endpoint
 	OneEndpoint endpoint.Endpoint
 
+	// SomeEndpoint provides remote call to some endpoint
 	SomeEndpoint endpoint.Endpoint
 
+	// UpdateEndpoint provides remote call to update endpoint
 	UpdateEndpoint endpoint.Endpoint
 }
 
-// constructor
+// NewAccountClient creates a new client for AccountService
 func NewAccountClient(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *AccountClient {
 	return &AccountClient{
 
