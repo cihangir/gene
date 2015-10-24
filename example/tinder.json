@@ -153,7 +153,7 @@
         },
         "MarkAs": {
           "type": "object",
-          "description": "Marks given account with given type constant, will be used mostly for marking as bot.",
+          "description": "MarkAs marks given account with given type constant, will be used mostly for marking as bot.",
           "title": "One",
           "properties": {
             "incoming": {
@@ -346,6 +346,7 @@
         "One": {
           "type": "object",
           "title": "One",
+          "description": "One fetches an Account from system by its ID",
           "properties": {
             "incoming": {
               "type": "number",
@@ -360,6 +361,7 @@
         "ByIDs": {
           "type": "object",
           "title": "ByIDs",
+          "description": "ByIDs fetches multiple Accounts from system by their IDs",
           "properties": {
             "incoming": {
               "type": "array",
@@ -384,6 +386,7 @@
         "ByFacebookIDs": {
           "type": "object",
           "title": "ByFacebookIDs",
+          "description": "ByFacebookIDs fetches multiple Accounts from system by their FacebookIDs",
           "properties": {
             "incoming": {
               "type": "array",
@@ -407,6 +410,7 @@
         "Create": {
           "type": "object",
           "title": "One",
+          "description": "Create registers and account in the system by the given data",
           "properties": {
             "incoming": {
               "$ref": "#/definitions/Account"
@@ -502,6 +506,7 @@
         "One": {
           "type": "object",
           "title": "One",
+          "description": "One fetches an FacebookProfile from system by its ID",
           "properties": {
             "incoming": {
               "type": "number",
@@ -516,6 +521,7 @@
         "ByIDs": {
           "type": "object",
           "title": "ByIDs",
+          "description": "ByIDs fetches multiple FacebookProfile from system by their IDs",
           "properties": {
             "incoming": {
               "type": "array",
@@ -538,7 +544,8 @@
         },
         "Create": {
           "type": "object",
-          "title": "One",
+          "title": "Create",
+          "description": "Create persists a FacebookProfile in the system",
           "properties": {
             "incoming": {
               "$ref": "#/definitions/FacebookProfile"
@@ -550,7 +557,7 @@
         },
         "Update": {
           "type": "object",
-          "description": "Update updates the account on the system with given account data.",
+          "description": "Update updates the FacebookProfile on the system with given FacebookProfile data.",
           "title": "One",
           "properties": {
             "incoming": {
@@ -607,6 +614,7 @@
         "One": {
           "type": "object",
           "title": "One",
+          "description": "One fetches a FacebookFriends from system with FacebookFriends, will be used for validating the existance of the friendship",
           "properties": {
             "incoming": {
               "$ref": "#/definitions/FacebookFriends"

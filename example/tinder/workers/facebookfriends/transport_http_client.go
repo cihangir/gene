@@ -79,6 +79,8 @@ func (f *FacebookFriendsClient) Mutuals(ctx context.Context, req *[]*models.Face
 	return res.(*[]string), nil
 }
 
+// One fetches a FacebookFriends from system with FacebookFriends, will be used
+// for validating the existance of the friendship
 func (f *FacebookFriendsClient) One(ctx context.Context, req *models.FacebookFriends) (*models.FacebookFriends, error) {
 	res, err := f.OneEndpoint(ctx, req)
 	if err != nil {

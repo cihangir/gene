@@ -72,8 +72,8 @@ func (p *ProfileClient) Delete(ctx context.Context, req *int64) (*models.Profile
 	return res.(*models.Profile), nil
 }
 
-// Marks given account with given type constant, will be used mostly for marking
-// as bot.
+// MarkAs marks given account with given type constant, will be used mostly for
+// marking as bot.
 func (p *ProfileClient) MarkAs(ctx context.Context, req *models.MarkAsRequest) (*models.Profile, error) {
 	res, err := p.MarkAsEndpoint(ctx, req)
 	if err != nil {

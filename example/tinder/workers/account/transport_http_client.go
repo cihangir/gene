@@ -55,6 +55,7 @@ func NewAccountClient(proxies []string, ctx context.Context, maxAttempt int, max
 	}
 }
 
+// ByFacebookIDs fetches multiple Accounts from system by their FacebookIDs
 func (a *AccountClient) ByFacebookIDs(ctx context.Context, req *[]string) (*[]*models.Account, error) {
 	res, err := a.ByFacebookIDsEndpoint(ctx, req)
 	if err != nil {
@@ -64,6 +65,7 @@ func (a *AccountClient) ByFacebookIDs(ctx context.Context, req *[]string) (*[]*m
 	return res.(*[]*models.Account), nil
 }
 
+// ByIDs fetches multiple Accounts from system by their IDs
 func (a *AccountClient) ByIDs(ctx context.Context, req *[]int64) (*[]*models.Account, error) {
 	res, err := a.ByIDsEndpoint(ctx, req)
 	if err != nil {
@@ -73,6 +75,7 @@ func (a *AccountClient) ByIDs(ctx context.Context, req *[]int64) (*[]*models.Acc
 	return res.(*[]*models.Account), nil
 }
 
+// Create registers and account in the system by the given data
 func (a *AccountClient) Create(ctx context.Context, req *models.Account) (*models.Account, error) {
 	res, err := a.CreateEndpoint(ctx, req)
 	if err != nil {
@@ -93,6 +96,7 @@ func (a *AccountClient) Delete(ctx context.Context, req *int64) (*models.Account
 	return res.(*models.Account), nil
 }
 
+// One fetches an Account from system by its ID
 func (a *AccountClient) One(ctx context.Context, req *int64) (*models.Account, error) {
 	res, err := a.OneEndpoint(ctx, req)
 	if err != nil {
