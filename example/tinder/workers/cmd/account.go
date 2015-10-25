@@ -7,13 +7,17 @@ import (
 	"time"
 
 	"github.com/cihangir/gene/example/tinder/workers/account"
-	"github.com/cihangir/gene/example/tinder/workers/profile"
+	jujuratelimit "github.com/juju/ratelimit"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
 
+	"github.com/go-kit/kit/circuitbreaker"
+	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
+	kitratelimit "github.com/go-kit/kit/ratelimit"
 )
 
 func main() {
@@ -48,11 +52,19 @@ func main() {
 		"profile2.tinder_api.tinder.com",
 	}
 
-	maxAttempt := 5
-	maxTime := 10 * time.Second
+	// maxAttempt := 5
+	// maxTime := 10 * time.Second
 	qps := 100
 
-	profileService := profile.NewProfileClient(profileApiEndpoints, ctx, maxAttempt, maxTime, qps, logger)
+	m1 := circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))
+	m2 := kitratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(float64(qps), int64(qps)))
+
+	profileService := account.NewAccountClient(
+		profileApiEndpoints,
+		logger,
+		nil,
+		[]endpoint.Middleware{m1, m2},
+	)
 
 	ctx = context.WithValue(ctx, "profileService", profileService)
 
