@@ -7,7 +7,74 @@ import (
 	"net/http"
 
 	"github.com/cihangir/gene/example/tinder/models"
+	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+type semiotic struct {
+	Method             string
+	Endpoint           string
+	DecodeRequestFunc  httptransport.DecodeRequestFunc
+	EncodeRequestFunc  httptransport.EncodeRequestFunc
+	EncodeResponseFunc httptransport.EncodeResponseFunc
+	DecodeResponseFunc httptransport.DecodeResponseFunc
+}
+
+var semiotics = map[string]semiotic{
+
+	"byfacebookids": semiotic{
+		Method:             "POST",
+		Endpoint:           "byfacebookids",
+		DecodeRequestFunc:  decodeByFacebookIDsRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeByFacebookIDsResponse,
+	},
+
+	"byids": semiotic{
+		Method:             "POST",
+		Endpoint:           "byids",
+		DecodeRequestFunc:  decodeByIDsRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeByIDsResponse,
+	},
+
+	"create": semiotic{
+		Method:             "POST",
+		Endpoint:           "create",
+		DecodeRequestFunc:  decodeCreateRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeCreateResponse,
+	},
+
+	"delete": semiotic{
+		Method:             "POST",
+		Endpoint:           "delete",
+		DecodeRequestFunc:  decodeDeleteRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeDeleteResponse,
+	},
+
+	"one": semiotic{
+		Method:             "POST",
+		Endpoint:           "one",
+		DecodeRequestFunc:  decodeOneRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeOneResponse,
+	},
+
+	"update": semiotic{
+		Method:             "POST",
+		Endpoint:           "update",
+		DecodeRequestFunc:  decodeUpdateRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeUpdateResponse,
+	},
+}
 
 // Decode Request functions
 

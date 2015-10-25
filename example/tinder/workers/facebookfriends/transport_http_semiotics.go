@@ -7,7 +7,56 @@ import (
 	"net/http"
 
 	"github.com/cihangir/gene/example/tinder/models"
+	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+type semiotic struct {
+	Method             string
+	Endpoint           string
+	DecodeRequestFunc  httptransport.DecodeRequestFunc
+	EncodeRequestFunc  httptransport.EncodeRequestFunc
+	EncodeResponseFunc httptransport.EncodeResponseFunc
+	DecodeResponseFunc httptransport.DecodeResponseFunc
+}
+
+var semiotics = map[string]semiotic{
+
+	"create": semiotic{
+		Method:             "POST",
+		Endpoint:           "create",
+		DecodeRequestFunc:  decodeCreateRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeCreateResponse,
+	},
+
+	"delete": semiotic{
+		Method:             "POST",
+		Endpoint:           "delete",
+		DecodeRequestFunc:  decodeDeleteRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeDeleteResponse,
+	},
+
+	"mutuals": semiotic{
+		Method:             "POST",
+		Endpoint:           "mutuals",
+		DecodeRequestFunc:  decodeMutualsRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeMutualsResponse,
+	},
+
+	"one": semiotic{
+		Method:             "POST",
+		Endpoint:           "one",
+		DecodeRequestFunc:  decodeOneRequest,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decodeOneResponse,
+	},
+}
 
 // Decode Request functions
 

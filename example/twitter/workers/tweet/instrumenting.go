@@ -11,6 +11,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+// DefaultMiddlewares provides bare bones for default middlewares with
+// requestLatency, requestCount and requestLogging
 func DefaultMiddlewares(method string, requestCount metrics.Counter, requestLatency metrics.TimeHistogram, logger log.Logger) endpoint.Middleware {
 	return endpoint.Chain(
 		RequestLatencyMiddleware(method, requestLatency),
@@ -19,6 +21,8 @@ func DefaultMiddlewares(method string, requestCount metrics.Counter, requestLate
 	)
 }
 
+// RequestCountMiddleware prepares a request counter endpoint.Middleware for
+// package wide usage
 func RequestCountMiddleware(method string, requestCount metrics.Counter) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
@@ -34,6 +38,8 @@ func RequestCountMiddleware(method string, requestCount metrics.Counter) endpoin
 	}
 }
 
+// RequestLatencyMiddleware prepares a request latency calculator
+// endpoint.Middleware for package wide usage
 func RequestLatencyMiddleware(method string, requestLatency metrics.TimeHistogram) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
@@ -49,6 +55,8 @@ func RequestLatencyMiddleware(method string, requestLatency metrics.TimeHistogra
 	}
 }
 
+// RequestLoggingMiddleware prepares a request logger endpoint.Middleware for
+// package wide usage
 func RequestLoggingMiddleware(method string, logger log.Logger) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
