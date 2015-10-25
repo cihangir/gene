@@ -184,7 +184,12 @@ func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []http
 
 {{range $funcKey, $funcValue := $schema.Functions}}
 {{AsComment $funcValue.Description}}func ({{Pointerize $title}} *{{$title}}Client) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (*{{Argumentize $funcValue.Properties.outgoing}}, error) {
-	res, err := {{Pointerize $title}}.{{$funcKey}}Endpoint(ctx, req)
+	endpoint, err := {{Pointerize $title}}.{{$funcKey}}LoadBalancer.Endpoint()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := endpoint(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -195,24 +200,37 @@ func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []http
 
 
 // Client Endpoint functions
-{{range $funcKey, $funcValue := $schema.Functions}}
-func new{{$funcKey}}ClientEndpoint(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) endpoint.Endpoint {
-	factory := createFactory(ctx, qps, make{{$funcKey}}Proxy)
-	return defaultClientEndpointCreator(proxies, maxAttempt, maxTime, logger, factory)
+
+func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.LoadBalancer {
+
+	loadbalancerFactory := createLoadBalancerFactory(s, clientOpts, middlewares)
+
+	return createLoadBalancer(proxies, logger, loadbalancerFactory)
 }
-{{end}}
 
+func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		var e endpoint.Endpoint
 
-{{range $funcKey, $funcValue := $schema.Functions}}
-func make{{$funcKey}}Proxy(ctx context.Context, instance string) endpoint.Endpoint {
+		e = createEndpoint(s, instance, clientOpts)
+
+		for _, middleware := range middlewares {
+			e = middleware(e)
+		}
+
+		return e, nil, nil
+	}
+}
+
+func createEndpoint(s semiotic, instance string, clientOpts []httptransport.ClientOption) endpoint.Endpoint {
 	return httptransport.NewClient(
-		"POST",
-		createProxyURL(instance, "{{ToLower $funcKey}}"),
-		encodeRequest,
-		decode{{$funcKey}}Response,
+		s.Method,
+		createProxyURL(instance, s.Endpoint),
+		s.EncodeRequestFunc,
+		s.DecodeResponseFunc,
+		clientOpts...,
 	).Endpoint()
 }
-{{end}}
 
 // Proxy functions
 
@@ -231,25 +249,8 @@ func createProxyURL(instance, endpoint string) *url.URL {
 	return u
 }
 
-type proxyFunc func(context.Context, string) endpoint.Endpoint
 
-func createFactory(ctx context.Context, qps int, pf proxyFunc) loadbalancer.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		var e endpoint.Endpoint
-		e = pf(ctx, instance)
-		e = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))(e)
-		e = kitratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(float64(qps), int64(qps)))(e)
-		return e, nil, nil
-	}
-}
-
-func defaultClientEndpointCreator(
-	proxies []string,
-	maxAttempts int,
-	maxTime time.Duration,
-	logger log.Logger,
-	factory loadbalancer.Factory,
-) endpoint.Endpoint {
+func createLoadBalancer(proxies []string, logger log.Logger, factory loadbalancer.Factory) loadbalancer.LoadBalancer {
 
 	publisher := static.NewPublisher(
 		proxies,
@@ -257,8 +258,7 @@ func defaultClientEndpointCreator(
 		logger,
 	)
 
-	lb := loadbalancer.NewRoundRobin(publisher)
-	return loadbalancer.Retry(maxAttempts, maxTime, lb)
+	return loadbalancer.NewRoundRobin(publisher)
 }
 
 `
@@ -280,6 +280,29 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+type semiotic struct {
+	Method             string
+	Endpoint           string
+	DecodeRequestFunc  httptransport.DecodeRequestFunc
+	EncodeRequestFunc  httptransport.EncodeRequestFunc
+	EncodeResponseFunc httptransport.EncodeResponseFunc
+	DecodeResponseFunc httptransport.DecodeResponseFunc
+}
+
+
+var semiotics = map[string]semiotic{
+{{range $funcKey, $funcValue := $schema.Functions}}
+    "{{ToLower $funcKey}}": semiotic{
+    	Method:             "POST",
+		Endpoint:           "{{ToLower $funcKey}}",
+		DecodeRequestFunc:  decode{{$funcKey}}Request,
+		EncodeRequestFunc:  encodeRequest,
+		EncodeResponseFunc: encodeResponse,
+		DecodeResponseFunc: decode{{$funcKey}}Response,
+    },
+    {{end}}
+}
 
 // Decode Request functions
 
