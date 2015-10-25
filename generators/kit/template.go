@@ -93,9 +93,9 @@ var InterfaceTemplate = `
 
 package {{ToLower $title}}
 
-type {{$title}}Service interface {
-{{range $funcKey, $funcValue := $schema.Functions}}
-{{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (res *{{Argumentize $funcValue.Properties.outgoing}}, err error){{end}}
+{{AsComment $schema.Description}} type {{$title}}Service interface { {{range $funcKey, $funcValue := $schema.Functions}}
+{{AsComment $funcValue.Description}} {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (res *{{Argumentize $funcValue.Properties.outgoing}}, err error)
+{{end}}
 }
 `
 
@@ -169,17 +169,17 @@ import (
 // {{$title}}Client holds remote endpoint functions
 // Satisfies {{$title}}Service interface
 type {{$title}}Client struct {
-{{range $funcKey, $funcValue := $schema.Functions}}// {{$funcKey}}Endpoint provides remote call to {{ToLower $funcKey}} endpoint
-	{{$funcKey}}Endpoint endpoint.Endpoint
+	{{range $funcKey, $funcValue := $schema.Functions}}// {{$funcKey}}LoadBalancer provides remote call to {{ToLower $funcKey}} endpoints
+		{{$funcKey}}LoadBalancer loadbalancer.LoadBalancer
 
-{{end}}}
+	{{end}}
+}
 
 // New{{$title}}Client creates a new client for {{$title}}Service
-func  New{{$title}}Client(proxies []string, ctx context.Context, maxAttempt int, maxTime time.Duration, qps int, logger log.Logger) *{{$title}}Client {
-return &{{$title}}Client{
-{{range $funcKey, $funcValue := $schema.Functions}}
-{{$funcKey}}Endpoint : new{{$funcKey}}ClientEndpoint(proxies, ctx, maxAttempt, maxTime, qps, logger),{{end}}
-}
+func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *{{$title}}Client {
+	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics["{{ToLower $funcKey}}"], proxies, logger, clientOpts, middlewares),{{end}}
+	}
 }
 
 {{range $funcKey, $funcValue := $schema.Functions}}
