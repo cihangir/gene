@@ -78,12 +78,12 @@ func main() {
 	oneHandler := account.NewOneHandler(ctx, svc, account.DefaultMiddlewares("One", requestCount, requestLatency, logger))
 	updateHandler := account.NewUpdateHandler(ctx, svc, account.DefaultMiddlewares("Update", requestCount, requestLatency, logger))
 
-	http.Handle("/byfacebookids", byFacebookIDsHandler)
-	http.Handle("/byids", byIDsHandler)
-	http.Handle("/createhandler", createHandler)
-	http.Handle("/delete", deleteHandler)
-	http.Handle("/one", oneHandler)
-	http.Handle("/update", updateHandler)
+	http.Handle("/"+account.EndpointNameByFacebookIDs, byFacebookIDsHandler)
+	http.Handle("/"+account.EndpointNameByIDs, byIDsHandler)
+	http.Handle("/"+account.EndpointNameCreate, createHandler)
+	http.Handle("/"+account.EndpointNameDelete, deleteHandler)
+	http.Handle("/"+account.EndpointNameOne, oneHandler)
+	http.Handle("/"+account.EndpointNameUpdate, updateHandler)
 	http.Handle("/metrics", stdprometheus.Handler())
 
 	_ = logger.Log("msg", "HTTP", "addr", *listen)

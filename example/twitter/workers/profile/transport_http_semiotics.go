@@ -10,6 +10,13 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
+const (
+	EndpointNameCreate = "create"
+	EndpointNameDelete = "delete"
+	EndpointNameOne    = "one"
+	EndpointNameUpdate = "update"
+)
+
 type semiotic struct {
 	Method             string
 	Endpoint           string
@@ -21,36 +28,36 @@ type semiotic struct {
 
 var semiotics = map[string]semiotic{
 
-	"create": semiotic{
+	EndpointNameCreate: semiotic{
 		Method:             "POST",
-		Endpoint:           "create",
+		Endpoint:           "/" + EndpointNameCreate,
 		DecodeRequestFunc:  decodeCreateRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
 		DecodeResponseFunc: decodeCreateResponse,
 	},
 
-	"delete": semiotic{
+	EndpointNameDelete: semiotic{
 		Method:             "POST",
-		Endpoint:           "delete",
+		Endpoint:           "/" + EndpointNameDelete,
 		DecodeRequestFunc:  decodeDeleteRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
 		DecodeResponseFunc: decodeDeleteResponse,
 	},
 
-	"one": semiotic{
+	EndpointNameOne: semiotic{
 		Method:             "POST",
-		Endpoint:           "one",
+		Endpoint:           "/" + EndpointNameOne,
 		DecodeRequestFunc:  decodeOneRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
 		DecodeResponseFunc: decodeOneResponse,
 	},
 
-	"update": semiotic{
+	EndpointNameUpdate: semiotic{
 		Method:             "POST",
-		Endpoint:           "update",
+		Endpoint:           "/" + EndpointNameUpdate,
 		DecodeRequestFunc:  decodeUpdateRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
