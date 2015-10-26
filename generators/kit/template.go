@@ -281,6 +281,11 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
+const (
+{{range $funcKey, $funcValue := $schema.Functions}}
+ 	EndpointName{{$funcKey}} = "{{ToLower $funcKey}}"{{end}}
+)
+
 type semiotic struct {
 	Method             string
 	Endpoint           string
@@ -293,9 +298,9 @@ type semiotic struct {
 
 var semiotics = map[string]semiotic{
 {{range $funcKey, $funcValue := $schema.Functions}}
-    "{{ToLower $funcKey}}": semiotic{
+    EndpointName{{$funcKey}}: semiotic{
     	Method:             "POST",
-		Endpoint:           "{{ToLower $funcKey}}",
+		Endpoint:           "/"+EndpointName{{$funcKey}},
 		DecodeRequestFunc:  decode{{$funcKey}}Request,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
