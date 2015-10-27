@@ -31,9 +31,9 @@ type TweetClient struct {
 // NewTweetClient creates a new client for TweetService
 func NewTweetClient(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *TweetClient {
 	return &TweetClient{
-		CreateLoadBalancer: createClientLoadBalancer(semiotics["create"], proxies, logger, clientOpts, middlewares),
-		DeleteLoadBalancer: createClientLoadBalancer(semiotics["delete"], proxies, logger, clientOpts, middlewares),
-		OneLoadBalancer:    createClientLoadBalancer(semiotics["one"], proxies, logger, clientOpts, middlewares),
+		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], proxies, logger, clientOpts, middlewares),
+		DeleteLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameDelete], proxies, logger, clientOpts, middlewares),
+		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], proxies, logger, clientOpts, middlewares),
 	}
 }
 

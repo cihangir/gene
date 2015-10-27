@@ -37,11 +37,11 @@ type ProfileClient struct {
 // NewProfileClient creates a new client for ProfileService
 func NewProfileClient(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *ProfileClient {
 	return &ProfileClient{
-		CreateLoadBalancer: createClientLoadBalancer(semiotics["create"], proxies, logger, clientOpts, middlewares),
-		DeleteLoadBalancer: createClientLoadBalancer(semiotics["delete"], proxies, logger, clientOpts, middlewares),
-		MarkAsLoadBalancer: createClientLoadBalancer(semiotics["markas"], proxies, logger, clientOpts, middlewares),
-		OneLoadBalancer:    createClientLoadBalancer(semiotics["one"], proxies, logger, clientOpts, middlewares),
-		UpdateLoadBalancer: createClientLoadBalancer(semiotics["update"], proxies, logger, clientOpts, middlewares),
+		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], proxies, logger, clientOpts, middlewares),
+		DeleteLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameDelete], proxies, logger, clientOpts, middlewares),
+		MarkAsLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameMarkAs], proxies, logger, clientOpts, middlewares),
+		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], proxies, logger, clientOpts, middlewares),
+		UpdateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameUpdate], proxies, logger, clientOpts, middlewares),
 	}
 }
 

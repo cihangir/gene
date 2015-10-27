@@ -34,10 +34,10 @@ type FacebookFriendsClient struct {
 // NewFacebookFriendsClient creates a new client for FacebookFriendsService
 func NewFacebookFriendsClient(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *FacebookFriendsClient {
 	return &FacebookFriendsClient{
-		CreateLoadBalancer:  createClientLoadBalancer(semiotics["create"], proxies, logger, clientOpts, middlewares),
-		DeleteLoadBalancer:  createClientLoadBalancer(semiotics["delete"], proxies, logger, clientOpts, middlewares),
-		MutualsLoadBalancer: createClientLoadBalancer(semiotics["mutuals"], proxies, logger, clientOpts, middlewares),
-		OneLoadBalancer:     createClientLoadBalancer(semiotics["one"], proxies, logger, clientOpts, middlewares),
+		CreateLoadBalancer:  createClientLoadBalancer(semiotics[EndpointNameCreate], proxies, logger, clientOpts, middlewares),
+		DeleteLoadBalancer:  createClientLoadBalancer(semiotics[EndpointNameDelete], proxies, logger, clientOpts, middlewares),
+		MutualsLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameMutuals], proxies, logger, clientOpts, middlewares),
+		OneLoadBalancer:     createClientLoadBalancer(semiotics[EndpointNameOne], proxies, logger, clientOpts, middlewares),
 	}
 }
 

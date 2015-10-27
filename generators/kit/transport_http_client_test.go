@@ -59,11 +59,11 @@ type AccountClient struct {
 // NewAccountClient creates a new client for AccountService
 func NewAccountClient(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *AccountClient {
 	return &AccountClient{
-		CreateLoadBalancer: createClientLoadBalancer(semiotics["create"], proxies, logger, clientOpts, middlewares),
-		DeleteLoadBalancer: createClientLoadBalancer(semiotics["delete"], proxies, logger, clientOpts, middlewares),
-		OneLoadBalancer:    createClientLoadBalancer(semiotics["one"], proxies, logger, clientOpts, middlewares),
-		SomeLoadBalancer:   createClientLoadBalancer(semiotics["some"], proxies, logger, clientOpts, middlewares),
-		UpdateLoadBalancer: createClientLoadBalancer(semiotics["update"], proxies, logger, clientOpts, middlewares),
+		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], proxies, logger, clientOpts, middlewares),
+		DeleteLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameDelete], proxies, logger, clientOpts, middlewares),
+		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], proxies, logger, clientOpts, middlewares),
+		SomeLoadBalancer:   createClientLoadBalancer(semiotics[EndpointNameSome], proxies, logger, clientOpts, middlewares),
+		UpdateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameUpdate], proxies, logger, clientOpts, middlewares),
 	}
 }
 

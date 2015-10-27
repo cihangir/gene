@@ -178,7 +178,7 @@ type {{$title}}Client struct {
 // New{{$title}}Client creates a new client for {{$title}}Service
 func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *{{$title}}Client {
 	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
-		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics["{{ToLower $funcKey}}"], proxies, logger, clientOpts, middlewares),{{end}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics[EndpointName{{$funcKey}}], proxies, logger, clientOpts, middlewares),{{end}}
 	}
 }
 
