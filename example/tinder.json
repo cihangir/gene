@@ -465,9 +465,7 @@
             ],
             "primaryKey": [
               "Id"
-            ],
-            "databaseName": "twitter_db",
-            "schemaName": "tweet"
+            ]
           }
         }
       ],
@@ -586,9 +584,7 @@
             "primaryKey": [
               "SourceId",
               "TargetId"
-            ],
-            "databaseName": "twitter_db",
-            "schemaName": "tweet"
+            ]
           }
         }
       ],
