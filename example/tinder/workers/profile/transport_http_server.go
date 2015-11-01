@@ -3,96 +3,84 @@ package profile
 import (
 	"golang.org/x/net/context"
 
-	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/metrics"
+	"github.com/go-kit/kit/tracing/zipkin"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// Handler functions
+type Option struct {
+	ZipkinEndpoint  string
+	ZipkinCollector zipkin.Collector
 
-func NewCreateHandler(ctx context.Context, svc ProfileService, middleware endpoint.Middleware, options ...httptransport.ServerOption) *httptransport.Server {
-	return httptransport.NewServer(
-		ctx,
-		middleware(makeCreateEndpoint(svc)),
-		decodeCreateRequest,
-		encodeResponse,
-		options...,
-	)
+	LogErrors   bool
+	LogRequests bool
+
+	Latency metrics.TimeHistogram
+	Counter metrics.Counter
+
+	CustomMiddlewares []endpoint.Middleware
+	ServerOptions     []httptransport.ServerOption
 }
 
-func NewDeleteHandler(ctx context.Context, svc ProfileService, middleware endpoint.Middleware, options ...httptransport.ServerOption) *httptransport.Server {
-	return httptransport.NewServer(
-		ctx,
-		middleware(makeDeleteEndpoint(svc)),
-		decodeDeleteRequest,
-		encodeResponse,
-		options...,
-	)
-}
+func NewServer(ctx context.Context, opts *Option, logger log.Logger, svc ProfileService, s semiotic) *httptransport.Server {
 
-func NewMarkAsHandler(ctx context.Context, svc ProfileService, middleware endpoint.Middleware, options ...httptransport.ServerOption) *httptransport.Server {
-	return httptransport.NewServer(
-		ctx,
-		middleware(makeMarkAsEndpoint(svc)),
-		decodeMarkAsRequest,
-		encodeResponse,
-		options...,
-	)
-}
+	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
 
-func NewOneHandler(ctx context.Context, svc ProfileService, middleware endpoint.Middleware, options ...httptransport.ServerOption) *httptransport.Server {
-	return httptransport.NewServer(
-		ctx,
-		middleware(makeOneEndpoint(svc)),
-		decodeOneRequest,
-		encodeResponse,
-		options...,
-	)
-}
+	var middlewares []endpoint.Middleware
 
-func NewUpdateHandler(ctx context.Context, svc ProfileService, middleware endpoint.Middleware, options ...httptransport.ServerOption) *httptransport.Server {
-	return httptransport.NewServer(
-		ctx,
-		middleware(makeUpdateEndpoint(svc)),
-		decodeUpdateRequest,
-		encodeResponse,
-		options...,
-	)
-}
-
-// Endpoint functions
-
-func makeCreateEndpoint(svc ProfileService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*models.Profile)
-		return svc.Create(ctx, req)
+	if opts.Latency != nil {
+		middlewares = append(middlewares, RequestLatencyMiddleware(s.Name, opts.Latency))
 	}
-}
 
-func makeDeleteEndpoint(svc ProfileService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*int64)
-		return svc.Delete(ctx, req)
+	if opts.Counter != nil {
+		middlewares = append(middlewares, RequestCountMiddleware(s.Name, opts.Counter))
 	}
-}
 
-func makeMarkAsEndpoint(svc ProfileService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*models.MarkAsRequest)
-		return svc.MarkAs(ctx, req)
+	if opts.LogRequests {
+		middlewares = append(middlewares, RequestLoggingMiddleware(s.Name, logger))
 	}
-}
 
-func makeOneEndpoint(svc ProfileService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*int64)
-		return svc.One(ctx, req)
-	}
-}
+	var serverOpts []httptransport.ServerOption
 
-func makeUpdateEndpoint(svc ProfileService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*models.Profile)
-		return svc.Update(ctx, req)
+	// enable tracing if required
+	if opts.ZipkinEndpoint != "" && opts.ZipkinCollector != nil {
+		tracingLogger := log.NewContext(transportLogger).With("component", "tracing")
+
+		endpointSpan := zipkin.MakeNewSpanFunc(opts.ZipkinEndpoint, "account", s.Name)
+		endpointTrace := zipkin.ToContext(endpointSpan, tracingLogger)
+		// add tracing
+		serverOpts = append(serverOpts, httptransport.ServerBefore(endpointTrace))
+		// add annotation as middleware to server
+		middlewares = append(middlewares, zipkin.AnnotateServer(endpointSpan, opts.ZipkinCollector))
 	}
+
+	// log server errors
+	if opts.LogErrors {
+		serverOpts = append(serverOpts, httptransport.ServerErrorLogger(transportLogger))
+	}
+
+	// If any custom middlewares are passed include them
+	if len(opts.CustomMiddlewares) > 0 {
+		middlewares = append(middlewares, opts.CustomMiddlewares...)
+	}
+
+	// If any server options are passed include them in server creation
+	if len(opts.ServerOptions) > 0 {
+		serverOpts = append(serverOpts, opts.ServerOptions...)
+	}
+
+	// middleware := endpoint.Chain(middlewares...)
+
+	handler := httptransport.NewServer(
+		ctx,
+		// middleware(s.ServerEndpointFunc(svc)),
+		s.ServerEndpointFunc(svc),
+		s.DecodeRequestFunc,
+		s.EncodeResponseFunc,
+		serverOpts...,
+	)
+
+	return handler
 }

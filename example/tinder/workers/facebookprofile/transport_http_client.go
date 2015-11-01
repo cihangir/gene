@@ -34,10 +34,10 @@ type FacebookProfileClient struct {
 // NewFacebookProfileClient creates a new client for FacebookProfileService
 func NewFacebookProfileClient(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *FacebookProfileClient {
 	return &FacebookProfileClient{
-		ByIDsLoadBalancer:  createClientLoadBalancer(semiotics[EndpointNameByIDs], proxies, logger, clientOpts, middlewares),
-		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], proxies, logger, clientOpts, middlewares),
-		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], proxies, logger, clientOpts, middlewares),
-		UpdateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameUpdate], proxies, logger, clientOpts, middlewares),
+		ByIDsLoadBalancer:  createClientLoadBalancer(Semiotics[EndpointNameByIDs], proxies, logger, clientOpts, middlewares),
+		CreateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameCreate], proxies, logger, clientOpts, middlewares),
+		OneLoadBalancer:    createClientLoadBalancer(Semiotics[EndpointNameOne], proxies, logger, clientOpts, middlewares),
+		UpdateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameUpdate], proxies, logger, clientOpts, middlewares),
 	}
 }
 

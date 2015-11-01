@@ -3,22 +3,13 @@ package profile
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
-	"github.com/go-kit/kit/tracing/zipkin"
 	"golang.org/x/net/context"
 )
-
-func NewZipkinTracer(hostport, serviceName, methodName string, log log.Logger) (zipkin.NewSpanFunc, func(ctx context.Context, r *http.Request) context.Context) {
-	spanFunc := zipkin.MakeNewSpanFunc(hostport, serviceName, methodName)
-
-	traceContext := zipkin.ToContext(spanFunc, log)
-	return spanFunc, traceContext
-}
 
 // DefaultMiddlewares provides bare bones for default middlewares with
 // requestLatency, requestCount and requestLogging

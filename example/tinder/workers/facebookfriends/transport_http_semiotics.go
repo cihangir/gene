@@ -6,7 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"golang.org/x/net/context"
+
 	"github.com/cihangir/gene/example/tinder/models"
+	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
@@ -18,18 +21,22 @@ const (
 )
 
 type semiotic struct {
+	Name               string
 	Method             string
 	Endpoint           string
+	ServerEndpointFunc func(svc FacebookFriendsService) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
 	EncodeResponseFunc httptransport.EncodeResponseFunc
 	DecodeResponseFunc httptransport.DecodeResponseFunc
 }
 
-var semiotics = map[string]semiotic{
+var Semiotics = map[string]semiotic{
 
 	EndpointNameCreate: semiotic{
+		Name:               EndpointNameCreate,
 		Method:             "POST",
+		ServerEndpointFunc: makeCreateEndpoint,
 		Endpoint:           "/" + EndpointNameCreate,
 		DecodeRequestFunc:  decodeCreateRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -38,7 +45,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameDelete: semiotic{
+		Name:               EndpointNameDelete,
 		Method:             "POST",
+		ServerEndpointFunc: makeDeleteEndpoint,
 		Endpoint:           "/" + EndpointNameDelete,
 		DecodeRequestFunc:  decodeDeleteRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -47,7 +56,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameMutuals: semiotic{
+		Name:               EndpointNameMutuals,
 		Method:             "POST",
+		ServerEndpointFunc: makeMutualsEndpoint,
 		Endpoint:           "/" + EndpointNameMutuals,
 		DecodeRequestFunc:  decodeMutualsRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -56,7 +67,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameOne: semiotic{
+		Name:               EndpointNameOne,
 		Method:             "POST",
+		ServerEndpointFunc: makeOneEndpoint,
 		Endpoint:           "/" + EndpointNameOne,
 		DecodeRequestFunc:  decodeOneRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -148,4 +161,34 @@ func encodeRequest(r *http.Request, request interface{}) error {
 
 func encodeResponse(rw http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(rw).Encode(response)
+}
+
+// Endpoint functions
+
+func makeCreateEndpoint(svc FacebookFriendsService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.FacebookFriends)
+		return svc.Create(ctx, req)
+	}
+}
+
+func makeDeleteEndpoint(svc FacebookFriendsService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.FacebookFriends)
+		return svc.Delete(ctx, req)
+	}
+}
+
+func makeMutualsEndpoint(svc FacebookFriendsService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*[]*models.FacebookFriends)
+		return svc.Mutuals(ctx, req)
+	}
+}
+
+func makeOneEndpoint(svc FacebookFriendsService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.FacebookFriends)
+		return svc.One(ctx, req)
+	}
 }

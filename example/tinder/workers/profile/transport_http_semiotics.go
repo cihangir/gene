@@ -6,7 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"golang.org/x/net/context"
+
 	"github.com/cihangir/gene/example/tinder/models"
+	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
@@ -19,18 +22,22 @@ const (
 )
 
 type semiotic struct {
+	Name               string
 	Method             string
 	Endpoint           string
+	ServerEndpointFunc func(svc ProfileService) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
 	EncodeResponseFunc httptransport.EncodeResponseFunc
 	DecodeResponseFunc httptransport.DecodeResponseFunc
 }
 
-var semiotics = map[string]semiotic{
+var Semiotics = map[string]semiotic{
 
 	EndpointNameCreate: semiotic{
+		Name:               EndpointNameCreate,
 		Method:             "POST",
+		ServerEndpointFunc: makeCreateEndpoint,
 		Endpoint:           "/" + EndpointNameCreate,
 		DecodeRequestFunc:  decodeCreateRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -39,7 +46,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameDelete: semiotic{
+		Name:               EndpointNameDelete,
 		Method:             "POST",
+		ServerEndpointFunc: makeDeleteEndpoint,
 		Endpoint:           "/" + EndpointNameDelete,
 		DecodeRequestFunc:  decodeDeleteRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -48,7 +57,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameMarkAs: semiotic{
+		Name:               EndpointNameMarkAs,
 		Method:             "POST",
+		ServerEndpointFunc: makeMarkAsEndpoint,
 		Endpoint:           "/" + EndpointNameMarkAs,
 		DecodeRequestFunc:  decodeMarkAsRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -57,7 +68,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameOne: semiotic{
+		Name:               EndpointNameOne,
 		Method:             "POST",
+		ServerEndpointFunc: makeOneEndpoint,
 		Endpoint:           "/" + EndpointNameOne,
 		DecodeRequestFunc:  decodeOneRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -66,7 +79,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameUpdate: semiotic{
+		Name:               EndpointNameUpdate,
 		Method:             "POST",
+		ServerEndpointFunc: makeUpdateEndpoint,
 		Endpoint:           "/" + EndpointNameUpdate,
 		DecodeRequestFunc:  decodeUpdateRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -174,4 +189,41 @@ func encodeRequest(r *http.Request, request interface{}) error {
 
 func encodeResponse(rw http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(rw).Encode(response)
+}
+
+// Endpoint functions
+
+func makeCreateEndpoint(svc ProfileService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Profile)
+		return svc.Create(ctx, req)
+	}
+}
+
+func makeDeleteEndpoint(svc ProfileService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*int64)
+		return svc.Delete(ctx, req)
+	}
+}
+
+func makeMarkAsEndpoint(svc ProfileService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.MarkAsRequest)
+		return svc.MarkAs(ctx, req)
+	}
+}
+
+func makeOneEndpoint(svc ProfileService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*int64)
+		return svc.One(ctx, req)
+	}
+}
+
+func makeUpdateEndpoint(svc ProfileService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Profile)
+		return svc.Update(ctx, req)
+	}
 }
