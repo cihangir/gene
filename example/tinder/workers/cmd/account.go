@@ -8,17 +8,12 @@ import (
 	"time"
 
 	"github.com/cihangir/gene/example/tinder/workers/account"
-	jujuratelimit "github.com/juju/ratelimit"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
 
-	"github.com/go-kit/kit/circuitbreaker"
-	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	kitratelimit "github.com/go-kit/kit/ratelimit"
 	"github.com/go-kit/kit/tracing/zipkin"
 )
 
@@ -97,16 +92,17 @@ func main() {
 
 	// maxAttempt := 5
 	// maxTime := 10 * time.Second
-	qps := 100
 
-	m1 := circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))
-	m2 := kitratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(float64(qps), int64(qps)))
+	clientOpts := account.ClientOpts{
+		ZipkinEndpoint:  "localhost:3000",
+		ZipkinCollector: collector,
+		QPS:             100,
+	}
 
 	profileService := account.NewAccountClient(
 		profileApiEndpoints,
 		logger,
-		nil,
-		[]endpoint.Middleware{m1, m2},
+		clientOpts,
 	)
 
 	ctx = context.WithValue(ctx, "profileService", profileService)

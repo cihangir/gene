@@ -202,18 +202,40 @@ var TransportHTTPClientTemplate = `
 package {{ToLower $title}}
 
 import (
-	jujuratelimit "github.com/juju/ratelimit"
-	"github.com/sony/gobreaker"
-	"golang.org/x/net/context"
+	"io"
+	"net/url"
+	"strings"
 
+	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/loadbalancer"
 	"github.com/go-kit/kit/loadbalancer/static"
 	"github.com/go-kit/kit/log"
 	kitratelimit "github.com/go-kit/kit/ratelimit"
+	"github.com/go-kit/kit/tracing/zipkin"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/juju/ratelimit"
+	jujuratelimit "github.com/juju/ratelimit"
+	"github.com/sony/gobreaker"
+	"golang.org/x/net/context"
 )
+
+
+type ClientOpts struct {
+	ZipkinEndpoint  string
+	ZipkinCollector zipkin.Collector
+
+	QPS                   int
+	DisableCircuitBreaker bool
+	CircuitBreaker        *gobreaker.CircuitBreaker
+
+	DisableRateLimiter bool
+	RateLimiter        *ratelimit.Bucket
+
+	TransportOpts     []httptransport.ClientOption
+	CustomMiddlewares []endpoint.Middleware
+}
 
 
 // {{$title}}Client holds remote endpoint functions
@@ -226,9 +248,9 @@ type {{$title}}Client struct {
 }
 
 // New{{$title}}Client creates a new client for {{$title}}Service
-func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *{{$title}}Client {
+func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts ClientOpts) *{{$title}}Client {
 	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
-		{{$funcKey}}LoadBalancer : createClientLoadBalancer(Semiotics[EndpointName{{$funcKey}}], proxies, logger, clientOpts, middlewares),{{end}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(Semiotics[EndpointName{{$funcKey}}], proxies, logger, clientOpts),{{end}}
 	}
 }
 
@@ -251,9 +273,57 @@ func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []http
 
 // Client Endpoint functions
 
-func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.LoadBalancer {
+func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, clientOpts ClientOpts) loadbalancer.LoadBalancer {
+	var transportOpts []httptransport.ClientOption
+	var middlewares []endpoint.Middleware
 
-	loadbalancerFactory := createLoadBalancerFactory(s, clientOpts, middlewares)
+	// if circuit braker is not disabled, add it as a middleware
+	if !clientOpts.DisableCircuitBreaker {
+		cb := clientOpts.CircuitBreaker
+
+		if clientOpts.CircuitBreaker == nil {
+			// create a default circuit breaker
+			cb = gobreaker.NewCircuitBreaker(gobreaker.Settings{})
+		}
+
+		middlewares = append(middlewares, circuitbreaker.Gobreaker(cb))
+	}
+
+	// if rate limiter is not disabled, add it as a middleware
+	if !clientOpts.DisableRateLimiter {
+		rateLimiter := clientOpts.RateLimiter
+
+		if clientOpts.RateLimiter == nil {
+			// create a default rate limiter
+			rateLimiter = jujuratelimit.NewBucketWithRate(float64(clientOpts.QPS), int64(clientOpts.QPS))
+		}
+
+		middlewares = append(middlewares, kitratelimit.NewTokenBucketLimiter(rateLimiter))
+	}
+
+	// enable tracing if required
+	if clientOpts.ZipkinEndpoint != "" && clientOpts.ZipkinCollector != nil {
+		endpointSpan := zipkin.MakeNewSpanFunc(clientOpts.ZipkinEndpoint, "{{ToLower $title}}", s.Name)
+		// set tracing parameters to outgoing requests
+		endpointTrace := zipkin.ToRequest(endpointSpan)
+		// add tracing
+		transportOpts = append(transportOpts, httptransport.SetClientBefore(endpointTrace))
+
+		// add annotation as middleware to server
+		middlewares = append(middlewares, zipkin.AnnotateClient(endpointSpan, clientOpts.ZipkinCollector))
+	}
+
+	// If any custom middlewares are passed include them
+	if len(clientOpts.CustomMiddlewares) > 0 {
+		middlewares = append(middlewares, clientOpts.CustomMiddlewares...)
+	}
+
+	// If any client options are passed include them in client creation
+	if len(clientOpts.TransportOpts) > 0 {
+		transportOpts = append(transportOpts, clientOpts.TransportOpts...)
+	}
+
+	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
 	return createLoadBalancer(proxies, logger, loadbalancerFactory)
 }
