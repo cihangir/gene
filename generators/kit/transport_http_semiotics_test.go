@@ -42,18 +42,22 @@ const (
 )
 
 type semiotic struct {
+	Name               string
 	Method             string
 	Endpoint           string
+	ServerEndpointFunc func(svc AccountService) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
 	EncodeResponseFunc httptransport.EncodeResponseFunc
 	DecodeResponseFunc httptransport.DecodeResponseFunc
 }
 
-var semiotics = map[string]semiotic{
+var Semiotics = map[string]semiotic{
 
 	EndpointNameCreate: semiotic{
+		Name:               EndpointNameCreate,
 		Method:             "POST",
+		ServerEndpointFunc: makeCreateEndpoint,
 		Endpoint:           "/" + EndpointNameCreate,
 		DecodeRequestFunc:  decodeCreateRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -62,7 +66,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameDelete: semiotic{
+		Name:               EndpointNameDelete,
 		Method:             "POST",
+		ServerEndpointFunc: makeDeleteEndpoint,
 		Endpoint:           "/" + EndpointNameDelete,
 		DecodeRequestFunc:  decodeDeleteRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -71,7 +77,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameOne: semiotic{
+		Name:               EndpointNameOne,
 		Method:             "POST",
+		ServerEndpointFunc: makeOneEndpoint,
 		Endpoint:           "/" + EndpointNameOne,
 		DecodeRequestFunc:  decodeOneRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -80,7 +88,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameSome: semiotic{
+		Name:               EndpointNameSome,
 		Method:             "POST",
+		ServerEndpointFunc: makeSomeEndpoint,
 		Endpoint:           "/" + EndpointNameSome,
 		DecodeRequestFunc:  decodeSomeRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -89,7 +99,9 @@ var semiotics = map[string]semiotic{
 	},
 
 	EndpointNameUpdate: semiotic{
+		Name:               EndpointNameUpdate,
 		Method:             "POST",
+		ServerEndpointFunc: makeUpdateEndpoint,
 		Endpoint:           "/" + EndpointNameUpdate,
 		DecodeRequestFunc:  decodeUpdateRequest,
 		EncodeRequestFunc:  encodeRequest,
@@ -197,5 +209,42 @@ func encodeRequest(r *http.Request, request interface{}) error {
 
 func encodeResponse(rw http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(rw).Encode(response)
+}
+
+// Endpoint functions
+
+func makeCreateEndpoint(svc AccountService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Account)
+		return svc.Create(ctx, req)
+	}
+}
+
+func makeDeleteEndpoint(svc AccountService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Account)
+		return svc.Delete(ctx, req)
+	}
+}
+
+func makeOneEndpoint(svc AccountService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Account)
+		return svc.One(ctx, req)
+	}
+}
+
+func makeSomeEndpoint(svc AccountService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Account)
+		return svc.Some(ctx, req)
+	}
+}
+
+func makeUpdateEndpoint(svc AccountService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*models.Account)
+		return svc.Update(ctx, req)
+	}
 }
 `}

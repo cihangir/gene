@@ -108,39 +108,89 @@ var TransportHTTPServerTemplate = `
 package {{ToLower $title}}
 
 import (
-	"encoding/json"
-	"net/http"
-
 	"golang.org/x/net/context"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/metrics"
+	"github.com/go-kit/kit/tracing/zipkin"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-// Handler functions
+type Option struct {
+	ZipkinEndpoint  string
+	ZipkinCollector zipkin.Collector
 
-{{range $funcKey, $funcValue := $schema.Functions}}
-func New{{$funcKey}}Handler(ctx context.Context, svc {{$title}}Service, middleware endpoint.Middleware, options ...httptransport.ServerOption) *httptransport.Server {
-	return httptransport.NewServer(
-		ctx,
-		middleware(make{{$funcKey}}Endpoint(svc)),
-		decode{{$funcKey}}Request,
-		encodeResponse,
-		options...,
-	)
+	LogErrors   bool
+	LogRequests bool
+
+	Latency metrics.TimeHistogram
+	Counter metrics.Counter
+
+	CustomMiddlewares []endpoint.Middleware
+	ServerOptions     []httptransport.ServerOption
 }
-{{end}}
 
-// Endpoint functions
+func NewServer(ctx context.Context, opts *Option, logger log.Logger, svc {{$title}}Service, s semiotic) *httptransport.Server {
 
-{{range $funcKey, $funcValue := $schema.Functions}}
-func make{{$funcKey}}Endpoint(svc {{$title}}Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*{{Argumentize $funcValue.Properties.incoming}})
-		return svc.{{$funcKey}}(ctx, req)
+	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
+
+	var middlewares []endpoint.Middleware
+
+	if opts.Latency != nil {
+		middlewares = append(middlewares, RequestLatencyMiddleware(s.Name, opts.Latency))
 	}
+
+	if opts.Counter != nil {
+		middlewares = append(middlewares, RequestCountMiddleware(s.Name, opts.Counter))
+	}
+
+	if opts.LogRequests {
+		middlewares = append(middlewares, RequestLoggingMiddleware(s.Name, logger))
+	}
+
+	var serverOpts []httptransport.ServerOption
+
+	// enable tracing if required
+	if opts.ZipkinEndpoint != "" && opts.ZipkinCollector != nil {
+		tracingLogger := log.NewContext(transportLogger).With("component", "tracing")
+
+		endpointSpan := zipkin.MakeNewSpanFunc(opts.ZipkinEndpoint, "account", s.Name)
+		endpointTrace := zipkin.ToContext(endpointSpan, tracingLogger)
+		// add tracing
+		serverOpts = append(serverOpts, httptransport.ServerBefore(endpointTrace))
+		// add annotation as middleware to server
+		middlewares = append(middlewares, zipkin.AnnotateServer(endpointSpan, opts.ZipkinCollector))
+	}
+
+	// log server errors
+	if opts.LogErrors {
+		serverOpts = append(serverOpts, httptransport.ServerErrorLogger(transportLogger))
+	}
+
+	// If any custom middlewares are passed include them
+	if len(opts.CustomMiddlewares) > 0 {
+		middlewares = append(middlewares, opts.CustomMiddlewares...)
+	}
+
+	// If any server options are passed include them in server creation
+	if len(opts.ServerOptions) > 0 {
+		serverOpts = append(serverOpts, opts.ServerOptions...)
+	}
+
+	// middleware := endpoint.Chain(middlewares...)
+
+	handler := httptransport.NewServer(
+		ctx,
+		// middleware(s.ServerEndpointFunc(svc)),
+		s.ServerEndpointFunc(svc),
+		s.DecodeRequestFunc,
+		s.EncodeResponseFunc,
+		serverOpts...,
+	)
+
+	return handler
 }
-{{end}}
 `
 
 // TransportHTTPClientTemplate
@@ -178,7 +228,7 @@ type {{$title}}Client struct {
 // New{{$title}}Client creates a new client for {{$title}}Service
 func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) *{{$title}}Client {
 	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
-		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics[EndpointName{{$funcKey}}], proxies, logger, clientOpts, middlewares),{{end}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(Semiotics[EndpointName{{$funcKey}}], proxies, logger, clientOpts, middlewares),{{end}}
 	}
 }
 
@@ -287,8 +337,10 @@ const (
 )
 
 type semiotic struct {
+	Name               string
 	Method             string
 	Endpoint           string
+	ServerEndpointFunc func(svc {{$title}}Service) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
 	EncodeResponseFunc httptransport.EncodeResponseFunc
@@ -296,10 +348,12 @@ type semiotic struct {
 }
 
 
-var semiotics = map[string]semiotic{
+var Semiotics = map[string]semiotic{
 {{range $funcKey, $funcValue := $schema.Functions}}
     EndpointName{{$funcKey}}: semiotic{
+    	Name:               EndpointName{{$funcKey}},
     	Method:             "POST",
+    	ServerEndpointFunc: make{{$funcKey}}Endpoint,
 		Endpoint:           "/"+EndpointName{{$funcKey}},
 		DecodeRequestFunc:  decode{{$funcKey}}Request,
 		EncodeRequestFunc:  encodeRequest,
@@ -349,4 +403,15 @@ func encodeRequest(r *http.Request, request interface{}) error {
 func encodeResponse(rw http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(rw).Encode(response)
 }
+
+// Endpoint functions
+
+{{range $funcKey, $funcValue := $schema.Functions}}
+func make{{$funcKey}}Endpoint(svc {{$title}}Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*{{Argumentize $funcValue.Properties.incoming}})
+		return svc.{{$funcKey}}(ctx, req)
+	}
+}
+{{end}}
 `
