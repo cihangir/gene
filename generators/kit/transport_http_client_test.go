@@ -82,13 +82,13 @@ type AccountClient struct {
 }
 
 // NewAccountClient creates a new client for AccountService
-func NewAccountClient(proxies []string, logger log.Logger, clientOpts ClientOpts) *AccountClient {
+func NewAccountClient(lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) *AccountClient {
 	return &AccountClient{
-		CreateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameCreate], proxies, logger, clientOpts),
-		DeleteLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameDelete], proxies, logger, clientOpts),
-		OneLoadBalancer:    createClientLoadBalancer(Semiotics[EndpointNameOne], proxies, logger, clientOpts),
-		SomeLoadBalancer:   createClientLoadBalancer(Semiotics[EndpointNameSome], proxies, logger, clientOpts),
-		UpdateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameUpdate], proxies, logger, clientOpts),
+		CreateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameCreate], lbCreator, clientOpts, logger),
+		DeleteLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameDelete], lbCreator, clientOpts, logger),
+		OneLoadBalancer:    createClientLoadBalancer(Semiotics[EndpointNameOne], lbCreator, clientOpts, logger),
+		SomeLoadBalancer:   createClientLoadBalancer(Semiotics[EndpointNameSome], lbCreator, clientOpts, logger),
+		UpdateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameUpdate], lbCreator, clientOpts, logger),
 	}
 }
 
@@ -164,7 +164,7 @@ func (a *AccountClient) Update(ctx context.Context, req *models.Account) (*model
 
 // Client Endpoint functions
 
-func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, clientOpts ClientOpts) loadbalancer.LoadBalancer {
+func createClientLoadBalancer(s semiotic, lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) loadbalancer.LoadBalancer {
 	var transportOpts []httptransport.ClientOption
 	var middlewares []endpoint.Middleware
 
@@ -216,15 +216,7 @@ func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, c
 
 	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
-	var loadBalancerFunc LoadBalancerF
-
-	if clientOpts.LoadBalancerCreator != nil {
-		loadBalancerFunc = clientOpts.LoadBalancerCreator
-	} else {
-		loadBalancerFunc = createLoadBalancer(proxies, logger)
-	}
-
-	return loadBalancerFunc(loadbalancerFactory)
+	return lbCreator(loadbalancerFactory)
 }
 
 func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
@@ -266,17 +258,5 @@ func createProxyURL(instance, endpoint string) *url.URL {
 	}
 
 	return u
-}
-
-func createLoadBalancer(proxies []string, logger log.Logger) LoadBalancerF {
-	return func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
-		publisher := static.NewPublisher(
-			proxies,
-			factory,
-			logger,
-		)
-
-		return loadbalancer.NewRoundRobin(publisher)
-	}
 }
 `}

@@ -24,13 +24,23 @@ func TestTransportHTTPSemiotics(t *testing.T) {
 var transportHTTPSemioticsExpecteds = []string{`package account
 
 import (
-	"encoding/json"
-	"net/http"
+	"io"
+	"net/url"
+	"strings"
 
-	"golang.org/x/net/context"
-
+	"github.com/cihangir/gene/example/tinder/models"
+	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/loadbalancer"
+	"github.com/go-kit/kit/loadbalancer/static"
+	"github.com/go-kit/kit/log"
+	kitratelimit "github.com/go-kit/kit/ratelimit"
+	"github.com/go-kit/kit/tracing/zipkin"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/juju/ratelimit"
+	jujuratelimit "github.com/juju/ratelimit"
+	"github.com/sony/gobreaker"
+	"golang.org/x/net/context"
 )
 
 const (

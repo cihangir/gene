@@ -9,7 +9,6 @@ import (
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/loadbalancer"
-	"github.com/go-kit/kit/loadbalancer/static"
 	"github.com/go-kit/kit/log"
 	kitratelimit "github.com/go-kit/kit/ratelimit"
 	"github.com/go-kit/kit/tracing/zipkin"
@@ -56,12 +55,12 @@ type FacebookFriendsClient struct {
 }
 
 // NewFacebookFriendsClient creates a new client for FacebookFriendsService
-func NewFacebookFriendsClient(proxies []string, logger log.Logger, clientOpts ClientOpts) *FacebookFriendsClient {
+func NewFacebookFriendsClient(lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) *FacebookFriendsClient {
 	return &FacebookFriendsClient{
-		CreateLoadBalancer:  createClientLoadBalancer(Semiotics[EndpointNameCreate], proxies, logger, clientOpts),
-		DeleteLoadBalancer:  createClientLoadBalancer(Semiotics[EndpointNameDelete], proxies, logger, clientOpts),
-		MutualsLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameMutuals], proxies, logger, clientOpts),
-		OneLoadBalancer:     createClientLoadBalancer(Semiotics[EndpointNameOne], proxies, logger, clientOpts),
+		CreateLoadBalancer:  createClientLoadBalancer(Semiotics[EndpointNameCreate], lbCreator, clientOpts, logger),
+		DeleteLoadBalancer:  createClientLoadBalancer(Semiotics[EndpointNameDelete], lbCreator, clientOpts, logger),
+		MutualsLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameMutuals], lbCreator, clientOpts, logger),
+		OneLoadBalancer:     createClientLoadBalancer(Semiotics[EndpointNameOne], lbCreator, clientOpts, logger),
 	}
 }
 
@@ -130,7 +129,7 @@ func (f *FacebookFriendsClient) One(ctx context.Context, req *models.FacebookFri
 
 // Client Endpoint functions
 
-func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, clientOpts ClientOpts) loadbalancer.LoadBalancer {
+func createClientLoadBalancer(s semiotic, lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) loadbalancer.LoadBalancer {
 	var transportOpts []httptransport.ClientOption
 	var middlewares []endpoint.Middleware
 
@@ -182,15 +181,7 @@ func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, c
 
 	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
-	var loadBalancerFunc LoadBalancerF
-
-	if clientOpts.LoadBalancerCreator != nil {
-		loadBalancerFunc = clientOpts.LoadBalancerCreator
-	} else {
-		loadBalancerFunc = createLoadBalancer(proxies, logger)
-	}
-
-	return loadBalancerFunc(loadbalancerFactory)
+	return lbCreator(loadbalancerFactory)
 }
 
 func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
@@ -232,16 +223,4 @@ func createProxyURL(instance, endpoint string) *url.URL {
 	}
 
 	return u
-}
-
-func createLoadBalancer(proxies []string, logger log.Logger) LoadBalancerF {
-	return func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
-		publisher := static.NewPublisher(
-			proxies,
-			factory,
-			logger,
-		)
-
-		return loadbalancer.NewRoundRobin(publisher)
-	}
 }

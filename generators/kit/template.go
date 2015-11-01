@@ -250,9 +250,9 @@ type {{$title}}Client struct {
 }
 
 // New{{$title}}Client creates a new client for {{$title}}Service
-func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts ClientOpts) *{{$title}}Client {
+func  New{{$title}}Client(lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) *{{$title}}Client {
 	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
-		{{$funcKey}}LoadBalancer : createClientLoadBalancer(Semiotics[EndpointName{{$funcKey}}], proxies, logger, clientOpts),{{end}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(Semiotics[EndpointName{{$funcKey}}], lbCreator, clientOpts, logger),{{end}}
 	}
 }
 
@@ -275,7 +275,7 @@ func  New{{$title}}Client(proxies []string, logger log.Logger, clientOpts Client
 
 // Client Endpoint functions
 
-func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, clientOpts ClientOpts) loadbalancer.LoadBalancer {
+func createClientLoadBalancer(s semiotic, lbCreator LoadBalancerF,  clientOpts ClientOpts, 	logger log.Logger) loadbalancer.LoadBalancer {
 	var transportOpts []httptransport.ClientOption
 	var middlewares []endpoint.Middleware
 
@@ -327,15 +327,7 @@ func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, c
 
 	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
-	var loadBalancerFunc LoadBalancerF
-
-	if clientOpts.LoadBalancerCreator != nil {
-		loadBalancerFunc = clientOpts.LoadBalancerCreator
-	} else {
-		loadBalancerFunc = createLoadBalancer(proxies, logger)
-	}
-
-	return loadBalancerFunc(loadbalancerFactory)
+	return lbCreator(loadbalancerFactory)
 }
 
 func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
@@ -379,17 +371,6 @@ func createProxyURL(instance, endpoint string) *url.URL {
 	return u
 }
 
-func createLoadBalancer(proxies []string, logger log.Logger) LoadBalancerF {
-	return func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
-		publisher := static.NewPublisher(
-			proxies,
-			factory,
-			logger,
-		)
-
-		return loadbalancer.NewRoundRobin(publisher)
-	}
-}
 `
 
 // TransportHTTPSemioticsTemplate
@@ -401,13 +382,23 @@ var TransportHTTPSemioticsTemplate = `
 package {{ToLower $title}}
 
 import (
-	"encoding/json"
-	"net/http"
+    "io"
+    "net/url"
+    "strings"
 
-	"golang.org/x/net/context"
-
-	"github.com/go-kit/kit/endpoint"
-	httptransport "github.com/go-kit/kit/transport/http"
+    "github.com/cihangir/gene/example/tinder/models"
+    "github.com/go-kit/kit/circuitbreaker"
+    "github.com/go-kit/kit/endpoint"
+    "github.com/go-kit/kit/loadbalancer"
+    "github.com/go-kit/kit/loadbalancer/static"
+    "github.com/go-kit/kit/log"
+    kitratelimit "github.com/go-kit/kit/ratelimit"
+    "github.com/go-kit/kit/tracing/zipkin"
+    httptransport "github.com/go-kit/kit/transport/http"
+    "github.com/juju/ratelimit"
+    jujuratelimit "github.com/juju/ratelimit"
+    "github.com/sony/gobreaker"
+    "golang.org/x/net/context"
 )
 
 const (

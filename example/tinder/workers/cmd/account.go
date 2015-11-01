@@ -11,6 +11,8 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
+	"github.com/go-kit/kit/loadbalancer"
+	"github.com/go-kit/kit/loadbalancer/static"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
@@ -93,6 +95,16 @@ func main() {
 	// maxAttempt := 5
 	// maxTime := 10 * time.Second
 
+	lbCreator := func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
+		publisher := static.NewPublisher(
+			profileApiEndpoints,
+			factory,
+			logger,
+		)
+
+		return loadbalancer.NewRoundRobin(publisher)
+	}
+
 	clientOpts := account.ClientOpts{
 		ZipkinEndpoint:  "localhost:3000",
 		ZipkinCollector: collector,
@@ -100,9 +112,9 @@ func main() {
 	}
 
 	profileService := account.NewAccountClient(
-		profileApiEndpoints,
-		logger,
+		lbCreator,
 		clientOpts,
+		logger,
 	)
 
 	ctx = context.WithValue(ctx, "profileService", profileService)

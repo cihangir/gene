@@ -6,11 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"golang.org/x/net/context"
-
 	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"golang.org/x/net/context"
 )
 
 const (
