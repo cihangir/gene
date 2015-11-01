@@ -20,6 +20,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+type LoadBalancerF func(factory loadbalancer.Factory) loadbalancer.LoadBalancer
+
 type ClientOpts struct {
 	ZipkinEndpoint  string
 	ZipkinCollector zipkin.Collector
@@ -33,6 +35,8 @@ type ClientOpts struct {
 
 	TransportOpts     []httptransport.ClientOption
 	CustomMiddlewares []endpoint.Middleware
+
+	LoadBalancerCreator LoadBalancerF
 }
 
 // FacebookFriendsClient holds remote endpoint functions
@@ -178,7 +182,15 @@ func createClientLoadBalancer(s semiotic, proxies []string, logger log.Logger, c
 
 	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
-	return createLoadBalancer(proxies, logger, loadbalancerFactory)
+	var loadBalancerFunc LoadBalancerF
+
+	if clientOpts.LoadBalancerCreator != nil {
+		loadBalancerFunc = clientOpts.LoadBalancerCreator
+	} else {
+		loadBalancerFunc = createLoadBalancer(proxies, logger)
+	}
+
+	return loadBalancerFunc(loadbalancerFactory)
 }
 
 func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
@@ -222,13 +234,14 @@ func createProxyURL(instance, endpoint string) *url.URL {
 	return u
 }
 
-func createLoadBalancer(proxies []string, logger log.Logger, factory loadbalancer.Factory) loadbalancer.LoadBalancer {
+func createLoadBalancer(proxies []string, logger log.Logger) LoadBalancerF {
+	return func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
+		publisher := static.NewPublisher(
+			proxies,
+			factory,
+			logger,
+		)
 
-	publisher := static.NewPublisher(
-		proxies,
-		factory,
-		logger,
-	)
-
-	return loadbalancer.NewRoundRobin(publisher)
+		return loadbalancer.NewRoundRobin(publisher)
+	}
 }
