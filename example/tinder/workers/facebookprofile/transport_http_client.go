@@ -6,37 +6,13 @@ import (
 	"strings"
 
 	"github.com/cihangir/gene/example/tinder/models"
-	"github.com/go-kit/kit/circuitbreaker"
+	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/loadbalancer"
 	"github.com/go-kit/kit/log"
-	kitratelimit "github.com/go-kit/kit/ratelimit"
-	"github.com/go-kit/kit/tracing/zipkin"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/juju/ratelimit"
-	jujuratelimit "github.com/juju/ratelimit"
-	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
 )
-
-type LoadBalancerF func(factory loadbalancer.Factory) loadbalancer.LoadBalancer
-
-type ClientOpts struct {
-	ZipkinEndpoint  string
-	ZipkinCollector zipkin.Collector
-
-	QPS                   int
-	DisableCircuitBreaker bool
-	CircuitBreaker        *gobreaker.CircuitBreaker
-
-	DisableRateLimiter bool
-	RateLimiter        *ratelimit.Bucket
-
-	TransportOpts     []httptransport.ClientOption
-	CustomMiddlewares []endpoint.Middleware
-
-	LoadBalancerCreator LoadBalancerF
-}
 
 // FacebookProfileClient holds remote endpoint functions
 // Satisfies FacebookProfileService interface
@@ -55,12 +31,12 @@ type FacebookProfileClient struct {
 }
 
 // NewFacebookProfileClient creates a new client for FacebookProfileService
-func NewFacebookProfileClient(lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) *FacebookProfileClient {
+func NewFacebookProfileClient(lbCreator kitworker.LoadBalancerF, clientOpts *kitworker.ClientOption, logger log.Logger) *FacebookProfileClient {
 	return &FacebookProfileClient{
-		ByIDsLoadBalancer:  createClientLoadBalancer(Semiotics[EndpointNameByIDs], lbCreator, clientOpts, logger),
-		CreateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameCreate], lbCreator, clientOpts, logger),
-		OneLoadBalancer:    createClientLoadBalancer(Semiotics[EndpointNameOne], lbCreator, clientOpts, logger),
-		UpdateLoadBalancer: createClientLoadBalancer(Semiotics[EndpointNameUpdate], lbCreator, clientOpts, logger),
+		ByIDsLoadBalancer:  createClientLoadBalancer(semiotics[EndpointNameByIDs], lbCreator, clientOpts, logger),
+		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], lbCreator, clientOpts, logger),
+		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], lbCreator, clientOpts, logger),
+		UpdateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameUpdate], lbCreator, clientOpts, logger),
 	}
 }
 
@@ -127,55 +103,8 @@ func (f *FacebookProfileClient) Update(ctx context.Context, req *models.Facebook
 
 // Client Endpoint functions
 
-func createClientLoadBalancer(s semiotic, lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) loadbalancer.LoadBalancer {
-	var transportOpts []httptransport.ClientOption
-	var middlewares []endpoint.Middleware
-
-	// if circuit braker is not disabled, add it as a middleware
-	if !clientOpts.DisableCircuitBreaker {
-		cb := clientOpts.CircuitBreaker
-
-		if clientOpts.CircuitBreaker == nil {
-			// create a default circuit breaker
-			cb = gobreaker.NewCircuitBreaker(gobreaker.Settings{})
-		}
-
-		middlewares = append(middlewares, circuitbreaker.Gobreaker(cb))
-	}
-
-	// if rate limiter is not disabled, add it as a middleware
-	if !clientOpts.DisableRateLimiter {
-		rateLimiter := clientOpts.RateLimiter
-
-		if clientOpts.RateLimiter == nil {
-			// create a default rate limiter
-			rateLimiter = jujuratelimit.NewBucketWithRate(float64(clientOpts.QPS), int64(clientOpts.QPS))
-		}
-
-		middlewares = append(middlewares, kitratelimit.NewTokenBucketLimiter(rateLimiter))
-	}
-
-	// enable tracing if required
-	if clientOpts.ZipkinEndpoint != "" && clientOpts.ZipkinCollector != nil {
-		endpointSpan := zipkin.MakeNewSpanFunc(clientOpts.ZipkinEndpoint, "facebookprofile", s.Name)
-		// set tracing parameters to outgoing requests
-		endpointTrace := zipkin.ToRequest(endpointSpan)
-		// add tracing
-		transportOpts = append(transportOpts, httptransport.SetClientBefore(endpointTrace))
-
-		// add annotation as middleware to server
-		middlewares = append(middlewares, zipkin.AnnotateClient(endpointSpan, clientOpts.ZipkinCollector))
-	}
-
-	// If any custom middlewares are passed include them
-	if len(clientOpts.CustomMiddlewares) > 0 {
-		middlewares = append(middlewares, clientOpts.CustomMiddlewares...)
-	}
-
-	// If any client options are passed include them in client creation
-	if len(clientOpts.TransportOpts) > 0 {
-		transportOpts = append(transportOpts, clientOpts.TransportOpts...)
-	}
+func createClientLoadBalancer(s semiotic, lbCreator kitworker.LoadBalancerF, clientOpts *kitworker.ClientOption, logger log.Logger) loadbalancer.LoadBalancer {
+	middlewares, transportOpts := clientOpts.Configure("facebookprofile", s.Name)
 
 	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
@@ -199,7 +128,7 @@ func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOpti
 func createEndpoint(s semiotic, instance string, clientOpts []httptransport.ClientOption) endpoint.Endpoint {
 	return httptransport.NewClient(
 		s.Method,
-		createProxyURL(instance, s.Endpoint),
+		createProxyURL(instance, s.Route),
 		s.EncodeRequestFunc,
 		s.DecodeResponseFunc,
 		clientOpts...,

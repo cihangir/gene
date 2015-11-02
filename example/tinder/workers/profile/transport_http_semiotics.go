@@ -23,7 +23,7 @@ const (
 type semiotic struct {
 	Name               string
 	Method             string
-	Endpoint           string
+	Route              string
 	ServerEndpointFunc func(svc ProfileService) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
@@ -31,13 +31,13 @@ type semiotic struct {
 	DecodeResponseFunc httptransport.DecodeResponseFunc
 }
 
-var Semiotics = map[string]semiotic{
+var semiotics = map[string]semiotic{
 
 	EndpointNameCreate: semiotic{
 		Name:               EndpointNameCreate,
 		Method:             "POST",
 		ServerEndpointFunc: makeCreateEndpoint,
-		Endpoint:           "/" + EndpointNameCreate,
+		Route:              "/" + EndpointNameCreate,
 		DecodeRequestFunc:  decodeCreateRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -48,7 +48,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameDelete,
 		Method:             "POST",
 		ServerEndpointFunc: makeDeleteEndpoint,
-		Endpoint:           "/" + EndpointNameDelete,
+		Route:              "/" + EndpointNameDelete,
 		DecodeRequestFunc:  decodeDeleteRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -59,7 +59,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameMarkAs,
 		Method:             "POST",
 		ServerEndpointFunc: makeMarkAsEndpoint,
-		Endpoint:           "/" + EndpointNameMarkAs,
+		Route:              "/" + EndpointNameMarkAs,
 		DecodeRequestFunc:  decodeMarkAsRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -70,7 +70,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameOne,
 		Method:             "POST",
 		ServerEndpointFunc: makeOneEndpoint,
-		Endpoint:           "/" + EndpointNameOne,
+		Route:              "/" + EndpointNameOne,
 		DecodeRequestFunc:  decodeOneRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -81,7 +81,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameUpdate,
 		Method:             "POST",
 		ServerEndpointFunc: makeUpdateEndpoint,
-		Endpoint:           "/" + EndpointNameUpdate,
+		Route:              "/" + EndpointNameUpdate,
 		DecodeRequestFunc:  decodeUpdateRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,

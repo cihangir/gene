@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cihangir/gene/example/tinder/workers/account"
+	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
 
@@ -73,8 +74,8 @@ func main() {
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys))
 
-	serverOpts := &account.Option{
-		ZipkinEndpoint:  "localhost:3000",
+	serverOpts := &kitworker.ServerOption{
+		Host:            "localhost:3000",
 		ZipkinCollector: collector,
 
 		LogErrors:   true,
@@ -105,8 +106,8 @@ func main() {
 		return loadbalancer.NewRoundRobin(publisher)
 	}
 
-	clientOpts := account.ClientOpts{
-		ZipkinEndpoint:  "localhost:3000",
+	clientOpts := &kitworker.ClientOption{
+		Host:            "localhost:3000",
 		ZipkinCollector: collector,
 		QPS:             100,
 	}
@@ -122,7 +123,12 @@ func main() {
 	var svc account.AccountService
 	svc = account.NewAccount()
 
-	deleteServer := account.NewServer(ctx, serverOpts, logger, svc, account.Semiotics[account.EndpointNameDelete])
+	deleteRoute, deleteHandler := account.NewDeleteHandler(
+		ctx,
+		svc,
+		serverOpts,
+		logger,
+	)
 
 	// fmt.Println("deleteServer-->", deleteServer)
 	// byFacebookIDsHandler := account.NewByFacebookIDsHandler(ctx, svc, account.DefaultMiddlewares("byfacebookids", requestCount, requestLatency, logger))
@@ -139,10 +145,8 @@ func main() {
 	// oneHandler := account.NewOneHandler(ctx, svc, account.DefaultMiddlewares("One", requestCount, requestLatency, logger))
 	// updateHandler := account.NewUpdateHandler(ctx, svc, account.DefaultMiddlewares("Update", requestCount, requestLatency, logger))
 
-	http.Handle(
-		account.Semiotics[account.EndpointNameDelete].Endpoint,
-		deleteServer,
-	)
+	http.Handle(deleteRoute, deleteHandler)
+
 	// http.Handle("/"+account.EndpointNameByIDs, byIDsHandler)
 	// http.Handle("/"+account.EndpointNameCreate, createHandler)
 	// http.Handle("/"+account.EndpointNameDelete, deleteHandler)

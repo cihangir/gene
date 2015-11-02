@@ -22,7 +22,7 @@ const (
 type semiotic struct {
 	Name               string
 	Method             string
-	Endpoint           string
+	Route              string
 	ServerEndpointFunc func(svc FacebookProfileService) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
@@ -30,13 +30,13 @@ type semiotic struct {
 	DecodeResponseFunc httptransport.DecodeResponseFunc
 }
 
-var Semiotics = map[string]semiotic{
+var semiotics = map[string]semiotic{
 
 	EndpointNameByIDs: semiotic{
 		Name:               EndpointNameByIDs,
 		Method:             "POST",
 		ServerEndpointFunc: makeByIDsEndpoint,
-		Endpoint:           "/" + EndpointNameByIDs,
+		Route:              "/" + EndpointNameByIDs,
 		DecodeRequestFunc:  decodeByIDsRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -47,7 +47,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameCreate,
 		Method:             "POST",
 		ServerEndpointFunc: makeCreateEndpoint,
-		Endpoint:           "/" + EndpointNameCreate,
+		Route:              "/" + EndpointNameCreate,
 		DecodeRequestFunc:  decodeCreateRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -58,7 +58,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameOne,
 		Method:             "POST",
 		ServerEndpointFunc: makeOneEndpoint,
-		Endpoint:           "/" + EndpointNameOne,
+		Route:              "/" + EndpointNameOne,
 		DecodeRequestFunc:  decodeOneRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
@@ -69,7 +69,7 @@ var Semiotics = map[string]semiotic{
 		Name:               EndpointNameUpdate,
 		Method:             "POST",
 		ServerEndpointFunc: makeUpdateEndpoint,
-		Endpoint:           "/" + EndpointNameUpdate,
+		Route:              "/" + EndpointNameUpdate,
 		DecodeRequestFunc:  decodeUpdateRequest,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
