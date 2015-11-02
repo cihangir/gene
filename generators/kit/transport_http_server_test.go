@@ -33,78 +33,75 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-type Option struct {
-	ZipkinEndpoint  string
-	ZipkinCollector zipkin.Collector
-
-	LogErrors   bool
-	LogRequests bool
-
-	Latency metrics.TimeHistogram
-	Counter metrics.Counter
-
-	CustomMiddlewares []endpoint.Middleware
-	ServerOptions     []httptransport.ServerOption
+func NewCreateHandler(
+	ctx context.Context,
+	svc AccountService,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+) (string, *httptransport.Server) {
+	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameCreate])
 }
 
-func NewServer(ctx context.Context, opts *Option, logger log.Logger, svc AccountService, s semiotic) *httptransport.Server {
+func NewDeleteHandler(
+	ctx context.Context,
+	svc AccountService,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+) (string, *httptransport.Server) {
+	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameDelete])
+}
 
+func NewOneHandler(
+	ctx context.Context,
+	svc AccountService,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+) (string, *httptransport.Server) {
+	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameOne])
+}
+
+func NewSomeHandler(
+	ctx context.Context,
+	svc AccountService,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+) (string, *httptransport.Server) {
+	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameSome])
+}
+
+func NewUpdateHandler(
+	ctx context.Context,
+	svc AccountService,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+) (string, *httptransport.Server) {
+	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameUpdate])
+}
+
+func newServer(
+	ctx context.Context,
+	svc AccountService,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+	s semiotic,
+) (string, *httptransport.Server) {
 	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
+	middlewares, serverOpts := opts.Configure("account", s.Name, transportLogger)
 
-	var middlewares []endpoint.Middleware
+	endpoint := s.ServerEndpointFunc(svc)
 
-	if opts.Latency != nil {
-		middlewares = append(middlewares, kitworker.RequestLatencyMiddleware(s.Name, opts.Latency))
+	for _, middleware := range middlewares {
+		endpoint = middleware(endpoint)
 	}
-
-	if opts.Counter != nil {
-		middlewares = append(middlewares, kitworker.RequestCountMiddleware(s.Name, opts.Counter))
-	}
-
-	if opts.LogRequests {
-		middlewares = append(middlewares, kitworker.RequestLoggingMiddleware(s.Name, logger))
-	}
-
-	var serverOpts []httptransport.ServerOption
-
-	// enable tracing if required
-	if opts.ZipkinEndpoint != "" && opts.ZipkinCollector != nil {
-		tracingLogger := log.NewContext(transportLogger).With("component", "tracing")
-
-		endpointSpan := zipkin.MakeNewSpanFunc(opts.ZipkinEndpoint, "account", s.Name)
-		endpointTrace := zipkin.ToContext(endpointSpan, tracingLogger)
-		// add tracing
-		serverOpts = append(serverOpts, httptransport.ServerBefore(endpointTrace))
-		// add annotation as middleware to server
-		middlewares = append(middlewares, zipkin.AnnotateServer(endpointSpan, opts.ZipkinCollector))
-	}
-
-	// log server errors
-	if opts.LogErrors {
-		serverOpts = append(serverOpts, httptransport.ServerErrorLogger(transportLogger))
-	}
-
-	// If any custom middlewares are passed include them
-	if len(opts.CustomMiddlewares) > 0 {
-		middlewares = append(middlewares, opts.CustomMiddlewares...)
-	}
-
-	// If any server options are passed include them in server creation
-	if len(opts.ServerOptions) > 0 {
-		serverOpts = append(serverOpts, opts.ServerOptions...)
-	}
-
-	// middleware := endpoint.Chain(middlewares...)
 
 	handler := httptransport.NewServer(
 		ctx,
-		// middleware(s.ServerEndpointFunc(svc)),
-		s.ServerEndpointFunc(svc),
+		endpoint,
 		s.DecodeRequestFunc,
 		s.EncodeResponseFunc,
 		serverOpts...,
 	)
 
-	return handler
+	return s.Route, handler
 }
 `}
