@@ -131,79 +131,43 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-type Option struct {
-	ZipkinEndpoint  string
-	ZipkinCollector zipkin.Collector
 
-	LogErrors   bool
-	LogRequests bool
-
-	Latency metrics.TimeHistogram
-	Counter metrics.Counter
-
-	CustomMiddlewares []endpoint.Middleware
-	ServerOptions     []httptransport.ServerOption
+{{range $funcKey, $funcValue := $schema.Functions}}
+{{AsComment $funcValue.Description}}func New{{$funcKey}}Handler(
+	ctx context.Context,
+	svc {{$title}}Service,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+) (string, *httptransport.Server) {
+	return newServer(ctx, svc, opts, logger, semiotics[EndpointName{{$funcKey}}])
 }
+{{end}}
 
-func NewServer(ctx context.Context, opts *Option, logger log.Logger, svc {{$title}}Service, s semiotic) *httptransport.Server {
-
+func newServer(
+	ctx context.Context,
+	svc {{$title}}Service,
+	opts *kitworker.ServerOption,
+	logger log.Logger,
+	s semiotic,
+) (string, *httptransport.Server) {
 	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
+	middlewares, serverOpts := opts.Configure("{{ToLower $title}}", s.Name, transportLogger)
 
-	var middlewares []endpoint.Middleware
+	endpoint := s.ServerEndpointFunc(svc)
 
-	if opts.Latency != nil {
-		middlewares = append(middlewares, kitworker.RequestLatencyMiddleware(s.Name, opts.Latency))
+	for _, middleware := range middlewares {
+		endpoint = middleware(endpoint)
 	}
-
-	if opts.Counter != nil {
-		middlewares = append(middlewares, kitworker.RequestCountMiddleware(s.Name, opts.Counter))
-	}
-
-	if opts.LogRequests {
-		middlewares = append(middlewares, kitworker.RequestLoggingMiddleware(s.Name, logger))
-	}
-
-	var serverOpts []httptransport.ServerOption
-
-	// enable tracing if required
-	if opts.ZipkinEndpoint != "" && opts.ZipkinCollector != nil {
-		tracingLogger := log.NewContext(transportLogger).With("component", "tracing")
-
-		endpointSpan := zipkin.MakeNewSpanFunc(opts.ZipkinEndpoint, "account", s.Name)
-		endpointTrace := zipkin.ToContext(endpointSpan, tracingLogger)
-		// add tracing
-		serverOpts = append(serverOpts, httptransport.ServerBefore(endpointTrace))
-		// add annotation as middleware to server
-		middlewares = append(middlewares, zipkin.AnnotateServer(endpointSpan, opts.ZipkinCollector))
-	}
-
-	// log server errors
-	if opts.LogErrors {
-		serverOpts = append(serverOpts, httptransport.ServerErrorLogger(transportLogger))
-	}
-
-	// If any custom middlewares are passed include them
-	if len(opts.CustomMiddlewares) > 0 {
-		middlewares = append(middlewares, opts.CustomMiddlewares...)
-	}
-
-	// If any server options are passed include them in server creation
-	if len(opts.ServerOptions) > 0 {
-		serverOpts = append(serverOpts, opts.ServerOptions...)
-	}
-
-	// middleware := endpoint.Chain(middlewares...)
 
 	handler := httptransport.NewServer(
 		ctx,
-		// middleware(s.ServerEndpointFunc(svc)),
-		s.ServerEndpointFunc(svc),
+		endpoint,
 		s.DecodeRequestFunc,
 		s.EncodeResponseFunc,
 		serverOpts...,
 	)
 
-	return handler
+	return s.Route, handler
 }
 `
 
@@ -220,7 +184,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/loadbalancer"
@@ -235,25 +198,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-type LoadBalancerF func(factory loadbalancer.Factory) loadbalancer.LoadBalancer
-
-type ClientOpts struct {
-	ZipkinEndpoint  string
-	ZipkinCollector zipkin.Collector
-
-	QPS                   int
-	DisableCircuitBreaker bool
-	CircuitBreaker        *gobreaker.CircuitBreaker
-
-	DisableRateLimiter bool
-	RateLimiter        *ratelimit.Bucket
-
-	TransportOpts     []httptransport.ClientOption
-	CustomMiddlewares []endpoint.Middleware
-
-	LoadBalancerCreator LoadBalancerF
-}
-
 // {{$title}}Client holds remote endpoint functions
 // Satisfies {{$title}}Service interface
 type {{$title}}Client struct {
@@ -264,9 +208,9 @@ type {{$title}}Client struct {
 }
 
 // New{{$title}}Client creates a new client for {{$title}}Service
-func  New{{$title}}Client(lbCreator LoadBalancerF, clientOpts ClientOpts, logger log.Logger) *{{$title}}Client {
+func  New{{$title}}Client(lbCreator kitworker.LoadBalancerF, clientOpts *kitworker.ClientOption, logger log.Logger) *{{$title}}Client {
 	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
-		{{$funcKey}}LoadBalancer : createClientLoadBalancer(Semiotics[EndpointName{{$funcKey}}], lbCreator, clientOpts, logger),{{end}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics[EndpointName{{$funcKey}}], lbCreator, clientOpts, logger),{{end}}
 	}
 }
 
@@ -289,55 +233,8 @@ func  New{{$title}}Client(lbCreator LoadBalancerF, clientOpts ClientOpts, logger
 
 // Client Endpoint functions
 
-func createClientLoadBalancer(s semiotic, lbCreator LoadBalancerF,  clientOpts ClientOpts, 	logger log.Logger) loadbalancer.LoadBalancer {
-	var transportOpts []httptransport.ClientOption
-	var middlewares []endpoint.Middleware
-
-	// if circuit braker is not disabled, add it as a middleware
-	if !clientOpts.DisableCircuitBreaker {
-		cb := clientOpts.CircuitBreaker
-
-		if clientOpts.CircuitBreaker == nil {
-			// create a default circuit breaker
-			cb = gobreaker.NewCircuitBreaker(gobreaker.Settings{})
-		}
-
-		middlewares = append(middlewares, circuitbreaker.Gobreaker(cb))
-	}
-
-	// if rate limiter is not disabled, add it as a middleware
-	if !clientOpts.DisableRateLimiter {
-		rateLimiter := clientOpts.RateLimiter
-
-		if clientOpts.RateLimiter == nil {
-			// create a default rate limiter
-			rateLimiter = jujuratelimit.NewBucketWithRate(float64(clientOpts.QPS), int64(clientOpts.QPS))
-		}
-
-		middlewares = append(middlewares, kitratelimit.NewTokenBucketLimiter(rateLimiter))
-	}
-
-	// enable tracing if required
-	if clientOpts.ZipkinEndpoint != "" && clientOpts.ZipkinCollector != nil {
-		endpointSpan := zipkin.MakeNewSpanFunc(clientOpts.ZipkinEndpoint, "{{ToLower $title}}", s.Name)
-		// set tracing parameters to outgoing requests
-		endpointTrace := zipkin.ToRequest(endpointSpan)
-		// add tracing
-		transportOpts = append(transportOpts, httptransport.SetClientBefore(endpointTrace))
-
-		// add annotation as middleware to server
-		middlewares = append(middlewares, zipkin.AnnotateClient(endpointSpan, clientOpts.ZipkinCollector))
-	}
-
-	// If any custom middlewares are passed include them
-	if len(clientOpts.CustomMiddlewares) > 0 {
-		middlewares = append(middlewares, clientOpts.CustomMiddlewares...)
-	}
-
-	// If any client options are passed include them in client creation
-	if len(clientOpts.TransportOpts) > 0 {
-		transportOpts = append(transportOpts, clientOpts.TransportOpts...)
-	}
+func createClientLoadBalancer(s semiotic, lbCreator kitworker.LoadBalancerF,  clientOpts *kitworker.ClientOption, 	logger log.Logger) loadbalancer.LoadBalancer {
+	middlewares, transportOpts := clientOpts.Configure("{{ToLower $title}}", s.Name)
 
 	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
 
@@ -361,30 +258,12 @@ func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOpti
 func createEndpoint(s semiotic, instance string, clientOpts []httptransport.ClientOption) endpoint.Endpoint {
 	return httptransport.NewClient(
 		s.Method,
-		createProxyURL(instance, s.Endpoint),
+		createProxyURL(instance, s.Route),
 		s.EncodeRequestFunc,
 		s.DecodeResponseFunc,
 		clientOpts...,
 	).Endpoint()
 }
-
-// Proxy functions
-
-func createProxyURL(instance, endpoint string) *url.URL {
-	if !strings.HasPrefix(instance, "http") {
-		instance = "http://" + instance
-	}
-	u, err := url.Parse(instance)
-	if err != nil {
-		panic(err)
-	}
-	if u.Path == "" {
-		u.Path = endpoint
-	}
-
-	return u
-}
-
 `
 
 // TransportHTTPSemioticsTemplate
@@ -423,7 +302,7 @@ const (
 type semiotic struct {
 	Name               string
 	Method             string
-	Endpoint           string
+	Route              string
 	ServerEndpointFunc func(svc {{$title}}Service) endpoint.Endpoint
 	DecodeRequestFunc  httptransport.DecodeRequestFunc
 	EncodeRequestFunc  httptransport.EncodeRequestFunc
@@ -432,13 +311,13 @@ type semiotic struct {
 }
 
 
-var Semiotics = map[string]semiotic{
+var semiotics = map[string]semiotic{
 {{range $funcKey, $funcValue := $schema.Functions}}
     EndpointName{{$funcKey}}: semiotic{
     	Name:               EndpointName{{$funcKey}},
     	Method:             "POST",
     	ServerEndpointFunc: make{{$funcKey}}Endpoint,
-		Endpoint:           "/"+EndpointName{{$funcKey}},
+		Route:              "/"+EndpointName{{$funcKey}},
 		DecodeRequestFunc:  decode{{$funcKey}}Request,
 		EncodeRequestFunc:  encodeRequest,
 		EncodeResponseFunc: encodeResponse,
