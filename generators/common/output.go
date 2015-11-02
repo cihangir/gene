@@ -1,11 +1,15 @@
 package common
 
-import "github.com/cihangir/gene/writers"
+import (
+	"github.com/cihangir/gene/helpers"
+	"github.com/cihangir/gene/writers"
+)
 
 type Output struct {
-	Content     []byte
-	Path        string
-	DoNotFormat bool
+	Content       []byte
+	Path          string
+	DoNotFormat   bool
+	DoNotOverride bool
 }
 
 // WriteOutput writes output slice
@@ -14,6 +18,13 @@ func WriteOutput(output []Output) error {
 		// do not write empty files
 		if len(file.Content) == 0 {
 			continue
+		}
+
+		if file.DoNotOverride {
+			// if file exists, just skip this operation
+			if _, err := helpers.ReadFile(file.Path); err == nil {
+				continue
+			}
 		}
 
 		if file.DoNotFormat {
