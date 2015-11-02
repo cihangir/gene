@@ -3,6 +3,7 @@ package account
 import (
 	"golang.org/x/net/context"
 
+	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
@@ -31,15 +32,15 @@ func NewServer(ctx context.Context, opts *Option, logger log.Logger, svc Account
 	var middlewares []endpoint.Middleware
 
 	if opts.Latency != nil {
-		middlewares = append(middlewares, RequestLatencyMiddleware(s.Name, opts.Latency))
+		middlewares = append(middlewares, kitworker.RequestLatencyMiddleware(s.Name, opts.Latency))
 	}
 
 	if opts.Counter != nil {
-		middlewares = append(middlewares, RequestCountMiddleware(s.Name, opts.Counter))
+		middlewares = append(middlewares, kitworker.RequestCountMiddleware(s.Name, opts.Counter))
 	}
 
 	if opts.LogRequests {
-		middlewares = append(middlewares, RequestLoggingMiddleware(s.Name, logger))
+		middlewares = append(middlewares, kitworker.RequestLoggingMiddleware(s.Name, logger))
 	}
 
 	var serverOpts []httptransport.ServerOption

@@ -21,7 +21,7 @@ func TestFunctions(t *testing.T) {
 	common.TestEquals(t, expecteds[0], string(sts[0].Content))
 }
 
-var expecteds = []string{`package account
+var expecteds = []string{`package kitworker
 
 import (
 	"encoding/json"

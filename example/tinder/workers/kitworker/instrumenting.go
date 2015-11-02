@@ -1,4 +1,4 @@
-package facebookprofile
+package kitworker
 
 import (
 	"encoding/json"
