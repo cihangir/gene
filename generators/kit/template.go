@@ -99,6 +99,24 @@ package {{ToLower $title}}
 }
 `
 
+// Service Template
+var ServiceTemplate = `
+{{$schema := .Schema}}
+{{$title := ToUpperFirst .Schema.Title}}
+
+package {{ToLower $title}}
+
+type {{ToLower $title}} struct{}
+
+func New{{$title}}() {{$title}}Service {
+	return &{{ToLower $title}}{}
+}
+
+{{range $funcKey, $funcValue := $schema.Functions}}
+{{AsComment $funcValue.Description}}func ({{Pointerize $title}} *{{ToLower $title}}) {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (*{{Argumentize $funcValue.Properties.outgoing}}, error) {
+	return nil, nil
+}{{end}}`
+
 // TransportHTTPServerTemplate
 var TransportHTTPServerTemplate = `
 {{$schema := .Schema}}

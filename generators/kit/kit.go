@@ -55,6 +55,12 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	outputs = append(outputs, output...)
 
+	output, err = GenerateService(context, s)
+	if err != nil {
+		return nil, err
+	}
+	outputs = append(outputs, output...)
+
 	return outputs, nil
 }
 
