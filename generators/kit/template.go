@@ -208,9 +208,13 @@ type {{$title}}Client struct {
 }
 
 // New{{$title}}Client creates a new client for {{$title}}Service
-func  New{{$title}}Client(lbCreator kitworker.LoadBalancerF, clientOpts *kitworker.ClientOption, logger log.Logger) *{{$title}}Client {
+func  New{{$title}}Client(clientOpts *kitworker.ClientOption, logger log.Logger) *{{$title}}Client {
+	if clientOpts.LoadBalancerCreator == nil {
+		panic("LoadBalancerCreator must be set")
+	}
+
 	return &{{$title}}Client{ {{range $funcKey, $funcValue := $schema.Functions}}
-		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics[EndpointName{{$funcKey}}], lbCreator, clientOpts, logger),{{end}}
+		{{$funcKey}}LoadBalancer : createClientLoadBalancer(semiotics[EndpointName{{$funcKey}}], clientOpts, logger),{{end}}
 	}
 }
 
@@ -231,21 +235,22 @@ func  New{{$title}}Client(lbCreator kitworker.LoadBalancerF, clientOpts *kitwork
 {{end}}
 
 
-// Client Endpoint functions
+func createClientLoadBalancer(
+	s semiotic,
+	clientOpts *kitworker.ClientOption,
+	logger log.Logger,
+) loadbalancer.LoadBalancer {
+	middlewares, transportOpts := clientOpts.Configure("account", s.Name)
 
-func createClientLoadBalancer(s semiotic, lbCreator kitworker.LoadBalancerF,  clientOpts *kitworker.ClientOption, 	logger log.Logger) loadbalancer.LoadBalancer {
-	middlewares, transportOpts := clientOpts.Configure("{{ToLower $title}}", s.Name)
+	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {
 
-	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
-
-	return lbCreator(loadbalancerFactory)
-}
-
-func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		var e endpoint.Endpoint
-
-		e = createEndpoint(s, instance, clientOpts)
+		e := httptransport.NewClient(
+			s.Method,
+			kitworker.CreateProxyURL(instance, s.Route),
+			s.EncodeRequestFunc,
+			s.DecodeResponseFunc,
+			transportOpts...,
+		).Endpoint()
 
 		for _, middleware := range middlewares {
 			e = middleware(e)
@@ -253,16 +258,8 @@ func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOpti
 
 		return e, nil, nil
 	}
-}
 
-func createEndpoint(s semiotic, instance string, clientOpts []httptransport.ClientOption) endpoint.Endpoint {
-	return httptransport.NewClient(
-		s.Method,
-		kitworker.CreateProxyURL(instance, s.Route),
-		s.EncodeRequestFunc,
-		s.DecodeResponseFunc,
-		clientOpts...,
-	).Endpoint()
+	return clientOpts.LoadBalancerCreator(loadbalancerFactory)
 }
 `
 

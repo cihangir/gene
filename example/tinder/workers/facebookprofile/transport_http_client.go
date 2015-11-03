@@ -29,12 +29,16 @@ type FacebookProfileClient struct {
 }
 
 // NewFacebookProfileClient creates a new client for FacebookProfileService
-func NewFacebookProfileClient(lbCreator kitworker.LoadBalancerF, clientOpts *kitworker.ClientOption, logger log.Logger) *FacebookProfileClient {
+func NewFacebookProfileClient(clientOpts *kitworker.ClientOption, logger log.Logger) *FacebookProfileClient {
+	if clientOpts.LoadBalancerCreator == nil {
+		panic("LoadBalancerCreator must be set")
+	}
+
 	return &FacebookProfileClient{
-		ByIDsLoadBalancer:  createClientLoadBalancer(semiotics[EndpointNameByIDs], lbCreator, clientOpts, logger),
-		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], lbCreator, clientOpts, logger),
-		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], lbCreator, clientOpts, logger),
-		UpdateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameUpdate], lbCreator, clientOpts, logger),
+		ByIDsLoadBalancer:  createClientLoadBalancer(semiotics[EndpointNameByIDs], clientOpts, logger),
+		CreateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameCreate], clientOpts, logger),
+		OneLoadBalancer:    createClientLoadBalancer(semiotics[EndpointNameOne], clientOpts, logger),
+		UpdateLoadBalancer: createClientLoadBalancer(semiotics[EndpointNameUpdate], clientOpts, logger),
 	}
 }
 
@@ -99,21 +103,22 @@ func (f *FacebookProfileClient) Update(ctx context.Context, req *models.Facebook
 	return res.(*models.FacebookProfile), nil
 }
 
-// Client Endpoint functions
+func createClientLoadBalancer(
+	s semiotic,
+	clientOpts *kitworker.ClientOption,
+	logger log.Logger,
+) loadbalancer.LoadBalancer {
+	middlewares, transportOpts := clientOpts.Configure("account", s.Name)
 
-func createClientLoadBalancer(s semiotic, lbCreator kitworker.LoadBalancerF, clientOpts *kitworker.ClientOption, logger log.Logger) loadbalancer.LoadBalancer {
-	middlewares, transportOpts := clientOpts.Configure("facebookprofile", s.Name)
+	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {
 
-	loadbalancerFactory := createLoadBalancerFactory(s, transportOpts, middlewares)
-
-	return lbCreator(loadbalancerFactory)
-}
-
-func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOption, middlewares []endpoint.Middleware) loadbalancer.Factory {
-	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		var e endpoint.Endpoint
-
-		e = createEndpoint(s, instance, clientOpts)
+		e := httptransport.NewClient(
+			s.Method,
+			kitworker.CreateProxyURL(instance, s.Route),
+			s.EncodeRequestFunc,
+			s.DecodeResponseFunc,
+			transportOpts...,
+		).Endpoint()
 
 		for _, middleware := range middlewares {
 			e = middleware(e)
@@ -121,14 +126,6 @@ func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOpti
 
 		return e, nil, nil
 	}
-}
 
-func createEndpoint(s semiotic, instance string, clientOpts []httptransport.ClientOption) endpoint.Endpoint {
-	return httptransport.NewClient(
-		s.Method,
-		kitworker.CreateProxyURL(instance, s.Route),
-		s.EncodeRequestFunc,
-		s.DecodeResponseFunc,
-		clientOpts...,
-	).Endpoint()
+	return clientOpts.LoadBalancerCreator(loadbalancerFactory)
 }

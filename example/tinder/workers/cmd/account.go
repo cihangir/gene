@@ -107,13 +107,13 @@ func main() {
 	}
 
 	clientOpts := &kitworker.ClientOption{
-		Host:            "localhost:3000",
-		ZipkinCollector: collector,
-		QPS:             100,
+		Host:                "localhost:3000",
+		ZipkinCollector:     collector,
+		QPS:                 100,
+		LoadBalancerCreator: lbCreator,
 	}
 
 	profileService := account.NewAccountClient(
-		lbCreator,
 		clientOpts,
 		logger,
 	)
