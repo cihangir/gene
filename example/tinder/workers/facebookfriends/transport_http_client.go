@@ -128,7 +128,7 @@ func createLoadBalancerFactory(s semiotic, clientOpts []httptransport.ClientOpti
 func createEndpoint(s semiotic, instance string, clientOpts []httptransport.ClientOption) endpoint.Endpoint {
 	return httptransport.NewClient(
 		s.Method,
-		createProxyURL(instance, s.Route),
+		kitworker.CreateProxyURL(instance, s.Route),
 		s.EncodeRequestFunc,
 		s.DecodeResponseFunc,
 		clientOpts...,
