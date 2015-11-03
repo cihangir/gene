@@ -2,8 +2,6 @@ package facebookprofile
 
 import (
 	"io"
-	"net/url"
-	"strings"
 
 	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
@@ -133,21 +131,4 @@ func createEndpoint(s semiotic, instance string, clientOpts []httptransport.Clie
 		s.DecodeResponseFunc,
 		clientOpts...,
 	).Endpoint()
-}
-
-// Proxy functions
-
-func createProxyURL(instance, endpoint string) *url.URL {
-	if !strings.HasPrefix(instance, "http") {
-		instance = "http://" + instance
-	}
-	u, err := url.Parse(instance)
-	if err != nil {
-		panic(err)
-	}
-	if u.Path == "" {
-		u.Path = endpoint
-	}
-
-	return u
 }
