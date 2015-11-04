@@ -55,7 +55,6 @@ func main() {
 			zipkin.ScribeLogger(zipkinLogger),
 		); err != nil {
 			_ = zipkinLogger.Log("err", err)
-			// os.Exit(1)
 		}
 	}
 
@@ -83,18 +82,12 @@ func main() {
 
 		Latency: requestLatency,
 		Counter: requestCount,
-
-		// CustomMiddlewares []endpoint.Middleware
-		// ServerOptions     []httptransport.ServerOption
 	}
 
 	profileApiEndpoints := []string{
 		"profile1.tinder_api.tinder.com",
 		"profile2.tinder_api.tinder.com",
 	}
-
-	// maxAttempt := 5
-	// maxTime := 10 * time.Second
 
 	lbCreator := func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
 		publisher := static.NewPublisher(
@@ -123,35 +116,11 @@ func main() {
 	var svc account.AccountService
 	svc = account.NewAccount()
 
-	deleteRoute, deleteHandler := account.NewDeleteHandler(
-		ctx,
-		svc,
-		serverOpts,
-		logger,
-	)
-
-	// fmt.Println("deleteServer-->", deleteServer)
-	// byFacebookIDsHandler := account.NewByFacebookIDsHandler(ctx, svc, account.DefaultMiddlewares("byfacebookids", requestCount, requestLatency, logger))
-	// byIDsHandler := account.NewByIDsHandler(ctx, svc, account.DefaultMiddlewares("byids", requestCount, requestLatency, logger))
-	// createHandler := account.NewCreateHandler(ctx, svc, account.DefaultMiddlewares("create", requestCount, requestLatency, logger))
-	// deleteHandler := account.NewDeleteHandler(
-	// 	ctx,
-	// 	svc,
-	// 	account.DefaultMiddlewares("Delete", requestCount, requestLatency, logger, zipkin.AnnotateServer(newDeleteSpan, collector)),
-	// 	httptransport.ServerBefore(traceConcat),
-	// 	httptransport.ServerErrorLogger(transportLogger),
-	// )
-
-	// oneHandler := account.NewOneHandler(ctx, svc, account.DefaultMiddlewares("One", requestCount, requestLatency, logger))
-	// updateHandler := account.NewUpdateHandler(ctx, svc, account.DefaultMiddlewares("Update", requestCount, requestLatency, logger))
-
-	http.Handle(deleteRoute, deleteHandler)
-
-	// http.Handle("/"+account.EndpointNameByIDs, byIDsHandler)
-	// http.Handle("/"+account.EndpointNameCreate, createHandler)
-	// http.Handle("/"+account.EndpointNameDelete, deleteHandler)
-	// http.Handle("/"+account.EndpointNameOne, oneHandler)
-	// http.Handle("/"+account.EndpointNameUpdate, updateHandler)
+	http.Handle(account.NewByIDsHandler(ctx, svc, serverOpts, logger))
+	http.Handle(account.NewCreateHandler(ctx, svc, serverOpts, logger))
+	http.Handle(account.NewDeleteHandler(ctx, svc, serverOpts, logger))
+	http.Handle(account.NewOneHandler(ctx, svc, serverOpts, logger))
+	http.Handle(account.NewUpdateHandler(ctx, svc, serverOpts, logger))
 	http.Handle("/metrics", stdprometheus.Handler())
 
 	_ = logger.Log("msg", "HTTP", "addr", *listen)
