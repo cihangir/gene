@@ -99,8 +99,13 @@ func main() {
 		return loadbalancer.NewRoundRobin(publisher)
 	}
 
+	hostName, err := os.Hostname()
+	if err != nil {
+		hostName := "localhost"
+	}
+
 	clientOpts := &kitworker.ClientOption{
-		Host:                "localhost:3000",
+		Host:                hostName + ":" + *listen,
 		ZipkinCollector:     collector,
 		QPS:                 100,
 		LoadBalancerCreator: lbCreator,
