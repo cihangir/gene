@@ -101,7 +101,7 @@ func main() {
 
 	hostName, err := os.Hostname()
 	if err != nil {
-		hostName := "localhost"
+		hostName = "localhost"
 	}
 
 	clientOpts := &kitworker.ClientOption{
