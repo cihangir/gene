@@ -116,7 +116,7 @@ func main() {
 		logger,
 	)
 
-	ctx = context.WithValue(ctx, "profileService", profileService)
+	ctx = context.WithValue(ctx, "accountService", profileService)
 
 	var svc account.AccountService
 	svc = account.NewAccount()
