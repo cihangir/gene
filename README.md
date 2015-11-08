@@ -69,62 +69,77 @@ After having gene executable in your path
 Pass schema flag for your base json-schema, and target as the existing path for your app
 
 ```
-gene -schema ./example/twitter.json -target ./example/
+gene -schema ./example/tinder.json -target ./example/
 ```
 
 
 For now, it is generating the following folder/file structure
 ```
 ./src/github.com/cihangir/gene/example
-├── twitter
-│   ├── cmd
-│   │   └── twitter
-│   │       └── main.go
-│   ├── db
-│   │   ├── 001-twitter_db_roles.sql
-│   │   ├── 002-twitter_db_database.sql
-│   │   ├── Dockerfile
-│   │   ├── account
-│   │   │   ├── 004-schema.sql
-│   │   │   ├── 005-account-sequence.sql
-│   │   │   ├── 005-profile-sequence.sql
-│   │   │   ├── 006-account-types.sql
-│   │   │   ├── 007-account-table.sql
-│   │   │   ├── 007-profile-table.sql
-│   │   │   ├── 008-account-constraints.sql
-│   │   │   └── 008-profile-constraints.sql
-│   │   ├── create.sh
-│   │   └── tweet
-│   │       ├── 004-schema.sql
-│   │       ├── 005-tweet-sequence.sql
-│   │       ├── 007-tweet-table.sql
-│   │       └── 008-tweet-constraints.sql
-│   ├── errors
-│   │   ├── account.go
-│   │   ├── profile.go
-│   │   └── tweet.go
-│   ├── models
-│   │   ├── account.go
-│   │   ├── account_rowscanner.go
-│   │   ├── account_statements.go
-│   │   ├── profile.go
-│   │   ├── profile_rowscanner.go
-│   │   ├── profile_statements.go
-│   │   ├── tweet.go
-│   │   ├── tweet_rowscanner.go
-│   │   └── tweet_statements.go
-│   └── workers
-│       └── twitter
-│           ├── api
-│           │   ├── account.go
-│           │   ├── config.go
-│           │   ├── profile.go
-│           │   └── twitter.go
-│           └── clients
-│               ├── account.go
-│               ├── profile.go
-│               └── tweet.go
-└── twitter.json
+├── db
+│   ├── 001-tinder_db_roles.sql
+│   ├── 002-tinder_db_database.sql
+│   └── tinder_schema
+│       ├── 004-schema.sql
+│       ├── 005-account-sequence.sql
+│       ├── 005-facebook_friends-sequence.sql
+│       ├── 005-facebook_profile-sequence.sql
+│       ├── 005-profile-sequence.sql
+│       ├── 006-account-types.sql
+│       ├── 007-account-table.sql
+│       ├── 007-facebook_friends-table.sql
+│       ├── 007-facebook_profile-table.sql
+│       ├── 007-profile-table.sql
+│       ├── 008-account-constraints.sql
+│       ├── 008-facebook_friends-constraints.sql
+│       ├── 008-facebook_profile-constraints.sql
+│       └── 008-profile-constraints.sql
+├── errors
+│   ├── account.go
+│   ├── facebookfriends.go
+│   ├── facebookprofile.go
+│   └── profile.go
+├── models
+│   ├── account.go
+│   ├── account_rowscanner.go
+│   ├── facebookfriends.go
+│   ├── facebookfriends_rowscanner.go
+│   ├── facebookprofile.go
+│   ├── facebookprofile_rowscanner.go
+│   ├── markasrequest.go
+│   ├── profile.go
+│   └── profile_rowscanner.go
+└── workers
+    ├── account
+    │   ├── interface.go
+    │   ├── service.go
+    │   ├── transport_http_client.go
+    │   ├── transport_http_semiotics.go
+    │   └── transport_http_server.go
+    ├── cmd
+    │   └── account.go
+    ├── facebookfriends
+    │   ├── interface.go
+    │   ├── service.go
+    │   ├── transport_http_client.go
+    │   ├── transport_http_semiotics.go
+    │   └── transport_http_server.go
+    ├── facebookprofile
+    │   ├── interface.go
+    │   ├── service.go
+    │   ├── transport_http_client.go
+    │   ├── transport_http_semiotics.go
+    │   └── transport_http_server.go
+    ├── kitworker
+    │   ├── client.go
+    │   ├── instrumenting.go
+    │   └── server.go
+    └── profile
+        ├── interface.go
+        ├── service.go
+        ├── transport_http_client.go
+        ├── transport_http_semiotics.go
+        └── transport_http_server.go
 
-12 directories, 37 files
+11 directories, 53 files
 ```
