@@ -33,6 +33,21 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
+// RegisterHandlers registers handlers of AccountService to the
+// http.DefaultServeMux
+func RegisterHandlers(
+	ctx context.Context,
+	svc AccountService,
+	serverOpts *kitworker.ServerOption,
+	logger log.Logger,
+) {
+	http.Handle(NewCreateHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewDeleteHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewOneHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewSomeHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewUpdateHandler(ctx, svc, serverOpts, logger))
+}
+
 func NewCreateHandler(
 	ctx context.Context,
 	svc AccountService,

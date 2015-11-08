@@ -1,12 +1,28 @@
 package facebookprofile
 
 import (
+	"net/http"
+
 	"golang.org/x/net/context"
 
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+// RegisterHandlers registers handlers of FacebookProfileService to the
+// http.DefaultServeMux
+func RegisterHandlers(
+	ctx context.Context,
+	svc FacebookProfileService,
+	serverOpts *kitworker.ServerOption,
+	logger log.Logger,
+) {
+	http.Handle(NewByIDsHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewCreateHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewOneHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewUpdateHandler(ctx, svc, serverOpts, logger))
+}
 
 // ByIDs fetches multiple FacebookProfile from system by their IDs
 func NewByIDsHandler(

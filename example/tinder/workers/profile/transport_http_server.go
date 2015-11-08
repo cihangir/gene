@@ -1,12 +1,29 @@
 package profile
 
 import (
+	"net/http"
+
 	"golang.org/x/net/context"
 
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+// RegisterHandlers registers handlers of ProfileService to the
+// http.DefaultServeMux
+func RegisterHandlers(
+	ctx context.Context,
+	svc ProfileService,
+	serverOpts *kitworker.ServerOption,
+	logger log.Logger,
+) {
+	http.Handle(NewCreateHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewDeleteHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewMarkAsHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewOneHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewUpdateHandler(ctx, svc, serverOpts, logger))
+}
 
 // Create creates a new profile on the system with given profile data.
 func NewCreateHandler(

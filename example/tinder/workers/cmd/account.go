@@ -118,14 +118,10 @@ func main() {
 
 	ctx = context.WithValue(ctx, "accountService", profileService)
 
-	var svc account.AccountService
-	svc = account.NewAccount()
+	svc := account.NewAccount()
 
-	http.Handle(account.NewByIDsHandler(ctx, svc, serverOpts, logger))
-	http.Handle(account.NewCreateHandler(ctx, svc, serverOpts, logger))
-	http.Handle(account.NewDeleteHandler(ctx, svc, serverOpts, logger))
-	http.Handle(account.NewOneHandler(ctx, svc, serverOpts, logger))
-	http.Handle(account.NewUpdateHandler(ctx, svc, serverOpts, logger))
+	account.RegisterHandlers(ctx, svc, serverOpts, logger)
+
 	http.Handle("/metrics", stdprometheus.Handler())
 
 	_ = logger.Log("msg", "HTTP", "addr", *listen)

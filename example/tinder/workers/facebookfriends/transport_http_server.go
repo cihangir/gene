@@ -1,12 +1,28 @@
 package facebookfriends
 
 import (
+	"net/http"
+
 	"golang.org/x/net/context"
 
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 )
+
+// RegisterHandlers registers handlers of FacebookFriendsService to the
+// http.DefaultServeMux
+func RegisterHandlers(
+	ctx context.Context,
+	svc FacebookFriendsService,
+	serverOpts *kitworker.ServerOption,
+	logger log.Logger,
+) {
+	http.Handle(NewCreateHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewDeleteHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewMutualsHandler(ctx, svc, serverOpts, logger))
+	http.Handle(NewOneHandler(ctx, svc, serverOpts, logger))
+}
 
 // Create creates a relationship between two facebook account. This function is
 // idempotent

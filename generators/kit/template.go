@@ -132,6 +132,17 @@ import (
 )
 
 
+// RegisterHandlers registers handlers of {{$title}}Service to the
+// http.DefaultServeMux
+func RegisterHandlers(
+	ctx context.Context,
+	svc {{$title}}Service,
+	serverOpts *kitworker.ServerOption,
+	logger log.Logger,
+) { {{range $funcKey, $funcValue := $schema.Functions}}
+	http.Handle(New{{$funcKey}}Handler(ctx, svc, serverOpts, logger)){{end}}
+}
+
 {{range $funcKey, $funcValue := $schema.Functions}}
 {{AsComment $funcValue.Description}}func New{{$funcKey}}Handler(
 	ctx context.Context,
