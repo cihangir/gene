@@ -5,6 +5,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+const ServiceName = "profile"
+
 // Profile represents a registered Account's Public Info
 type ProfileService interface {
 	// Create creates a new profile on the system with given profile data.

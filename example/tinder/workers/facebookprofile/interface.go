@@ -5,6 +5,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+const ServiceName = "facebookprofile"
+
 // Holds Facebook Profiles
 type FacebookProfileService interface {
 	// ByIDs fetches multiple FacebookProfile from system by their IDs

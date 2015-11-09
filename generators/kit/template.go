@@ -89,6 +89,8 @@ var InterfaceTemplate = `
 
 package {{ToLower $title}}
 
+const ServiceName = "{{ToLower $title}}"
+
 {{AsComment $schema.Description}} type {{$title}}Service interface { {{range $funcKey, $funcValue := $schema.Functions}}
 {{AsComment $funcValue.Description}} {{$funcKey}}(ctx context.Context, req *{{Argumentize $funcValue.Properties.incoming}}) (res *{{Argumentize $funcValue.Properties.outgoing}}, err error)
 {{end}}

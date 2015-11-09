@@ -5,6 +5,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+const ServiceName = "account"
+
 // Account represents a registered User
 type AccountService interface {
 	// ByFacebookIDs fetches multiple Accounts from system by their FacebookIDs

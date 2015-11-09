@@ -5,6 +5,8 @@ import (
 	"golang.org/x/net/context"
 )
 
+const ServiceName = "facebookfriends"
+
 // Holds Facebook Friendship Status
 type FacebookFriendsService interface {
 	// Create creates a relationship between two facebook account. This function is

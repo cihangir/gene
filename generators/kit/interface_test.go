@@ -23,6 +23,8 @@ func TestInterface(t *testing.T) {
 
 var expectedInterface = []string{`package account
 
+const ServiceName = "account"
+
 // Account represents a registered User
 type AccountService interface {
 	Create(ctx context.Context, req *models.Account) (res *models.Account, err error)
