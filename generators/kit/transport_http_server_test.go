@@ -35,12 +35,7 @@ import (
 
 // RegisterHandlers registers handlers of AccountService to the
 // http.DefaultServeMux
-func RegisterHandlers(
-	ctx context.Context,
-	svc AccountService,
-	serverOpts *kitworker.ServerOption,
-	logger log.Logger,
-) {
+func RegisterHandlers(ctx context.Context, svc AccountService, serverOpts *kitworker.ServerOption, logger log.Logger) {
 	http.Handle(NewCreateHandler(ctx, svc, serverOpts, logger))
 	http.Handle(NewDeleteHandler(ctx, svc, serverOpts, logger))
 	http.Handle(NewOneHandler(ctx, svc, serverOpts, logger))
@@ -48,60 +43,29 @@ func RegisterHandlers(
 	http.Handle(NewUpdateHandler(ctx, svc, serverOpts, logger))
 }
 
-func NewCreateHandler(
-	ctx context.Context,
-	svc AccountService,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-) (string, *httptransport.Server) {
+func NewCreateHandler(ctx context.Context, svc AccountService, opts *kitworker.ServerOption, logger log.Logger) (string, *httptransport.Server) {
 	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameCreate])
 }
 
-func NewDeleteHandler(
-	ctx context.Context,
-	svc AccountService,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-) (string, *httptransport.Server) {
+func NewDeleteHandler(ctx context.Context, svc AccountService, opts *kitworker.ServerOption, logger log.Logger) (string, *httptransport.Server) {
 	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameDelete])
 }
 
-func NewOneHandler(
-	ctx context.Context,
-	svc AccountService,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-) (string, *httptransport.Server) {
+func NewOneHandler(ctx context.Context, svc AccountService, opts *kitworker.ServerOption, logger log.Logger) (string, *httptransport.Server) {
 	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameOne])
 }
 
-func NewSomeHandler(
-	ctx context.Context,
-	svc AccountService,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-) (string, *httptransport.Server) {
+func NewSomeHandler(ctx context.Context, svc AccountService, opts *kitworker.ServerOption, logger log.Logger) (string, *httptransport.Server) {
 	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameSome])
 }
 
-func NewUpdateHandler(
-	ctx context.Context,
-	svc AccountService,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-) (string, *httptransport.Server) {
+func NewUpdateHandler(ctx context.Context, svc AccountService, opts *kitworker.ServerOption, logger log.Logger) (string, *httptransport.Server) {
 	return newServer(ctx, svc, opts, logger, semiotics[EndpointNameUpdate])
 }
 
-func newServer(
-	ctx context.Context,
-	svc AccountService,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-	s semiotic,
-) (string, *httptransport.Server) {
+func newServer(ctx context.Context, svc AccountService, opts *kitworker.ServerOption, logger log.Logger, s semiotic) (string, *httptransport.Server) {
 	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
-	middlewares, serverOpts := opts.Configure("account", s.Name, transportLogger)
+	middlewares, serverOpts := opts.Configure(ServiceName, s.Name, transportLogger)
 
 	endpoint := s.ServerEndpointFunc(svc)
 

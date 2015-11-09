@@ -136,35 +136,19 @@ import (
 
 // RegisterHandlers registers handlers of {{$title}}Service to the
 // http.DefaultServeMux
-func RegisterHandlers(
-	ctx context.Context,
-	svc {{$title}}Service,
-	serverOpts *kitworker.ServerOption,
-	logger log.Logger,
-) { {{range $funcKey, $funcValue := $schema.Functions}}
+func RegisterHandlers(ctx context.Context, svc {{$title}}Service, serverOpts *kitworker.ServerOption, logger log.Logger) { {{range $funcKey, $funcValue := $schema.Functions}}
 	http.Handle(New{{$funcKey}}Handler(ctx, svc, serverOpts, logger)){{end}}
 }
 
 {{range $funcKey, $funcValue := $schema.Functions}}
-{{AsComment $funcValue.Description}}func New{{$funcKey}}Handler(
-	ctx context.Context,
-	svc {{$title}}Service,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-) (string, *httptransport.Server) {
+{{AsComment $funcValue.Description}}func New{{$funcKey}}Handler(ctx context.Context, svc {{$title}}Service, opts *kitworker.ServerOption, logger log.Logger) (string, *httptransport.Server) {
 	return newServer(ctx, svc, opts, logger, semiotics[EndpointName{{$funcKey}}])
 }
 {{end}}
 
-func newServer(
-	ctx context.Context,
-	svc {{$title}}Service,
-	opts *kitworker.ServerOption,
-	logger log.Logger,
-	s semiotic,
-) (string, *httptransport.Server) {
+func newServer(ctx context.Context, svc {{$title}}Service, opts *kitworker.ServerOption, logger log.Logger, s semiotic) (string, *httptransport.Server) {
 	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
-	middlewares, serverOpts := opts.Configure("{{ToLower $title}}", s.Name, transportLogger)
+	middlewares, serverOpts := opts.Configure(ServiceName, s.Name, transportLogger)
 
 	endpoint := s.ServerEndpointFunc(svc)
 
@@ -253,7 +237,7 @@ func createClientLoadBalancer(
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
 ) loadbalancer.LoadBalancer {
-	middlewares, transportOpts := clientOpts.Configure("account", s.Name)
+	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {
 
