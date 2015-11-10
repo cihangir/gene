@@ -4,7 +4,6 @@ import (
 	"flag"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/cihangir/gene/example/tinder/workers/account"
@@ -17,7 +16,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/go-kit/kit/tracing/zipkin"
 )
 
 func main() {
@@ -35,27 +33,16 @@ func main() {
 
 	ctx := context.Background()
 
-	zipkinCollectorAddr := ":5000"
-	zipkinCollectorTimeout := time.Second
+	c := &kitworker.ZipkinConf{
+		Address:       ":5000",
+		Timeout:       time.Second,
+		BatchSize:     10,
+		BatchInterval: time.Second,
+	}
 
-	zipkinCollectorBatchSize := 10
-	zipkinCollectorBatchInterval := time.Second
-
-	var collector zipkin.Collector
-	collector = loggingCollector{zipkinLogger}
-
-	{
-
-		var err error
-		if collector, err = zipkin.NewScribeCollector(
-			zipkinCollectorAddr,
-			zipkinCollectorTimeout,
-			zipkin.ScribeBatchSize(zipkinCollectorBatchSize),
-			zipkin.ScribeBatchInterval(zipkinCollectorBatchInterval),
-			zipkin.ScribeLogger(zipkinLogger),
-		); err != nil {
-			_ = zipkinLogger.Log("err", err)
-		}
+	collector, err := kitworker.NewZipkinCollector(c, logger)
+	if err != nil {
+		_ = zipkinLogger.Log("err", err)
 	}
 
 	fieldKeys := []string{"method", "error"}
@@ -126,21 +113,4 @@ func main() {
 
 	_ = logger.Log("msg", "HTTP", "addr", *listen)
 	_ = logger.Log("err", http.ListenAndServe(*listen, nil))
-}
-
-type loggingCollector struct{ log.Logger }
-
-func (c loggingCollector) Collect(s *zipkin.Span) error {
-	annotations := s.Encode().GetAnnotations()
-	values := make([]string, len(annotations))
-	for i, a := range annotations {
-		values[i] = a.Value
-	}
-	_ = c.Logger.Log(
-		"trace_id", s.TraceID(),
-		"span_id", s.SpanID(),
-		"parent_span_id", s.ParentSpanID(),
-		"annotations", strings.Join(values, " "),
-	)
-	return nil
 }
