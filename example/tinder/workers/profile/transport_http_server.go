@@ -49,7 +49,7 @@ func NewUpdateHandler(ctx context.Context, svc ProfileService, opts *kitworker.S
 
 func newServer(ctx context.Context, svc ProfileService, opts *kitworker.ServerOption, logger log.Logger, s semiotic) (string, *httptransport.Server) {
 	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
-	middlewares, serverOpts := opts.Configure("profile", s.Name, transportLogger)
+	middlewares, serverOpts := opts.Configure(ServiceName, s.Name, transportLogger)
 
 	endpoint := s.ServerEndpointFunc(svc)
 

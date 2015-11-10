@@ -42,7 +42,7 @@ func NewUpdateHandler(ctx context.Context, svc FacebookProfileService, opts *kit
 
 func newServer(ctx context.Context, svc FacebookProfileService, opts *kitworker.ServerOption, logger log.Logger, s semiotic) (string, *httptransport.Server) {
 	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
-	middlewares, serverOpts := opts.Configure("facebookprofile", s.Name, transportLogger)
+	middlewares, serverOpts := opts.Configure(ServiceName, s.Name, transportLogger)
 
 	endpoint := s.ServerEndpointFunc(svc)
 
