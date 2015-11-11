@@ -9,12 +9,21 @@ import (
 )
 
 type ZipkinConf struct {
-	Address       string
-	Timeout       time.Duration
+	// Address holds Zipkin Host Address, should be a TCP endpoint of the form
+	// "host:port".
+	Address string
+
+	// Timeout is passed to the Thrift dial function NewTSocketFromAddrTimeout.
+	Timeout time.Duration
+
+	// BatchSize and batchInterval control the maximum size and interval of a
+	// batch of spans as soon as either limit is reached, the batch is sent.
 	BatchSize     int
 	BatchInterval time.Duration
 }
 
+// NewZipkinCollector creates a new Zipkin based ScribeCollector as tracing data
+// collector
 func NewZipkinCollector(c *ZipkinConf, logger log.Logger) (zipkin.Collector, error) {
 	tracingLogger := log.NewContext(logger).With("component", "tracing")
 	zipkinLogger := log.NewContext(tracingLogger).With("component", "zipkin")
@@ -40,12 +49,14 @@ func NewZipkinCollector(c *ZipkinConf, logger log.Logger) (zipkin.Collector, err
 	)
 }
 
+// NewLoggingCollector creates a tracer which only logs to given logger
 func NewLoggingCollector(logger log.Logger) loggingCollector {
 	return loggingCollector{logger}
 }
 
 type loggingCollector struct{ log.Logger }
 
+// Collect implements Collector interface
 func (c loggingCollector) Collect(s *zipkin.Span) error {
 	annotations := s.Encode().GetAnnotations()
 	values := make([]string, len(annotations))
