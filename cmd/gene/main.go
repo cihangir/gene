@@ -6,6 +6,7 @@ import (
 
 	"github.com/cihangir/gene/generators/clients"
 	"github.com/cihangir/gene/generators/common"
+	"github.com/cihangir/gene/generators/dockerfiles"
 	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/functions"
 	"github.com/cihangir/gene/generators/kit"
@@ -33,12 +34,13 @@ type Config struct {
 	DDL    geneddl.Generator
 	Models models.Generator
 
-	Rows       generows.Generator
-	Statements statements.Generator
-	Errors     gerr.Generator
-	Mainfile   mainfile.Generator
-	Clients    clients.Generator
-	Functions  functions.Generator
+	Rows        generows.Generator
+	Statements  statements.Generator
+	Errors      gerr.Generator
+	Mainfile    mainfile.Generator
+	Clients     clients.Generator
+	Functions   functions.Generator
+	Dockerfiles dockerfiles.Generator
 	// Js         js.Generator
 	// Server     server.Generator
 	Kit kit.Generator
@@ -205,7 +207,9 @@ func main() {
 	//
 	// generate kit server handlers
 	//
-	c.Config.Target = conf.Target + "workers" + "/"
+
+	workersPath := conf.Target + "workers" + "/"
+	c.Config.Target = workersPath
 	output, err = conf.Kit.Generate(c, s)
 	if err != nil {
 		log.Fatalf("err while generating kit server", err.Error())
@@ -213,6 +217,22 @@ func main() {
 
 	if err := common.WriteOutput(output); err != nil {
 		log.Fatal("kit output write err: %s", err.Error())
+	}
+
+	//
+	// generate dockerfiles
+	//
+	c.Config.Target = conf.Target + "dockerfiles" + "/"
+
+	conf.Dockerfiles.CMDPath = workersPath + "cmd/"
+
+	output, err = conf.Dockerfiles.Generate(c, s)
+	if err != nil {
+		log.Fatalf("err while generating dockerfiles", err.Error())
+	}
+
+	if err := common.WriteOutput(output); err != nil {
+		log.Fatal("dockerfiles output write err: %s", err.Error())
 	}
 
 	log.Println("module created with success")
