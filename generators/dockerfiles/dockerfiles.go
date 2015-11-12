@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"text/template"
 
-	"go/format"
-
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
 )
 
-type Generator struct{}
+type Generator struct {
+	// CMDPath holds the path to executable files
+	CMDPath string
+}
 
 // Generate generates Dockerfile for given schema
 func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
@@ -28,11 +29,11 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 		var buf bytes.Buffer
 
 		data := struct {
-			Target     string
+			CMDPath    string
 			ModuleName string
 			Schema     *schema.Schema
 		}{
-			Target:     context.Config.Target,
+			CMDPath:    c.CMDPath,
 			ModuleName: moduleName,
 			Schema:     def,
 		}
@@ -41,19 +42,13 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			return nil, err
 		}
 
-		f, err := format.Source(buf.Bytes())
-		if err != nil {
-			return nil, err
-		}
-
 		path := fmt.Sprintf(
-			"%sdockerfiles/%s/%s/Dockerfile",
+			"%s/%s/Dockerfile",
 			context.Config.Target,
-			moduleName,
 			context.FileNameFunc(def.Title),
 		)
 
-		outputs = append(outputs, common.Output{Content: f, Path: path, DoNotFormat: true})
+		outputs = append(outputs, common.Output{Content: buf.Bytes(), Path: path, DoNotFormat: true})
 	}
 
 	return outputs, nil
@@ -75,11 +70,12 @@ ADD . /go/src
 # (You may fetch or manage dependencies here,
 # either manually or with a tool like "godep".)
 
-RUN go install {{.Target}}workers/{{ToLower $title}}
+RUN go install {{.CMDPath}}{{ToLower $title}}
 
 # Run the outyet command by default when the container starts.
 ENTRYPOINT /go/bin/{{ToLower $title}}
 
 # Document that the service listens on port 8080.
-EXPOSE 8080
+# EXPOSE 8080
+# TODO make this configurable
 `
