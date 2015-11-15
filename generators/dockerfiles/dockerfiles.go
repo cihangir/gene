@@ -55,11 +55,7 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 }
 
 // DockerfileTemplate holds the template for Dockerfile
-var DockerfileTemplate = `
-{{$schema := .Schema}}
-{{$title := $schema.Title}}
-
-# Start from a Debian image with the latest version of Go installed
+var DockerfileTemplate = `# Start from a Debian image with the latest version of Go installed
 # and a workspace (GOPATH) configured at /go.
 FROM golang
 
@@ -70,10 +66,10 @@ ADD . /go/src
 # (You may fetch or manage dependencies here,
 # either manually or with a tool like "godep".)
 
-RUN go install {{.CMDPath}}{{ToLower $title}}
+RUN go install {{.CMDPath}}{{ToLower .Schema.Title}}
 
 # Run the outyet command by default when the container starts.
-ENTRYPOINT /go/bin/{{ToLower $title}}
+ENTRYPOINT /go/bin/{{ToLower .Schema.Title}}
 
 # Document that the service listens on port 8080.
 # EXPOSE 8080
