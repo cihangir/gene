@@ -17,3 +17,9 @@ ENTRYPOINT /go/bin/facebookfriends
 # Document that the service listens on port 8080.
 # EXPOSE 8080
 # TODO make this configurable
+
+# to build the docker machine
+# docker build -t facebookfriends -f ./src/github.com/cihangir/gene/example/tinder/workers/cmd/dockerfiles/facebookfriends/Dockerfile ./src/
+
+# to run the built docker machine
+# docker run -it facebookfriends

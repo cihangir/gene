@@ -74,4 +74,10 @@ ENTRYPOINT /go/bin/{{ToLower .Schema.Title}}
 # Document that the service listens on port 8080.
 # EXPOSE 8080
 # TODO make this configurable
+
+# to build the docker machine
+# docker build -t {{ToLower .Schema.Title}} -f {{.CMDPath}}dockerfiles/{{ToLower .Schema.Title}}/Dockerfile ./src/
+
+# to run the built docker machine
+# docker run -it {{ToLower .Schema.Title}}
 `

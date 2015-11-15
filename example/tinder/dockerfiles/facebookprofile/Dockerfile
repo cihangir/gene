@@ -17,3 +17,9 @@ ENTRYPOINT /go/bin/facebookprofile
 # Document that the service listens on port 8080.
 # EXPOSE 8080
 # TODO make this configurable
+
+# to build the docker machine
+# docker build -t facebookprofile -f ./src/github.com/cihangir/gene/example/tinder/workers/cmd/dockerfiles/facebookprofile/Dockerfile ./src/
+
+# to run the built docker machine
+# docker run -it facebookprofile
