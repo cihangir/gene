@@ -94,6 +94,15 @@ For now, it is generating the following folder/file structure
 │       ├── 008-facebook_friends-constraints.sql
 │       ├── 008-facebook_profile-constraints.sql
 │       └── 008-profile-constraints.sql
+├── dockerfiles
+│   ├── account
+│   │   └── Dockerfile
+│   ├── facebookfriends
+│   │   └── Dockerfile
+│   ├── facebookprofile
+│   │   └── Dockerfile
+│   └── profile
+│       └── Dockerfile
 ├── errors
 │   ├── account.go
 │   ├── facebookfriends.go
@@ -117,7 +126,8 @@ For now, it is generating the following folder/file structure
     │   ├── transport_http_semiotics.go
     │   └── transport_http_server.go
     ├── cmd
-    │   └── account.go
+    │   └── account
+    │       └── main.go
     ├── facebookfriends
     │   ├── interface.go
     │   ├── service.go
@@ -133,7 +143,8 @@ For now, it is generating the following folder/file structure
     ├── kitworker
     │   ├── client.go
     │   ├── instrumenting.go
-    │   └── server.go
+    │   ├── server.go
+    │   └── zipkin.go
     └── profile
         ├── interface.go
         ├── service.go
@@ -141,5 +152,5 @@ For now, it is generating the following folder/file structure
         ├── transport_http_semiotics.go
         └── transport_http_server.go
 
-11 directories, 53 files
+17 directories, 58 files
 ```
