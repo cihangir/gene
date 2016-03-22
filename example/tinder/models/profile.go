@@ -10,7 +10,7 @@ import (
 // Profile represents a registered Account's Public Info
 type Profile struct {
 	// The unique identifier for a Account's Profile
-	ID int64 `json:"id,omitempty,string"`
+	ID int64 `json:"_id,string" bson:"_id,string"`
 	// Full name associated with the profile. Maximum of 20 characters.
 	ScreenName string `json:"screenName"`
 	// The city or country describing where the user of the account is located. The

@@ -89,7 +89,8 @@
           "type": "number",
           "format": "int64",
           "minimum": 1,
-          "propertyOrder": 10
+          "propertyOrder": 10,
+          "tags": "json:\"_id,string\" bson:\"_id,string\""
         },
         "ScreenName": {
           "description": "Full name associated with the profile. Maximum of 20 characters.",
