@@ -75,6 +75,10 @@ func generate(context *common.Context, s *schema.Schema, templ string, sectionNa
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
+		if len(def.Functions) == 0 {
+			continue
+		}
+
 		data := struct {
 			ModuleName string
 			Schema     *schema.Schema
