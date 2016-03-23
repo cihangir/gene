@@ -93,7 +93,7 @@ func main() {
 	c.Config.Target = conf.Target + "models" + "/"
 	output, err = conf.Models.Generate(c, s)
 	if err != nil {
-		log.Fatalf("err while generating models", err.Error())
+		log.Fatalf("err while generating models \n %s", err.Error())
 	}
 
 	if err := common.WriteOutput(output); err != nil {
