@@ -16,6 +16,10 @@ type Generator struct {
 
 // Generate generates Dockerfile for given schema
 func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+	if !common.IsIn("dockerfiles", context.Config.Generators...) {
+		return nil, nil
+	}
+
 	tmpl := template.New("dockerfile.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := tmpl.Parse(DockerfileTemplate); err != nil {
 		return nil, err
