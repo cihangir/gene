@@ -18,6 +18,10 @@ import (
 type Generator struct{}
 
 func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
+	if !common.IsIn("models", context.Config.Generators...) {
+		return nil, nil
+	}
+
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
@@ -59,8 +63,6 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 						Content: f,
 						Path:    path,
 					})
-				} else {
-					return nil, fmt.Errorf("Type should be \"object\" on %+v", incoming)
 				}
 			}
 
@@ -85,8 +87,6 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 						Content: f,
 						Path:    path,
 					})
-				} else {
-					return nil, fmt.Errorf("Type should be \"object\" on %+v", outgoing)
 				}
 			}
 		}
