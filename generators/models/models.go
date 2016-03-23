@@ -39,6 +39,10 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 
 		for _, funcDef := range def.Functions {
 			if incoming, ok := funcDef.Properties["incoming"]; ok {
+				if incoming.Type == nil {
+					return nil, fmt.Errorf("Type should be set on %+v", incoming)
+				}
+
 				if incoming.Type.(string) == "object" {
 					f, err := GenerateModel(incoming)
 					if err != nil {
@@ -55,10 +59,15 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 						Content: f,
 						Path:    path,
 					})
+				} else {
+					return nil, fmt.Errorf("Type should be \"object\" on %+v", incoming)
 				}
 			}
 
 			if outgoing, ok := funcDef.Properties["outgoing"]; ok {
+				if outgoing.Type == nil {
+					return nil, fmt.Errorf("Type should be set on %+v", outgoing)
+				}
 
 				if outgoing.Type.(string) == "object" {
 					f, err := GenerateModel(outgoing)
@@ -76,6 +85,8 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 						Content: f,
 						Path:    path,
 					})
+				} else {
+					return nil, fmt.Errorf("Type should be \"object\" on %+v", outgoing)
 				}
 			}
 		}
