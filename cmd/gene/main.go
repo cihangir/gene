@@ -31,6 +31,9 @@ type Config struct {
 	// Target holds the target folder
 	Target string `required:"true" default:"./"`
 
+	// Generators holds the generator names for processing
+	Generators []string `default:"ddl,rows,kit,errors,dockerfiles,clients,tests,functions,models"`
+
 	DDL    geneddl.Generator
 	Models models.Generator
 
@@ -65,6 +68,7 @@ func main() {
 	c := common.NewContext()
 	c.Config.Schema = conf.Schema
 	c.Config.Target = conf.Target
+	c.Config.Generators = conf.Generators
 	c.FieldNameFunc = geneddl.GetFieldNameFunc(conf.DDL.FieldNameCase)
 
 	s, err := common.Read(c.Config.Schema)
