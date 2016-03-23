@@ -23,6 +23,10 @@ type Generator struct{}
 
 // Generate generates and writes the errors of the schema
 func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+	if !common.IsIn("kit", context.Config.Generators...) {
+		return nil, nil
+	}
+
 	outputs, err := GenerateKitWorker(context, s)
 	if err != nil {
 		return nil, err
