@@ -5,6 +5,7 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
+	"github.com/hashicorp/go-plugin"
 )
 
 type Generator interface {
@@ -36,4 +37,10 @@ func (g *GeneratorRPCClient) Generate(context *common.Context, s *schema.Schema)
 	}
 
 	return res, g.Client.Call("Plugin.Generate", args, &res)
+}
+
+var HandshakeConfig = plugin.HandshakeConfig{
+	ProtocolVersion:  1,
+	MagicCookieKey:   "BASIC_PLUGIN",
+	MagicCookieValue: "hello",
 }
