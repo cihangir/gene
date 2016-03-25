@@ -52,6 +52,11 @@ type Config struct {
 func main() {
 	conf := &Config{}
 
+	g, err := Discover()
+	if err != nil {
+		log.Fatalf("err %# s", err)
+	}
+
 	loader := multiconfig.MultiLoader(
 		&multiconfig.TagLoader{},  // assign default values
 		&multiconfig.FlagLoader{}, // read flag params
@@ -78,16 +83,54 @@ func main() {
 
 	s.Resolve(s)
 
-	//
-	// generate sql definitions
-	//
 	c.Config.Target = conf.Target + "db" + "/"
-	output, err := conf.DDL.Generate(c, s)
+	for name, client := range g.Clients {
+		log.Print("generating for ", name)
+
+		rpcClient, err := client.Client()
+		if err != nil {
+			log.Fatalf("couldnt start client", err)
+		}
+		defer rpcClient.Close()
+
+		raw, err := rpcClient.Dispense("generate")
+		if err != nil {
+			log.Fatalf("couldnt get the client", err)
+		}
+
+		gene := (raw).(common.Generator)
+		req := &common.Req{
+		// // sending schema causes bufferoverflow
+		// Schema: s,
+		//
+		// // sending context causes unknown type errors in gob package due to
+		// // dynamic function definitions it has.
+		// Context: c,
+		}
+		res := &common.Res{}
+		err = gene.Generate(req, res)
+		if err != nil {
+			log.Printf("err %# v", err)
+			continue
+		}
+		if err := common.WriteOutput(res.Output); err != nil {
+			log.Fatal("output write err: %s", err.Error())
+		}
+	}
+
+	// generate sql definitions
+
+	req := &common.Req{
+		Schema:  s,
+		Context: c,
+	}
+	res := &common.Res{}
+	err = conf.DDL.Generate(req, res)
 	if err != nil {
 		log.Fatal("geneddl err: %s", err.Error())
 	}
 
-	if err := common.WriteOutput(output); err != nil {
+	if err := common.WriteOutput(res.Output); err != nil {
 		log.Fatal("output write err: %s", err.Error())
 	}
 
@@ -95,7 +138,7 @@ func main() {
 	// generate models
 	//
 	c.Config.Target = conf.Target + "models" + "/"
-	output, err = conf.Models.Generate(c, s)
+	output, err := conf.Models.Generate(c, s)
 	if err != nil {
 		log.Fatalf("err while generating models \n %s", err.Error())
 	}
