@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	gplugin "github.com/cihangir/gene/plugin"
 	"github.com/hashicorp/go-plugin"
-
 	"github.com/mitchellh/osext"
 )
 
@@ -17,21 +17,16 @@ type Generator struct {
 	Clients map[string]*plugin.Client
 }
 
-// This looks in the directory of the executable and the CWD, in that
-// order for priority.
 func Discover() (*Generator, error) {
 	g := &Generator{
 		Plugins: make(map[string]string),
 		Clients: make(map[string]*plugin.Client),
 	}
 
-	// Look in the cwd.
 	if err := g.discover("."); err != nil {
 		return nil, err
 	}
 
-	// Next, look in the same directory as the executable. Any conflicts
-	// will overwrite those found in our current directory.
 	exePath, err := osext.Executable()
 	if err != nil {
 		log.Printf("[ERR] Error loading exe directory: %s", err)
@@ -78,7 +73,6 @@ func (g *Generator) discoverSingle(glob string, m *map[string]string) error {
 			file = file[:idx]
 		}
 
-		// Look for foo-bar-baz. The plugin name is "baz"
 		parts := strings.SplitN(file, "-", 2)
 		if len(parts) != 2 {
 			continue
@@ -92,17 +86,16 @@ func (g *Generator) discoverSingle(glob string, m *map[string]string) error {
 }
 
 func (g *Generator) createPluginClient(path string) *plugin.Client {
-	var config plugin.ClientConfig
-	config.Cmd = pluginCmd(path)
-	config.Managed = true
-	return plugin.NewClient(&config)
+	config := &plugin.ClientConfig{
+		Cmd:             pluginCmd(path),
+		HandshakeConfig: gplugin.HandshakeConfig,
+		Plugins: map[string]plugin.Plugin{
+			// client wont use underlying plugin for serving, so a default empty plugin will work
+			"generate": &gplugin.GeneratorPlugin{},
+		},
+	}
 
-	//      rpcClient, err := client.Client()
-	//      if err != nil {
-	//          return nil, err
-	//      }
-	//      return rpcClient.ResourceProvisioner()
-
+	return plugin.NewClient(config)
 }
 
 func pluginCmd(path string) *exec.Cmd {
