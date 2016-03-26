@@ -36,9 +36,6 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
-
-		var buf bytes.Buffer
-
 		data := struct {
 			CMDPath    string
 			ModuleName string
@@ -48,6 +45,8 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 			ModuleName: moduleName,
 			Schema:     def,
 		}
+
+		var buf bytes.Buffer
 
 		if err := tmpl.Execute(&buf, data); err != nil {
 			return err
@@ -59,7 +58,11 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 			context.FileNameFunc(def.Title),
 		)
 
-		outputs = append(outputs, common.Output{Content: buf.Bytes(), Path: path, DoNotFormat: true})
+		outputs = append(outputs, common.Output{
+			Content:     buf.Bytes(),
+			Path:        path,
+			DoNotFormat: true,
+		})
 	}
 
 	res.Output = outputs
