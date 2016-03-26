@@ -18,10 +18,17 @@ func TestErrors(t *testing.T) {
 
 	s = s.Resolve(s)
 
-	sts, err := (&Generator{}).Generate(common.NewContext(), s)
-	common.TestEquals(t, nil, err)
+	req := &common.Req{
+		Schema:  s,
+		Context: common.NewContext(),
+	}
+	res := &common.Res{}
+	err := (&Generator{}).Generate(req, res)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
-	for i, s := range sts {
+	for i, s := range res.Output {
 		common.TestEquals(t, expecteds[i], string(s.Content))
 	}
 }

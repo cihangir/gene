@@ -22,50 +22,58 @@ import (
 type Generator struct{}
 
 // Generate generates and writes the errors of the schema
-func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(req *common.Req, res *common.Res) error {
+	context := req.Context
+	s := req.Schema
+
+	if context == nil || context.Config == nil {
+		return nil
+	}
+
 	if !common.IsIn("kit", context.Config.Generators...) {
-		return nil, nil
+		return nil
 	}
 
 	outputs, err := GenerateKitWorker(context, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	output, err := GenerateInterface(context, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	outputs = append(outputs, output...)
 
 	output, err = GenerateTransportHTTPSemiotics(context, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	outputs = append(outputs, output...)
 
 	output, err = GenerateTransportHTTPServer(context, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	outputs = append(outputs, output...)
 
 	output, err = GenerateTransportHTTPClient(context, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	outputs = append(outputs, output...)
 
 	output, err = GenerateService(context, s)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	outputs = append(outputs, output...)
 
-	return outputs, nil
+	res.Output = outputs
+	return nil
 }
 
 func generate(context *common.Context, s *schema.Schema, templ string, sectionName string) ([]common.Output, error) {

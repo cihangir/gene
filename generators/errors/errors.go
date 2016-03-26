@@ -15,14 +15,21 @@ import (
 type Generator struct{}
 
 // Generate generates and writes the errors of the schema
-func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(req *common.Req, res *common.Res) error {
+	context := req.Context
+	s := req.Schema
+
+	if context == nil || context.Config == nil {
+		return nil
+	}
+
 	if !common.IsIn("errors", context.Config.Generators...) {
-		return nil, nil
+		return nil
 	}
 
 	temp := template.New("errors.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := temp.Parse(ErrorsTemplate); err != nil {
-		return nil, err
+		return err
 	}
 
 	outputs := make([]common.Output, 0)
@@ -37,12 +44,12 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 		var buf bytes.Buffer
 
 		if err := temp.ExecuteTemplate(&buf, "errors.tmpl", data); err != nil {
-			return nil, err
+			return err
 		}
 
 		f, err := writers.Clear(buf)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		path := fmt.Sprintf(
@@ -58,5 +65,6 @@ func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 
 	}
 
-	return outputs, nil
+	res.Output = outputs
+	return nil
 }

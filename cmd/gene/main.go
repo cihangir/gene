@@ -178,13 +178,14 @@ func main() {
 	//
 	// generate errors
 	//
-	c.Config.Target = conf.Target + "errors" + "/"
-	output, err := conf.Errors.Generate(c, s)
+	res = &common.Res{}
+	req.Context.Config.Target = conf.Target + "errors" + "/"
+	err = conf.Errors.Generate(req, res)
 	if err != nil {
 		log.Fatalf("err while generating errors", err.Error())
 	}
 
-	if err := common.WriteOutput(output); err != nil {
+	if err := common.WriteOutput(res.Output); err != nil {
 		log.Fatal("output write err: %s", err.Error())
 	}
 
@@ -257,14 +258,15 @@ func main() {
 	// generate kit server handlers
 	//
 
+	res = &common.Res{}
 	workersPath := conf.Target + "workers" + "/"
-	c.Config.Target = workersPath
-	output, err = conf.Kit.Generate(c, s)
+	req.Context.Config.Target = workersPath
+	err = conf.Kit.Generate(req, res)
 	if err != nil {
 		log.Fatalf("err while generating kit server", err.Error())
 	}
 
-	if err := common.WriteOutput(output); err != nil {
+	if err := common.WriteOutput(res.Output); err != nil {
 		log.Fatal("kit output write err: %s", err.Error())
 	}
 
@@ -275,7 +277,7 @@ func main() {
 
 	conf.Dockerfiles.CMDPath = workersPath + "cmd/"
 
-	output, err = conf.Dockerfiles.Generate(c, s)
+	output, err := conf.Dockerfiles.Generate(c, s)
 	if err != nil {
 		log.Fatalf("err while generating dockerfiles", err.Error())
 	}
