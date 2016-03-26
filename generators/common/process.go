@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"go/format"
 	"text/template"
 
 	"github.com/cihangir/gene/writers"
@@ -9,11 +10,12 @@ import (
 )
 
 type Op struct {
-	Name        string
-	Template    string
-	PathFunc    func(context *Context, def *schema.Schema) string
-	Clear       bool
-	DoNotFormat bool
+	Name         string
+	Template     string
+	PathFunc     func(context *Context, def *schema.Schema, moduleName string) string
+	Clear        bool
+	DoNotFormat  bool
+	FormatSource bool
 	// TemplateFuncs template.FuncMap
 }
 
@@ -63,9 +65,16 @@ func Proces(o *Op, req *Req, res *Res) error {
 			content = buf.Bytes()
 		}
 
+		if o.FormatSource {
+			content, err = format.Source(content)
+			if err != nil {
+				return err
+			}
+		}
+
 		outputs = append(outputs, Output{
 			Content:     content,
-			Path:        o.PathFunc(req.Context, def),
+			Path:        o.PathFunc(req.Context, def, moduleName),
 			DoNotFormat: o.DoNotFormat,
 		})
 	}

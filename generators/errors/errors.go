@@ -11,7 +11,7 @@ import (
 
 type Generator struct{}
 
-func pathfunc(context *common.Context, def *schema.Schema) string {
+func pathfunc(context *common.Context, def *schema.Schema, moduleName string) string {
 	return fmt.Sprintf(
 		"%s/%s.go",
 		context.Config.Target,
