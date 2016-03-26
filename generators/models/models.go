@@ -17,9 +17,16 @@ import (
 
 type Generator struct{}
 
-func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(req *common.Req, res *common.Res) error {
+	context := req.Context
+	schema := req.Schema
+
+	if context == nil || context.Config == nil {
+		return nil
+	}
+
 	if !common.IsIn("models", context.Config.Generators...) {
-		return nil, nil
+		return nil
 	}
 
 	outputs := make([]common.Output, 0)
@@ -27,7 +34,7 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
 		f, err := GenerateModel(def)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		path := fmt.Sprintf(
@@ -44,13 +51,13 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 		for _, funcDef := range def.Functions {
 			if incoming, ok := funcDef.Properties["incoming"]; ok {
 				if incoming.Type == nil {
-					return nil, fmt.Errorf("Type should be set on %+v", incoming)
+					return fmt.Errorf("Type should be set on %+v", incoming)
 				}
 
 				if incoming.Type.(string) == "object" {
 					f, err := GenerateModel(incoming)
 					if err != nil {
-						return nil, err
+						return err
 					}
 
 					path := fmt.Sprintf(
@@ -68,13 +75,13 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 
 			if outgoing, ok := funcDef.Properties["outgoing"]; ok {
 				if outgoing.Type == nil {
-					return nil, fmt.Errorf("Type should be set on %+v", outgoing)
+					return fmt.Errorf("Type should be set on %+v", outgoing)
 				}
 
 				if outgoing.Type.(string) == "object" {
 					f, err := GenerateModel(outgoing)
 					if err != nil {
-						return nil, err
+						return err
 					}
 
 					path := fmt.Sprintf(
@@ -92,7 +99,8 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 		}
 	}
 
-	return outputs, nil
+	res.Output = outputs
+	return nil
 }
 
 // GenerateModel generates the model itself
