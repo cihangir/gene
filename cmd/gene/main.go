@@ -137,26 +137,28 @@ func main() {
 	//
 	// generate models
 	//
-	c.Config.Target = conf.Target + "models" + "/"
-	output, err := conf.Models.Generate(c, s)
+	res = &common.Res{}
+	req.Context.Config.Target = conf.Target + "models" + "/"
+	err = conf.Models.Generate(req, res)
 	if err != nil {
 		log.Fatalf("err while generating models \n %s", err.Error())
 	}
 
-	if err := common.WriteOutput(output); err != nil {
+	if err := common.WriteOutput(res.Output); err != nil {
 		log.Fatal("output write err: %s", err.Error())
 	}
 
 	//
 	// generate rowsscanner
 	//
-	c.Config.Target = conf.Target + "models" + "/"
-	output, err = conf.Rows.Generate(c, s)
+	res = &common.Res{}
+	req.Context.Config.Target = conf.Target + "models" + "/"
+	err = conf.Rows.Generate(req, res)
 	if err != nil {
 		log.Fatalf("err while generating rows", err.Error())
 	}
 
-	if err := common.WriteOutput(output); err != nil {
+	if err := common.WriteOutput(res.Output); err != nil {
 		log.Fatal("output write err: %s", err.Error())
 	}
 
@@ -177,7 +179,7 @@ func main() {
 	// generate errors
 	//
 	c.Config.Target = conf.Target + "errors" + "/"
-	output, err = conf.Errors.Generate(c, s)
+	output, err := conf.Errors.Generate(c, s)
 	if err != nil {
 		log.Fatalf("err while generating errors", err.Error())
 	}
