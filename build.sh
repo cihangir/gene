@@ -7,6 +7,7 @@ geneservices=(
   github.com/cihangir/gene/plugins/gene-rows
   github.com/cihangir/gene/plugins/gene-errors
   github.com/cihangir/gene/plugins/gene-kit
+  github.com/cihangir/gene/plugins/gene-dockerfiles
   github.com/cihangir/geneddl/cmd/gene-ddl
 )
 
