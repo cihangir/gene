@@ -273,16 +273,15 @@ func main() {
 	//
 	// generate dockerfiles
 	//
-	c.Config.Target = conf.Target + "dockerfiles" + "/"
+	res = &common.Res{}
+	req.Context.Config.Target = conf.Target + "dockerfiles" + "/"
 
-	conf.Dockerfiles.CMDPath = workersPath + "cmd/"
-
-	output, err := conf.Dockerfiles.Generate(c, s)
+	err = conf.Dockerfiles.Generate(req, res)
 	if err != nil {
 		log.Fatalf("err while generating dockerfiles", err.Error())
 	}
 
-	if err := common.WriteOutput(output); err != nil {
+	if err := common.WriteOutput(res.Output); err != nil {
 		log.Fatal("dockerfiles output write err: %s", err.Error())
 	}
 

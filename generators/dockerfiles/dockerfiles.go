@@ -9,23 +9,30 @@ import (
 	"github.com/cihangir/schema"
 )
 
-type Generator struct {
-	// CMDPath holds the path to executable files
-	CMDPath string
-}
+type Generator struct{}
 
 // Generate generates Dockerfile for given schema
-func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
+func (g *Generator) Generate(req *common.Req, res *common.Res) error {
+	context := req.Context
+
+	if context == nil || context.Config == nil {
+		return nil
+	}
+
+	s := req.Schema
+	c := req.Context.Config
+
 	if !common.IsIn("dockerfiles", context.Config.Generators...) {
-		return nil, nil
+		return nil
 	}
 
 	tmpl := template.New("dockerfile.tmpl").Funcs(context.TemplateFuncs)
 	if _, err := tmpl.Parse(DockerfileTemplate); err != nil {
-		return nil, err
+		return err
 	}
 
 	moduleName := context.ModuleNameFunc(s.Title)
+
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
@@ -37,13 +44,13 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 			ModuleName string
 			Schema     *schema.Schema
 		}{
-			CMDPath:    c.CMDPath,
+			CMDPath:    c.Target + "cmd/",
 			ModuleName: moduleName,
 			Schema:     def,
 		}
 
 		if err := tmpl.Execute(&buf, data); err != nil {
-			return nil, err
+			return err
 		}
 
 		path := fmt.Sprintf(
@@ -55,7 +62,8 @@ func (c *Generator) Generate(context *common.Context, s *schema.Schema) ([]commo
 		outputs = append(outputs, common.Output{Content: buf.Bytes(), Path: path, DoNotFormat: true})
 	}
 
-	return outputs, nil
+	res.Output = outputs
+	return nil
 }
 
 // DockerfileTemplate holds the template for Dockerfile
