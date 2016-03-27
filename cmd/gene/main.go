@@ -71,19 +71,14 @@ func main() {
 	}
 
 	c := common.NewContext()
-	c.Config.Schema = conf.Schema
 	c.Config.Target = conf.Target
 	c.Config.Generators = conf.Generators
-	c.FieldNameFunc = geneddl.GetFieldNameFunc(conf.DDL.FieldNameCase)
 
-	s, err := common.Read(c.Config.Schema)
+	str, err := common.ReadJSON(conf.Schema)
 	if err != nil {
 		log.Fatalf("schema read err: %s", err.Error())
 	}
 
-	s.Resolve(s)
-
-	c.Config.Target = conf.Target + "db" + "/"
 	for name, client := range g.Clients {
 		log.Print("generating for ", name)
 
@@ -100,66 +95,19 @@ func main() {
 
 		gene := (raw).(common.Generator)
 		req := &common.Req{
-		// // sending schema causes bufferoverflow
-		// Schema: s,
-		//
-		// // sending context causes unknown type errors in gob package due to
-		// // dynamic function definitions it has.
-		// Context: c,
+			SchemaStr: str,
+			Context:   c,
 		}
+
 		res := &common.Res{}
 		err = gene.Generate(req, res)
 		if err != nil {
-			log.Printf("err %# v", err)
-			continue
+			log.Fatalf("err while generating content for %s, err: %# v", name, err)
 		}
+
 		if err := common.WriteOutput(res.Output); err != nil {
 			log.Fatal("output write err: %s", err.Error())
 		}
-	}
-
-	// generate sql definitions
-
-	req := &common.Req{
-		Schema:  s,
-		Context: c,
-	}
-	res := &common.Res{}
-	err = conf.DDL.Generate(req, res)
-	if err != nil {
-		log.Fatal("geneddl err: %s", err.Error())
-	}
-
-	if err := common.WriteOutput(res.Output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
-
-	//
-	// generate models
-	//
-	res = &common.Res{}
-	req.Context.Config.Target = conf.Target + "models" + "/"
-	err = conf.Models.Generate(req, res)
-	if err != nil {
-		log.Fatalf("err while generating models \n %s", err.Error())
-	}
-
-	if err := common.WriteOutput(res.Output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
-
-	//
-	// generate rowsscanner
-	//
-	res = &common.Res{}
-	req.Context.Config.Target = conf.Target + "models" + "/"
-	err = conf.Rows.Generate(req, res)
-	if err != nil {
-		log.Fatalf("err while generating rows", err.Error())
-	}
-
-	if err := common.WriteOutput(res.Output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
 	}
 
 	//
@@ -174,20 +122,6 @@ func main() {
 	// if err := common.WriteOutput(output); err != nil {
 	// 	log.Fatal("output write err: %s", err.Error())
 	// }
-
-	//
-	// generate errors
-	//
-	res = &common.Res{}
-	req.Context.Config.Target = conf.Target + "errors" + "/"
-	err = conf.Errors.Generate(req, res)
-	if err != nil {
-		log.Fatalf("err while generating errors", err.Error())
-	}
-
-	if err := common.WriteOutput(res.Output); err != nil {
-		log.Fatal("output write err: %s", err.Error())
-	}
 
 	//
 	// generate main file
@@ -257,33 +191,6 @@ func main() {
 	//
 	// generate kit server handlers
 	//
-
-	res = &common.Res{}
-	workersPath := conf.Target + "workers" + "/"
-	req.Context.Config.Target = workersPath
-	err = conf.Kit.Generate(req, res)
-	if err != nil {
-		log.Fatalf("err while generating kit server", err.Error())
-	}
-
-	if err := common.WriteOutput(res.Output); err != nil {
-		log.Fatal("kit output write err: %s", err.Error())
-	}
-
-	//
-	// generate dockerfiles
-	//
-	res = &common.Res{}
-	req.Context.Config.Target = conf.Target + "dockerfiles" + "/"
-
-	err = conf.Dockerfiles.Generate(req, res)
-	if err != nil {
-		log.Fatalf("err while generating dockerfiles", err.Error())
-	}
-
-	if err := common.WriteOutput(res.Output); err != nil {
-		log.Fatal("dockerfiles output write err: %s", err.Error())
-	}
 
 	log.Println("module created with success")
 }
