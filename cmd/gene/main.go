@@ -4,22 +4,14 @@ package main
 import (
 	"log"
 
-	"github.com/cihangir/gene/generators/clients"
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/generators/dockerfiles"
-	gerr "github.com/cihangir/gene/generators/errors"
 	"github.com/cihangir/gene/generators/functions"
-	"github.com/cihangir/gene/generators/kit"
 	"github.com/cihangir/gene/generators/mainfile"
-	"github.com/cihangir/gene/generators/models"
 	"github.com/cihangir/gene/generators/sql/statements"
-	"github.com/cihangir/geneddl"
-	"github.com/cihangir/generows"
 	"github.com/koding/multiconfig"
 
 	_ "github.com/cihangir/govalidator"
 	_ "github.com/cihangir/stringext"
-	_ "github.com/koding/logging"
 	_ "github.com/lann/squirrel"
 	_ "golang.org/x/net/context"
 )
@@ -34,19 +26,10 @@ type Config struct {
 	// Generators holds the generator names for processing
 	Generators []string `default:"ddl,rows,kit,errors,dockerfiles,clients,tests,functions,models"`
 
-	DDL    geneddl.Generator
-	Models models.Generator
-
-	Rows        generows.Generator
-	Statements  statements.Generator
-	Errors      gerr.Generator
-	Mainfile    mainfile.Generator
-	Clients     clients.Generator
-	Functions   functions.Generator
-	Dockerfiles dockerfiles.Generator
+	Statements statements.Generator
+	Mainfile   mainfile.Generator
+	Functions  functions.Generator
 	// Js         js.Generator
-	// Server     server.Generator
-	Kit kit.Generator
 }
 
 func main() {
@@ -137,10 +120,6 @@ func main() {
 	// }
 
 	//
-	// 	log.Fatal("output write err: %s", err.Error())
-	// }
-
-	//
 	// generate exported functions
 	//
 	// c.Config.Target = conf.Target + "workers" + "/"
@@ -165,23 +144,6 @@ func main() {
 	// if err := common.WriteOutput(output); err != nil {
 	// 	log.Fatal("output write err: %s", err.Error())
 	// }
-
-	//
-	// generate api server handlers
-	//
-	// c.Config.Target = conf.Target + "api" + "/"
-	// output, err = conf.Server.Generate(c, s)
-	// if err != nil {
-	// 	log.Fatalf("err while generating api server", err.Error())
-	// }
-
-	// if err := common.WriteOutput(output); err != nil {
-	// 	log.Fatal("api output write err: %s", err.Error())
-	// }
-
-	//
-	// generate kit server handlers
-	//
 
 	log.Println("module created with success")
 }
