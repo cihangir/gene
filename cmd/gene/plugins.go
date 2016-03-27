@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	gplugin "github.com/cihangir/gene/plugin"
+	"github.com/cihangir/gene/generators/common"
 	"github.com/hashicorp/go-plugin"
 	"github.com/mitchellh/osext"
 )
@@ -88,10 +88,10 @@ func (g *Generator) discoverSingle(glob string, m *map[string]string) error {
 func (g *Generator) createPluginClient(path string) *plugin.Client {
 	config := &plugin.ClientConfig{
 		Cmd:             pluginCmd(path),
-		HandshakeConfig: gplugin.HandshakeConfig,
+		HandshakeConfig: common.HandshakeConfig,
 		Plugins: map[string]plugin.Plugin{
 			// client wont use underlying plugin for serving, so a default empty plugin will work
-			"generate": &gplugin.GeneratorPlugin{},
+			"generate": &common.GeneratorPlugin{},
 		},
 	}
 

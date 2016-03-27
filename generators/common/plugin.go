@@ -1,22 +1,21 @@
-package plugin
+package common
 
 import (
 	"net/rpc"
 
-	"github.com/cihangir/gene/generators/common"
 	"github.com/hashicorp/go-plugin"
 )
 
-type GeneratorRPCServer struct{ Impl common.Generator }
+type GeneratorRPCServer struct{ Impl Generator }
 
-func (g *GeneratorRPCServer) Generate(req *common.Req, res *common.Res) error {
+func (g *GeneratorRPCServer) Generate(req *Req, res *Res) error {
 	return g.Impl.Generate(req, res)
 }
 
 // Here is an implementation that talks over RPC
 type GeneratorRPCClient struct{ Client *rpc.Client }
 
-func (g *GeneratorRPCClient) Generate(req *common.Req, res *common.Res) error {
+func (g *GeneratorRPCClient) Generate(req *Req, res *Res) error {
 	return g.Client.Call("Plugin.Generate", req, res)
 }
 
@@ -26,9 +25,9 @@ var HandshakeConfig = plugin.HandshakeConfig{
 	MagicCookieValue: "gene-cookie",
 }
 
-type GeneratorPlugin struct{ generator common.Generator }
+type GeneratorPlugin struct{ generator Generator }
 
-func NewGeneratorPlugin(g common.Generator) *GeneratorPlugin {
+func NewGeneratorPlugin(g Generator) *GeneratorPlugin {
 	return &GeneratorPlugin{generator: g}
 }
 

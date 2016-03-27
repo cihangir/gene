@@ -2,16 +2,16 @@
 package main
 
 import (
+	"github.com/cihangir/gene/generators/common"
 	gmodels "github.com/cihangir/gene/generators/models"
-	gplugin "github.com/cihangir/gene/plugin"
 	"github.com/hashicorp/go-plugin"
 )
 
 func main() {
 	plugin.Serve(&plugin.ServeConfig{
-		HandshakeConfig: gplugin.HandshakeConfig,
+		HandshakeConfig: common.HandshakeConfig,
 		Plugins: map[string]plugin.Plugin{
-			"generate": gplugin.NewGeneratorPlugin(&gmodels.Generator{}),
+			"generate": common.NewGeneratorPlugin(&gmodels.Generator{}),
 		},
 	})
 }

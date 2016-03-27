@@ -2,16 +2,16 @@
 package main
 
 import (
+	"github.com/cihangir/gene/generators/common"
 	gdockerfiles "github.com/cihangir/gene/generators/dockerfiles"
-	gplugin "github.com/cihangir/gene/plugin"
 	"github.com/hashicorp/go-plugin"
 )
 
 func main() {
 	plugin.Serve(&plugin.ServeConfig{
-		HandshakeConfig: gplugin.HandshakeConfig,
+		HandshakeConfig: common.HandshakeConfig,
 		Plugins: map[string]plugin.Plugin{
-			"generate": gplugin.NewGeneratorPlugin(&gdockerfiles.Generator{}),
+			"generate": common.NewGeneratorPlugin(&gdockerfiles.Generator{}),
 		},
 	})
 }
