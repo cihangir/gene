@@ -106,7 +106,6 @@ func Proces(o *Op, req *Req, res *Res) error {
 			DoNotFormat: o.DoNotFormat,
 		})
 	}
-
 	res.Output = outputs
 	return nil
 }

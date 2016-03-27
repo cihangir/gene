@@ -8,6 +8,13 @@ type Context struct {
 
 func NewContext() *Context {
 	return &Context{
-		Config: &config.Config{},
+		Config: &config.Config{
+			Target: "./",
+			Generators: []string{
+				"ddl", "rows", "kit", "errors",
+				"dockerfiles", "clients", "tests",
+				"functions", "models",
+			},
+		},
 	}
 }
