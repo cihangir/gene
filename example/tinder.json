@@ -5,7 +5,8 @@
   "description": "This is not your tinder.",
   "generators": [
     {
-      "sql-definition": {
+      "ddl": {
+        "rootPathPrefix": "db",
         "roleName": "tinder_role",
         "grants": [
           "SELECT",
@@ -74,7 +75,7 @@
       "description": "Profile represents a registered Account's Public Info",
       "generators": [
         {
-          "sql-definition": {
+          "ddl": {
             "grants": [
               "SELECT",
               "INSERT",
@@ -230,7 +231,7 @@
       "description": "Account represents a registered User",
       "generators": [
         {
-          "sql-definition": {
+          "ddl": {
             "grants": [
               "SELECT",
               "INSERT",
@@ -461,7 +462,7 @@
       "description": "Holds Facebook Profiles",
       "generators": [
         {
-          "sql-definition": {
+          "ddl": {
             "roleName": "twitter_db_role",
             "grants": [
               "SELECT",
@@ -579,7 +580,7 @@
       "description": "Holds Facebook Friendship Status",
       "generators": [
         {
-          "sql-definition": {
+          "ddl": {
             "roleName": "twitter_db_role",
             "grants": [
               "SELECT",

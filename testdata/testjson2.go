@@ -8,7 +8,7 @@ var TestDataFull = `{
     "description": "Account module handles all the operations regarding Account management.",
     "generators": [
         {
-            "sql-definition": {
+            "ddl": {
                 "roleName": "social",
                 "grants": [
                     "SELECT",
@@ -77,7 +77,7 @@ var TestDataFull = `{
             "description": "Profile represents a registered Account's Public Info",
             "generators": [
                 {
-                    "sql-definition": {
+                    "ddl": {
                         "grants": [
                             "SELECT",
                             "UPDATE"
