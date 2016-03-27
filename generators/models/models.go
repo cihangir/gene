@@ -3,6 +3,8 @@ package models
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"text/template"
@@ -19,7 +21,6 @@ type Generator struct{}
 
 func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	context := req.Context
-	schema := req.Schema
 
 	if context == nil || context.Config == nil {
 		return nil
@@ -29,9 +30,22 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 		return nil
 	}
 
+	if req.Schema == nil {
+		if req.SchemaStr == "" {
+			return errors.New("both schema and string schema is not set")
+		}
+
+		s := &schema.Schema{}
+		if err := json.Unmarshal([]byte(req.SchemaStr), s); err != nil {
+			return err
+		}
+
+		req.Schema = s.Resolve(nil)
+	}
+
 	outputs := make([]common.Output, 0)
 
-	for _, def := range common.SortedObjectSchemas(schema.Definitions) {
+	for _, def := range common.SortedObjectSchemas(req.Schema.Definitions) {
 		f, err := GenerateModel(def)
 		if err != nil {
 			return err

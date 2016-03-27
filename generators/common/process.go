@@ -2,7 +2,10 @@ package common
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"go/format"
+	"strings"
 	"text/template"
 
 	"github.com/cihangir/gene/writers"
@@ -28,14 +31,30 @@ func Proces(o *Op, req *Req, res *Res) error {
 		return nil
 	}
 
-	tmpl := template.New("dockerfile.tmpl").Funcs(req.Context.TemplateFuncs)
+	if req.Schema == nil {
+		if req.SchemaStr == "" {
+			return errors.New("both schema and string schema is not set")
+		}
+
+		s := &schema.Schema{}
+		if err := json.Unmarshal([]byte(req.SchemaStr), s); err != nil {
+			return err
+		}
+
+		req.Schema = s.Resolve(nil)
+	}
+
+	settings, ok := req.Schema.Generators.Get(o.Name)
+	if !ok {
+		settings = schema.Generator{}
+	}
+
+	tmpl := template.New("dockerfile.tmpl").Funcs(TemplateFuncs)
 	if _, err := tmpl.Parse(o.Template); err != nil {
 		return err
 	}
-	// s := req.Schema
-	// c := req.Context.Config
 
-	moduleName := req.Context.ModuleNameFunc(req.Schema.Title)
+	moduleName := strings.ToLower(req.Schema.Title)
 
 	outputs := make([]Output, 0)
 
@@ -43,9 +62,11 @@ func Proces(o *Op, req *Req, res *Res) error {
 		data := struct {
 			ModuleName string
 			Schema     *schema.Schema
+			Settings   *schema.Generator
 		}{
 			ModuleName: moduleName,
 			Schema:     def,
+			Settings:   &settings,
 		}
 
 		var buf bytes.Buffer

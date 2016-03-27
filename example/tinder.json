@@ -15,6 +15,9 @@
         ],
         "databaseName": "tinder_db",
         "schemaName": "tinder_schema"
+      },
+      "dockerfiles": {
+        "CMDPath": "./bin/"
       }
     }
   ],

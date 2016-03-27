@@ -16,6 +16,9 @@ var TestDataFull = `{
                 ],
                 "databaseName": "mydatabase",
                 "schemaName": "account"
+            },
+            "dockerfiles": {
+                "CMDPath": "./bin/"
             }
         }
     ],

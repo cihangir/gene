@@ -2,6 +2,8 @@ package kit
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"text/template"
@@ -24,7 +26,6 @@ type Generator struct{}
 // Generate generates and writes the errors of the schema
 func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	context := req.Context
-	s := req.Schema
 
 	if context == nil || context.Config == nil {
 		return nil
@@ -34,39 +35,52 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 		return nil
 	}
 
-	outputs, err := GenerateKitWorker(context, s)
+	if req.Schema == nil {
+		if req.SchemaStr == "" {
+			return errors.New("both schema and string schema is not set")
+		}
+
+		s := &schema.Schema{}
+		if err := json.Unmarshal([]byte(req.SchemaStr), s); err != nil {
+			return err
+		}
+
+		req.Schema = s.Resolve(nil)
+	}
+
+	outputs, err := GenerateKitWorker(context, req.Schema)
 	if err != nil {
 		return err
 	}
 
-	output, err := GenerateInterface(context, s)
-	if err != nil {
-		return err
-	}
-
-	outputs = append(outputs, output...)
-
-	output, err = GenerateTransportHTTPSemiotics(context, s)
-	if err != nil {
-		return err
-	}
-	outputs = append(outputs, output...)
-
-	output, err = GenerateTransportHTTPServer(context, s)
-	if err != nil {
-		return err
-	}
-
-	outputs = append(outputs, output...)
-
-	output, err = GenerateTransportHTTPClient(context, s)
+	output, err := GenerateInterface(context, req.Schema)
 	if err != nil {
 		return err
 	}
 
 	outputs = append(outputs, output...)
 
-	output, err = GenerateService(context, s)
+	output, err = GenerateTransportHTTPSemiotics(context, req.Schema)
+	if err != nil {
+		return err
+	}
+	outputs = append(outputs, output...)
+
+	output, err = GenerateTransportHTTPServer(context, req.Schema)
+	if err != nil {
+		return err
+	}
+
+	outputs = append(outputs, output...)
+
+	output, err = GenerateTransportHTTPClient(context, req.Schema)
+	if err != nil {
+		return err
+	}
+
+	outputs = append(outputs, output...)
+
+	output, err = GenerateService(context, req.Schema)
 	if err != nil {
 		return err
 	}
@@ -77,12 +91,12 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 }
 
 func generate(context *common.Context, s *schema.Schema, templ string, sectionName string) ([]common.Output, error) {
-	temp := template.New("kit.tmpl").Funcs(context.TemplateFuncs)
+	temp := template.New("kit.tmpl").Funcs(common.TemplateFuncs)
 	if _, err := temp.Parse(templ); err != nil {
 		return nil, err
 	}
 
-	moduleName := context.ModuleNameFunc(s.Title)
+	moduleName := strings.ToLower(s.Title)
 
 	outputs := make([]common.Output, 0)
 

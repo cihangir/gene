@@ -1,9 +1,8 @@
 package dockerfiles
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
+	"strings"
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
@@ -11,62 +10,25 @@ import (
 
 type Generator struct{}
 
+func pathfunc(context *common.Context, def *schema.Schema, moduleName string) string {
+	return fmt.Sprintf(
+		"%s/%s/Dockerfile",
+		context.Config.Target,
+		strings.ToLower(def.Title),
+	)
+
+}
+
 // Generate generates Dockerfile for given schema
 func (g *Generator) Generate(req *common.Req, res *common.Res) error {
-	context := req.Context
-
-	if context == nil || context.Config == nil {
-		return nil
+	o := &common.Op{
+		Name:        "dockerfiles",
+		Template:    DockerfileTemplate,
+		PathFunc:    pathfunc,
+		DoNotFormat: true,
 	}
 
-	s := req.Schema
-	c := req.Context.Config
-
-	if !common.IsIn("dockerfiles", context.Config.Generators...) {
-		return nil
-	}
-
-	tmpl := template.New("dockerfile.tmpl").Funcs(context.TemplateFuncs)
-	if _, err := tmpl.Parse(DockerfileTemplate); err != nil {
-		return err
-	}
-
-	moduleName := context.ModuleNameFunc(s.Title)
-
-	outputs := make([]common.Output, 0)
-
-	for _, def := range common.SortedObjectSchemas(s.Definitions) {
-		data := struct {
-			CMDPath    string
-			ModuleName string
-			Schema     *schema.Schema
-		}{
-			CMDPath:    c.Target + "cmd/",
-			ModuleName: moduleName,
-			Schema:     def,
-		}
-
-		var buf bytes.Buffer
-
-		if err := tmpl.Execute(&buf, data); err != nil {
-			return err
-		}
-
-		path := fmt.Sprintf(
-			"%s/%s/Dockerfile",
-			context.Config.Target,
-			context.FileNameFunc(def.Title),
-		)
-
-		outputs = append(outputs, common.Output{
-			Content:     buf.Bytes(),
-			Path:        path,
-			DoNotFormat: true,
-		})
-	}
-
-	res.Output = outputs
-	return nil
+	return common.Proces(o, req, res)
 }
 
 // DockerfileTemplate holds the template for Dockerfile
@@ -81,7 +43,7 @@ ADD . /go/src
 # (You may fetch or manage dependencies here,
 # either manually or with a tool like "godep".)
 
-RUN go install {{.CMDPath}}{{ToLower .Schema.Title}}
+RUN go install {{.Settings.CMDPath}}{{ToLower .Schema.Title}}
 
 # Run the outyet command by default when the container starts.
 ENTRYPOINT /go/bin/{{ToLower .Schema.Title}}
@@ -91,7 +53,7 @@ ENTRYPOINT /go/bin/{{ToLower .Schema.Title}}
 # TODO make this configurable
 
 # to build the docker machine
-# docker build -t {{ToLower .Schema.Title}} -f {{.CMDPath}}dockerfiles/{{ToLower .Schema.Title}}/Dockerfile ./src/
+# docker build -t {{ToLower .Schema.Title}} -f {{.Settings.CMDPath}}dockerfiles/{{ToLower .Schema.Title}}/Dockerfile ./src/
 
 # to run the built docker machine
 # docker run -it {{ToLower .Schema.Title}}
