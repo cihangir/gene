@@ -3,6 +3,7 @@ package clients
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cihangir/gene/generators/common"
 	"github.com/cihangir/schema"
@@ -13,7 +14,7 @@ func pathfunc(context *common.Context, def *schema.Schema, moduleName string) st
 		"%s%s/clients/%s.go",
 		context.Config.Target,
 		moduleName,
-		context.FileNameFunc(def.Title),
+		strings.ToLower(def.Title),
 	)
 
 }

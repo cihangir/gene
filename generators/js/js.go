@@ -16,7 +16,7 @@ var PathForStatements = "%smodels/%s_statements.go"
 
 // Generate generates and writes the errors of the schema
 func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(s.Title)
+	moduleName := strings.ToLower(s.Title)
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {

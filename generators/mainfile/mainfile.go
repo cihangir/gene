@@ -2,6 +2,7 @@ package mainfile
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 
 	"bytes"
@@ -25,7 +26,7 @@ func (g *Generator) Name() string {
 // GenerateMainFile handles the main file generation for persistent
 // connection rpc server
 func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(schema.Title)
+	moduleName := strings.ToLower(schema.Title)
 	outputs := make([]common.Output, 0)
 
 	for _, def := range schema.Definitions {
@@ -62,7 +63,7 @@ func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]
 
 func generateMainFile(context *common.Context, s *schema.Schema) ([]byte, error) {
 	const templateName = "mainfile.tmpl"
-	temp := template.New(templateName).Funcs(context.TemplateFuncs)
+	temp := template.New(templateName).Funcs(common.TemplateFuncs)
 
 	if _, err := temp.Parse(MainFileTemplate); err != nil {
 		return nil, err

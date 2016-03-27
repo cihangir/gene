@@ -27,7 +27,7 @@ func (g *generator) Name() string {
 
 // Generate generates the tests for the schema
 func (g *generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	moduleName := context.ModuleNameFunc(s.Title)
+	moduleName := strings.ToLower(s.Title)
 	outputs := make([]common.Output, 0)
 
 	// Generate test functions
