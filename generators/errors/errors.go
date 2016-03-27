@@ -3,17 +3,14 @@ package errors
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/kr/pretty"
 )
 
 type Generator struct{}
 
 func pathfunc(data *common.TemplateData) string {
-	log.Printf("data.Settings.Ge.(string) %# v", pretty.Formatter(data.Settings.Get("fullPathPrefix").(string)))
 	return fmt.Sprintf(
 		"%s/%s.go",
 		data.Settings.Get("fullPathPrefix").(string),
