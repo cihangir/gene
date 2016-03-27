@@ -48,6 +48,18 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 		req.Schema = s.Resolve(nil)
 	}
 
+	settings, ok := req.Schema.Generators.Get("workers")
+	if !ok {
+		settings = schema.Generator{}
+	}
+
+	settings.SetNX("rootPathPrefix", "workers")
+	rootPathPrefix := settings.Get("rootPathPrefix").(string)
+	fullPathPrefix := req.Context.Config.Target + rootPathPrefix + "/"
+	settings.Set("fullPathPrefix", fullPathPrefix)
+
+	// TODO(cihangir) remove this statement when Process transition is complete
+	req.Context.Config.Target = fullPathPrefix
 	outputs, err := GenerateKitWorker(context, req.Schema)
 	if err != nil {
 		return err

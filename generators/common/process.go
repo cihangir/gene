@@ -15,11 +15,17 @@ import (
 type Op struct {
 	Name         string
 	Template     string
-	PathFunc     func(context *Context, def *schema.Schema, moduleName string) string
+	PathFunc     func(data *TemplateData) string
 	Clear        bool
 	DoNotFormat  bool
 	FormatSource bool
 	// TemplateFuncs template.FuncMap
+}
+
+type TemplateData struct {
+	ModuleName string
+	Schema     *schema.Schema
+	Settings   *schema.Generator
 }
 
 func Proces(o *Op, req *Req, res *Res) error {
@@ -49,6 +55,11 @@ func Proces(o *Op, req *Req, res *Res) error {
 		settings = schema.Generator{}
 	}
 
+	settings.SetNX("rootPathPrefix", o.Name)
+	rootPathPrefix := settings.Get("rootPathPrefix").(string)
+	fullPathPrefix := req.Context.Config.Target + rootPathPrefix + "/"
+	settings.Set("fullPathPrefix", fullPathPrefix)
+
 	tmpl := template.New("dockerfile.tmpl").Funcs(TemplateFuncs)
 	if _, err := tmpl.Parse(o.Template); err != nil {
 		return err
@@ -59,11 +70,7 @@ func Proces(o *Op, req *Req, res *Res) error {
 	outputs := make([]Output, 0)
 
 	for _, def := range SortedObjectSchemas(req.Schema.Definitions) {
-		data := struct {
-			ModuleName string
-			Schema     *schema.Schema
-			Settings   *schema.Generator
-		}{
+		data := &TemplateData{
 			ModuleName: moduleName,
 			Schema:     def,
 			Settings:   &settings,
@@ -95,7 +102,7 @@ func Proces(o *Op, req *Req, res *Res) error {
 
 		outputs = append(outputs, Output{
 			Content:     content,
-			Path:        o.PathFunc(req.Context, def, moduleName),
+			Path:        o.PathFunc(data),
 			DoNotFormat: o.DoNotFormat,
 		})
 	}

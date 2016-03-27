@@ -3,19 +3,21 @@ package errors
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/schema"
+	"github.com/kr/pretty"
 )
 
 type Generator struct{}
 
-func pathfunc(context *common.Context, def *schema.Schema, moduleName string) string {
+func pathfunc(data *common.TemplateData) string {
+	log.Printf("data.Settings.Ge.(string) %# v", pretty.Formatter(data.Settings.Get("fullPathPrefix").(string)))
 	return fmt.Sprintf(
 		"%s/%s.go",
-		context.Config.Target,
-		strings.ToLower(def.Title),
+		data.Settings.Get("fullPathPrefix").(string),
+		strings.ToLower(data.Schema.Title),
 	)
 }
 

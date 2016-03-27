@@ -43,6 +43,19 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 		req.Schema = s.Resolve(nil)
 	}
 
+	settings, ok := req.Schema.Generators.Get("models")
+	if !ok {
+		settings = schema.Generator{}
+	}
+
+	settings.SetNX("rootPathPrefix", "models")
+	rootPathPrefix := settings.Get("rootPathPrefix").(string)
+	fullPathPrefix := req.Context.Config.Target + rootPathPrefix + "/"
+	settings.Set("fullPathPrefix", fullPathPrefix)
+
+	// TODO(cihangir) remove this statement when Process transition is complete
+	req.Context.Config.Target = fullPathPrefix
+
 	outputs := make([]common.Output, 0)
 
 	for _, def := range common.SortedObjectSchemas(req.Schema.Definitions) {
