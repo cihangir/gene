@@ -1,15 +1,19 @@
-package models
+package rows
 
-import "database/sql"
+import (
+	"database/sql"
 
-func (f *FacebookProfile) RowsScan(rows *sql.Rows, dest interface{}) error {
+	"github.com/cihangir/gene/example/tinder/models"
+)
+
+func FacebookProfileRowsScan(rows *sql.Rows, dest interface{}) error {
 	if rows == nil {
 		return nil
 	}
 
-	var records []*FacebookProfile
+	var records []*models.FacebookProfile
 	for rows.Next() {
-		m := NewFacebookProfile()
+		m := models.NewFacebookProfile()
 		err := rows.Scan(
 			&m.ID,
 			&m.FirstName,
@@ -27,7 +31,7 @@ func (f *FacebookProfile) RowsScan(rows *sql.Rows, dest interface{}) error {
 		return err
 	}
 
-	*(dest.(*[]*FacebookProfile)) = records
+	*(dest.(*[]*models.FacebookProfile)) = records
 
 	return nil
 }

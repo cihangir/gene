@@ -1,15 +1,19 @@
-package models
+package rows
 
-import "database/sql"
+import (
+	"database/sql"
 
-func (p *Profile) RowsScan(rows *sql.Rows, dest interface{}) error {
+	"github.com/cihangir/gene/example/tinder/models"
+)
+
+func ProfileRowsScan(rows *sql.Rows, dest interface{}) error {
 	if rows == nil {
 		return nil
 	}
 
-	var records []*Profile
+	var records []*models.Profile
 	for rows.Next() {
-		m := NewProfile()
+		m := models.NewProfile()
 		err := rows.Scan(
 			&m.ID,
 			&m.ScreenName,
@@ -29,7 +33,7 @@ func (p *Profile) RowsScan(rows *sql.Rows, dest interface{}) error {
 		return err
 	}
 
-	*(dest.(*[]*Profile)) = records
+	*(dest.(*[]*models.Profile)) = records
 
 	return nil
 }
