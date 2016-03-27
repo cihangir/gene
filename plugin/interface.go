@@ -22,8 +22,8 @@ func (g *GeneratorRPCClient) Generate(req *common.Req, res *common.Res) error {
 
 var HandshakeConfig = plugin.HandshakeConfig{
 	ProtocolVersion:  1,
-	MagicCookieKey:   "BASIC_PLUGIN",
-	MagicCookieValue: "hello",
+	MagicCookieKey:   "GENE_PLUGIN",
+	MagicCookieValue: "gene-cookie",
 }
 
 type GeneratorPlugin struct{ generator common.Generator }
