@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/gene/utils"
 	"github.com/cihangir/schema"
 )
 
@@ -85,7 +85,7 @@ func Proces(o *Op, req *Req, res *Res) error {
 		var content []byte
 		var err error
 		if o.Clear {
-			content, err = writers.Clear(buf)
+			content, err = utils.Clear(buf)
 			if err != nil {
 				return err
 			}

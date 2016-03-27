@@ -1,5 +1,5 @@
-// Package helpers provides helper functions for other subpackages
-package helpers
+// Package utils provides helper functions for other subpackages
+package utils
 
 import (
 	"errors"

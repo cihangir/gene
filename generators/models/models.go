@@ -13,7 +13,7 @@ import (
 	"github.com/cihangir/gene/generators/models/constants"
 	"github.com/cihangir/gene/generators/models/constructors"
 	"github.com/cihangir/gene/generators/models/validators"
-	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/gene/utils"
 	"github.com/cihangir/schema"
 )
 
@@ -166,7 +166,7 @@ func GenerateModel(s *schema.Schema) ([]byte, error) {
 		buf.Write(validators)
 	}
 
-	return writers.Clear(buf)
+	return utils.Clear(buf)
 }
 
 // GeneratePackage generates the imports according to the schema.
@@ -217,5 +217,5 @@ func GenerateSchema(s *schema.Schema) ([]byte, error) {
 		return nil, err
 	}
 
-	return writers.Clear(buf)
+	return utils.Clear(buf)
 }

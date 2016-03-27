@@ -7,7 +7,7 @@ import (
 	"text/template"
 
 	"github.com/cihangir/gene/generators/common"
-	"github.com/cihangir/gene/writers"
+	"github.com/cihangir/gene/utils"
 	"github.com/cihangir/geneddl"
 	"github.com/cihangir/schema"
 	"github.com/cihangir/stringext"
@@ -87,7 +87,7 @@ func GenerateModelStatements(context *common.Context, settings schema.Generator,
 	buf.Write(selectStatements)
 	buf.Write(tableName)
 
-	return writers.Clear(buf)
+	return utils.Clear(buf)
 }
 
 // GeneratePackage generates the imports according to the schema.

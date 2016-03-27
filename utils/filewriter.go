@@ -1,5 +1,4 @@
-//Package writers handles the file write operations
-package writers
+package utils
 
 import (
 	"bytes"
