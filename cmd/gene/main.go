@@ -137,15 +137,6 @@ func main() {
 	// }
 
 	//
-	// generate clients
-	//
-	// c.Config.Target = conf.Target + "workers" + "/"
-	// output, err = conf.Clients.Generate(c, s)
-	// if err != nil {
-	// 	log.Fatalf("err while generating clients", err.Error())
-	// }
-
-	// if err := common.WriteOutput(output); err != nil {
 	// 	log.Fatal("output write err: %s", err.Error())
 	// }
 
