@@ -3,8 +3,9 @@ package common
 import "github.com/cihangir/schema"
 
 type Req struct {
-	Schema  *schema.Schema
-	Context *Context
+	Schema    *schema.Schema
+	SchemaStr string
+	Context   *Context
 }
 
 type Res struct {
