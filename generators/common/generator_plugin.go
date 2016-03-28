@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"log"
@@ -7,23 +7,24 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cihangir/gene/generators/common"
 	"github.com/hashicorp/go-plugin"
 	"github.com/mitchellh/osext"
 )
 
-type Generator struct {
+type PluginStore struct {
 	Plugins map[string]string
 	Clients map[string]*plugin.Client
 }
 
-func Discover() (*Generator, error) {
-	g := &Generator{
+func Discover(prefix string) (*PluginStore, error) {
+	log.Printf("[DEBUG] discovering for : %s", prefix)
+
+	g := &PluginStore{
 		Plugins: make(map[string]string),
 		Clients: make(map[string]*plugin.Client),
 	}
 
-	if err := g.discover("."); err != nil {
+	if err := g.discover(".", prefix); err != nil {
 		return nil, err
 	}
 
@@ -31,7 +32,7 @@ func Discover() (*Generator, error) {
 	if err != nil {
 		log.Printf("[ERR] Error loading exe directory: %s", err)
 	} else {
-		if err := g.discover(filepath.Dir(exePath)); err != nil {
+		if err := g.discover(filepath.Dir(exePath), prefix); err != nil {
 			return nil, err
 		}
 	}
@@ -43,7 +44,7 @@ func Discover() (*Generator, error) {
 	return g, nil
 }
 
-func (g *Generator) discover(path string) error {
+func (g *PluginStore) discover(path, prefix string) error {
 	var err error
 
 	if !filepath.IsAbs(path) {
@@ -53,10 +54,10 @@ func (g *Generator) discover(path string) error {
 		}
 	}
 
-	return g.discoverSingle(filepath.Join(path, "gene-*"), &g.Plugins)
+	return g.discoverSingle(prefix, filepath.Join(path, prefix), &g.Plugins)
 }
 
-func (g *Generator) discoverSingle(glob string, m *map[string]string) error {
+func (g *PluginStore) discoverSingle(prefix, glob string, m *map[string]string) error {
 	matches, err := filepath.Glob(glob)
 	if err != nil {
 		return err
@@ -73,25 +74,27 @@ func (g *Generator) discoverSingle(glob string, m *map[string]string) error {
 			file = file[:idx]
 		}
 
-		parts := strings.SplitN(file, "-", 2)
-		if len(parts) != 2 {
+		parts := strings.Split(file, "-")
+
+		if len(parts)-1 != strings.Count(prefix, "-") {
 			continue
 		}
 
-		log.Printf("[DEBUG] Discovered plugin: %s = %s", parts[1], match)
-		(*m)[parts[1]] = match
+		pluginName := parts[len(parts)-1]
+		log.Printf("[DEBUG] Discovered plugin: %s = %s", pluginName, match)
+		(*m)[pluginName] = match
 	}
 
 	return nil
 }
 
-func (g *Generator) createPluginClient(path string) *plugin.Client {
+func (g *PluginStore) createPluginClient(path string) *plugin.Client {
 	config := &plugin.ClientConfig{
 		Cmd:             pluginCmd(path),
-		HandshakeConfig: common.HandshakeConfig,
+		HandshakeConfig: HandshakeConfig,
 		Plugins: map[string]plugin.Plugin{
 			// client wont use underlying plugin for serving, so a default empty plugin will work
-			"generate": &common.GeneratorPlugin{},
+			"generate": &GeneratorPlugin{},
 		},
 	}
 

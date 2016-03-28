@@ -34,8 +34,7 @@ type Config struct {
 
 func main() {
 	conf := &Config{}
-
-	g, err := Discover()
+	g, err := common.Discover("gene-*")
 	if err != nil {
 		log.Fatalf("err %# s", err)
 	}
