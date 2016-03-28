@@ -12,13 +12,16 @@ import (
 	"github.com/cihangir/schema"
 )
 
+type PostProcessor func([]byte) []byte
+
 type Op struct {
-	Name         string
-	Template     string
-	PathFunc     func(data *TemplateData) string
-	Clear        bool
-	DoNotFormat  bool
-	FormatSource bool
+	Name           string
+	Template       string
+	PathFunc       func(data *TemplateData) string
+	Clear          bool
+	DoNotFormat    bool
+	FormatSource   bool
+	PostProcessors []PostProcessor
 	// TemplateFuncs template.FuncMap
 }
 
@@ -60,7 +63,7 @@ func Proces(o *Op, req *Req, res *Res) error {
 	fullPathPrefix := req.Context.Config.Target + rootPathPrefix + "/"
 	settings.Set("fullPathPrefix", fullPathPrefix)
 
-	tmpl := template.New("dockerfile.tmpl").Funcs(TemplateFuncs)
+	tmpl := template.New("template").Funcs(TemplateFuncs)
 	if _, err := tmpl.Parse(o.Template); err != nil {
 		return err
 	}
@@ -108,4 +111,35 @@ func Proces(o *Op, req *Req, res *Res) error {
 	}
 	res.Output = outputs
 	return nil
+}
+
+func ProcessSingle(o *Op, def *schema.Schema, settings schema.Generator) ([]byte, error) {
+	temp := template.New("single").Funcs(TemplateFuncs)
+	if _, err := temp.Parse(o.Template); err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+
+	data := struct {
+		Schema     *schema.Schema
+		Settings   schema.Generator
+		Properties []*schema.Schema
+	}{
+		Schema:     def,
+		Settings:   settings,
+		Properties: schema.SortedSchema(def.Properties),
+	}
+
+	if err := temp.ExecuteTemplate(&buf, "single", data); err != nil {
+		return nil, err
+	}
+
+	b := buf.Bytes()
+
+	for _, processor := range o.PostProcessors {
+		b = processor(b)
+	}
+
+	return b, nil
 }
