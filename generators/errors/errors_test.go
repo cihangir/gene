@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"github.com/cihangir/gene/generators/common"
+	"github.com/cihangir/gene/testdata"
 )
 
 func TestErrors(t *testing.T) {
-	common.RunTest(t, &Generator{}, expecteds)
+	common.RunTest(t, &Generator{}, testdata.JSON1, expecteds)
 }
 
 var expecteds = []string{`package errs

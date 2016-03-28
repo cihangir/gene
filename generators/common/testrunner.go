@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/cihangir/gene/testdata"
 	"github.com/cihangir/schema"
 )
 
-func RunTest(t *testing.T, g Generator, expecteds []string) {
+func RunTest(t *testing.T, g Generator, testData string, expecteds []string) {
 	s := &schema.Schema{}
-	if err := json.Unmarshal([]byte(testdata.JSON1), s); err != nil {
+	if err := json.Unmarshal([]byte(testData), s); err != nil {
 		t.Fatal(err.Error())
 	}
 

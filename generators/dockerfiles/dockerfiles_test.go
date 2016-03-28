@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"github.com/cihangir/gene/generators/common"
+	"github.com/cihangir/gene/testdata"
 )
 
 func TestDockerfiles(t *testing.T) {
-	common.RunTest(t, &Generator{}, expecteds)
+	common.RunTest(t, &Generator{}, testdata.JSON1, expecteds)
 }
 
 var expecteds = []string{`# Start from a Debian image with the latest version of Go installed
