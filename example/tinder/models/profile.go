@@ -1,4 +1,4 @@
-// Generated struct for Profile.
+// Package models holds generated struct for Profile.
 package models
 
 import (
