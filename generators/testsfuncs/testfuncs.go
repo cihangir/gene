@@ -1,4 +1,4 @@
-// Package testfuncs generate basic test helper functions
+// Package testsfuncs generate basic test helper functions
 package testsfuncs
 
 import (
@@ -7,6 +7,7 @@ import (
 	"github.com/cihangir/gene/generators/common"
 )
 
+// Generator for tests
 type Generator struct{}
 
 func pathfunc(data *common.TemplateData) string {

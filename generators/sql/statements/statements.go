@@ -13,12 +13,13 @@ import (
 	"github.com/cihangir/stringext"
 )
 
+// Generator generates the basic CRUD statements.
 type Generator struct{}
 
 // Generate generates the basic CRUD statements for the models
 func (g *Generator) Generate(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	outputs := make([]common.Output, 0)
-
+	var outputs []common.Output
+	
 	moduleName := stringext.ToFieldName(s.Title)
 
 	settings := geneddl.GenerateSettings(geneddl.GeneratorName, moduleName, s)

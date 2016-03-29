@@ -21,6 +21,8 @@ func WriteFormattedFile(fileName string, model []byte) error {
 	return Write(fileName, dest)
 }
 
+// Write writes a given model data into given fileName, if folders in the
+// filename does not exist, creates the folders too.
 func Write(fileName string, models []byte) error {
 	if err := makeSureFolders(fileName); err != nil {
 		return err

@@ -8,8 +8,9 @@ import (
 	"github.com/cihangir/schema"
 )
 
+// GenerateKitWorker generates the worker system for base kit  
 func GenerateKitWorker(context *common.Context, s *schema.Schema) ([]common.Output, error) {
-	outputs := make([]common.Output, 0)
+	var outputs []common.Output
 
 	for name, template := range templates {
 		path := fmt.Sprintf(

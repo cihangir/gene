@@ -13,21 +13,14 @@ import (
 	"github.com/cihangir/schema"
 )
 
+// Generator for mainfile
 type Generator struct{}
 
-func New() *Generator {
-	return &Generator{}
-}
-
-func (g *Generator) Name() string {
-	return "statements"
-}
-
-// GenerateMainFile handles the main file generation for persistent
-// connection rpc server
+// Generate handles the main file generation for persistent connection rpc
+// server
 func (g *Generator) Generate(context *common.Context, schema *schema.Schema) ([]common.Output, error) {
 	moduleName := strings.ToLower(schema.Title)
-	outputs := make([]common.Output, 0)
+	var outputs []common.Output
 
 	for _, def := range schema.Definitions {
 		// create models only for objects

@@ -17,8 +17,10 @@ import (
 	"github.com/cihangir/schema"
 )
 
+// Generator for models
 type Generator struct{}
 
+// Generate generates models for schema
 func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	context := req.Context
 
@@ -56,8 +58,8 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	// TODO(cihangir) remove this statement when Process transition is complete
 	req.Context.Config.Target = fullPathPrefix
 
-	outputs := make([]common.Output, 0)
-
+	var outputs []common.Output
+	
 	for _, def := range common.SortedObjectSchemas(req.Schema.Definitions) {
 		f, err := GenerateModel(def)
 		if err != nil {

@@ -3,6 +3,7 @@ set -o errexit
 
 geneservices=(
   github.com/cihangir/gene/cmd/gene
+  github.com/cihangir/geneddl/cmd/gene-ddl
   github.com/cihangir/gene/plugins/gene-models
   github.com/cihangir/gene/plugins/gene-rows
   github.com/cihangir/gene/plugins/gene-errors
@@ -10,7 +11,6 @@ geneservices=(
   github.com/cihangir/gene/plugins/gene-dockerfiles
   github.com/cihangir/gene/plugins/gene-tests
   github.com/cihangir/gene/plugins/gene-tests-funcs
-  github.com/cihangir/geneddl/cmd/gene-ddl
 )
 
 `which go` install -v "${geneservices[@]}"

@@ -13,7 +13,8 @@ import (
 
 // Generate generates the validators for the the given schema
 func Generate(s *schema.Schema) ([]byte, error) {
-	validators := make([]string, 0)
+	var validators []string
+
 	// schemaName := p.Title
 	schemaFirstChar := stringext.Pointerize(s.Title)
 

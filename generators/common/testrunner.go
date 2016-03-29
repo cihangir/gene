@@ -7,6 +7,7 @@ import (
 	"github.com/cihangir/schema"
 )
 
+// RunTest provides a basic test runner for gene packages
 func RunTest(t *testing.T, g Generator, testData string, expecteds []string) {
 	s := &schema.Schema{}
 	if err := json.Unmarshal([]byte(testData), s); err != nil {

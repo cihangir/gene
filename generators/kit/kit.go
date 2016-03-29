@@ -14,13 +14,13 @@ import (
 	"github.com/cihangir/schema"
 )
 
-///
-/// metric - implement dogstatsd
-/// throttling - implement one with shared backend
-/// logging - leveled - filtered
-///
-///
-///
+//
+// metric - implement dogstatsd
+// throttling - implement one with shared backend
+// logging - leveled - filtered
+//
+
+// Generator generates kit workers
 type Generator struct{}
 
 // Generate generates and writes the errors of the schema
@@ -110,7 +110,7 @@ func generate(context *common.Context, s *schema.Schema, templ string, sectionNa
 
 	moduleName := strings.ToLower(s.Title)
 
-	outputs := make([]common.Output, 0)
+	var outputs []common.Output
 
 	for _, def := range common.SortedObjectSchemas(s.Definitions) {
 		if len(def.Functions) == 0 {

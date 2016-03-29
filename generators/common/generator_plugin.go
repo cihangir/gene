@@ -11,11 +11,14 @@ import (
 	"github.com/mitchellh/osext"
 )
 
+// PluginStore holds plugin names and their clients
 type PluginStore struct {
 	Plugins map[string]string
 	Clients map[string]*plugin.Client
 }
 
+// Discover searches for plugins located nearby with this binary and in PATH,
+// matching given prefix name 
 func Discover(prefix string) (*PluginStore, error) {
 	log.Printf("[DEBUG] discovering for : %s", prefix)
 

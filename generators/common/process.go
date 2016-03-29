@@ -12,8 +12,10 @@ import (
 	"github.com/cihangir/schema"
 )
 
+// PostProcessor holds to be applied operations after generation is done.
 type PostProcessor func([]byte) []byte
 
+// Op holds the operation information for processing.
 type Op struct {
 	Name           string
 	Template       string
@@ -25,12 +27,14 @@ type Op struct {
 	// TemplateFuncs template.FuncMap
 }
 
+// TemplateData holds template related data for processing
 type TemplateData struct {
 	ModuleName string
 	Schema     *schema.Schema
 	Settings   *schema.Generator
 }
 
+// Proces generates content for other plugins
 func Proces(o *Op, req *Req, res *Res) error {
 	if req == nil || req.Context == nil || req.Context.Config == nil {
 		return nil
@@ -70,7 +74,7 @@ func Proces(o *Op, req *Req, res *Res) error {
 
 	moduleName := strings.ToLower(req.Schema.Title)
 
-	outputs := make([]Output, 0)
+	var outputs []Output
 
 	for _, def := range SortedObjectSchemas(req.Schema.Definitions) {
 		data := &TemplateData{
@@ -113,6 +117,7 @@ func Proces(o *Op, req *Req, res *Res) error {
 	return nil
 }
 
+// ProcessSingle generates output for only one level of a schema
 func ProcessSingle(o *Op, def *schema.Schema, settings schema.Generator) ([]byte, error) {
 	temp := template.New("single").Funcs(TemplateFuncs)
 	if _, err := temp.Parse(o.Template); err != nil {

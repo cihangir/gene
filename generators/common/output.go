@@ -4,6 +4,7 @@ import (
 	"github.com/cihangir/gene/utils"
 )
 
+// Output holds response data for a plugin request.
 type Output struct {
 	Content       []byte
 	Path          string

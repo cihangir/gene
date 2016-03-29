@@ -16,6 +16,7 @@ import (
 	_ "golang.org/x/net/context"
 )
 
+// Config holds configuration data for gene
 type Config struct {
 	// Schema holds the given schema file
 	Schema string `required:"true"`
@@ -36,7 +37,7 @@ func main() {
 	conf := &Config{}
 	g, err := common.Discover("gene-*")
 	if err != nil {
-		log.Fatalf("err %# s", err)
+		log.Fatalf("err %s", err.Error())
 	}
 
 	loader := multiconfig.MultiLoader(
@@ -45,7 +46,7 @@ func main() {
 	)
 
 	if err := loader.Load(conf); err != nil {
-		log.Fatalf("config read err:", err.Error())
+		log.Fatalf("config read err: %s", err.Error())
 	}
 
 	if err := (&multiconfig.RequiredValidator{}).Validate(conf); err != nil {
@@ -66,13 +67,13 @@ func main() {
 
 		rpcClient, err := client.Client()
 		if err != nil {
-			log.Fatalf("couldnt start client", err)
+			log.Fatalf("couldnt start client: %s", err)
 		}
 		defer rpcClient.Close()
 
 		raw, err := rpcClient.Dispense("generate")
 		if err != nil {
-			log.Fatalf("couldnt get the client", err)
+			log.Fatalf("couldnt get the client: %s", err.Error())
 		}
 
 		gene := (raw).(common.Generator)
@@ -88,7 +89,7 @@ func main() {
 		}
 
 		if err := common.WriteOutput(res.Output); err != nil {
-			log.Fatal("output write err: %s", err.Error())
+			log.Fatalf("output write err: %s", err.Error())
 		}
 	}
 

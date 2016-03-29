@@ -8,6 +8,7 @@ import (
 	"github.com/cihangir/gene/generators/common"
 )
 
+// Generator for dockerfiles
 type Generator struct{}
 
 func pathfunc(data *common.TemplateData) string {

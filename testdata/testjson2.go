@@ -1,5 +1,6 @@
 package testdata
 
+// TestDataFull provides a fully fledged test data.
 var TestDataFull = `{
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
