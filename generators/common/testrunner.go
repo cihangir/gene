@@ -20,11 +20,14 @@ func RunTest(t *testing.T, g Generator, testData string, expecteds []string) {
 		Schema:  s,
 		Context: NewContext(),
 	}
-
 	res := &Res{}
 	err := g.Generate(req, res)
 	if err != nil {
 		t.Fatal(err.Error())
+	}
+
+	if res.Output == nil {
+		t.Fatal("output is nil")
 	}
 
 	for i, s := range res.Output {
