@@ -15,7 +15,8 @@ func NewContext() *Context {
 			Generators: []string{
 				"ddl", "rows", "kit", "errors",
 				"dockerfiles", "clients", "tests",
-				"functions", "models",
+				"functions", "models", "js",
+				// "tests-funcs", "tests",
 			},
 		},
 	}
