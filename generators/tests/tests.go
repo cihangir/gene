@@ -8,6 +8,7 @@ import (
 
 	"github.com/cihangir/gene/generators/common"
 )
+
 // Generator generates the tests
 type Generator struct{}
 
@@ -28,7 +29,7 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	}
 
 	o := &common.Op{
-		Name:         "tests-funcs",
+		Name:         "tests",
 		Template:     TestsTemplate,
 		PathFunc:     pathfunc,
 		FormatSource: true,
