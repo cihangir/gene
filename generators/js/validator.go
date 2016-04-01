@@ -97,27 +97,26 @@ iz.addValidator('regexValidator', regexValidator);
 		return "", nil
 	}
 
-	rules := strings.Join(validators, ",\n\t\t\t")
+	rules := strings.Join(validators, ",\n        ")
 
 	validatorStr := singleValidator
 	if isMultiple {
 		validatorStr = multiValidator
 	}
 
-	return fmt.Sprintf(`	rules = {
-			%s
-		};
-		areRules = are(rules);
-
-		%s`, rules, validatorStr), nil
+	return fmt.Sprintf(`rules = {
+        %s
+      };
+      areRules = are(rules);
+      %s`, rules, validatorStr), nil
 }
 
-const singleValidator = `if !(areRules.validFor(data)){
-			return callback(areRules.getInvalidFields());
-		}`
+const singleValidator = `if (!areRules.validFor(data)){
+        return callback(areRules.getInvalidFields());
+      }`
 
 const multiValidator = `for (var i = 0; i < data.length; i++){
-      if !(areRules.validFor(data[i])){
-        return callback areRules.getInvalidFields();
-      }
-    }`
+        if (!areRules.validFor(data[i])){
+          return callback(areRules.getInvalidFields());
+        }
+      }`
