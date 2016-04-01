@@ -23,10 +23,11 @@ func pathfunc(data *common.TemplateData) string {
 
 // Generate generates the tests for the schema
 func (g *Generator) Generate(req *common.Req, res *common.Res) error {
-	_, err := common.Discover("gene-tests-*")
+	p, err := common.Discover("gene-tests-*")
 	if err != nil {
 		log.Fatalf("err %s", err.Error())
 	}
+	defer p.Shutdown()
 
 	o := &common.Op{
 		Name:         "tests",

@@ -18,7 +18,7 @@ type PluginStore struct {
 }
 
 // Discover searches for plugins located nearby with this binary and in PATH,
-// matching given prefix name 
+// matching given prefix name
 func Discover(prefix string) (*PluginStore, error) {
 	log.Printf("[DEBUG] discovering for : %s", prefix)
 
@@ -45,6 +45,14 @@ func Discover(prefix string) (*PluginStore, error) {
 	}
 
 	return g, nil
+}
+
+func (g *PluginStore) Shutdown() error {
+	for _, pluginClient := range g.Clients {
+		pluginClient.Kill()
+	}
+
+	return nil
 }
 
 func (g *PluginStore) discover(path, prefix string) error {

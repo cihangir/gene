@@ -39,6 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("err %s", err.Error())
 	}
+	defer g.Shutdown()
 
 	loader := multiconfig.MultiLoader(
 		&multiconfig.TagLoader{},  // assign default values
