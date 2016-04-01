@@ -25,7 +25,7 @@ type Config struct {
 	Target string `required:"true" default:"./"`
 
 	// Generators holds the generator names for processing
-	Generators []string `default:"ddl,rows,kit,errors,dockerfiles,clients,tests,functions,models"`
+	Generators []string `default:"ddl,rows,kit,errors,dockerfiles,clients,tests,functions,models,js"`
 
 	Statements statements.Generator
 	Mainfile   mainfile.Generator
