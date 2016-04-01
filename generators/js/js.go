@@ -22,6 +22,8 @@ func pathfunc(data *common.TemplateData) string {
 
 // Generate generates JS client for given schema
 func (g *Generator) Generate(req *common.Req, res *common.Res) error {
+	common.TemplateFuncs["GenerateJSValidator"] = GenerateJSValidator
+
 	o := &common.Op{
 		Name:        "js",
 		Template:    FunctionsTemplate,
