@@ -1,8 +1,7 @@
 package jsbase
 
 // IndexTemplate provides the template for index file of js client
-var IndexTemplate = `
-module.exports = (function(o) {
+var IndexTemplate = `module.exports = (function(o) {
   o.baseUrl || (o.baseUrl = '');
   return {
     {{range $defValue := .Definitions}}
