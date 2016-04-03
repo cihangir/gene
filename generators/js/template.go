@@ -5,14 +5,14 @@ var FunctionsTemplate = `{{$schema := .Schema}}{{$title := $schema.Title}}{{$mod
 iz = require('iz');
 processRequest = require('./_request.js');
 
-module.exports.{{$moduleName}} = {
-  {{ToUpperFirst $title}} : {
-  {{range $funcKey, $funcValue := $schema.Functions}}
+module.exports = (function(o) {
+  return {
+    {{range $funcKey, $funcValue := $schema.Functions}}
     {{$funcKey}}: function(data, callback) {
       {{GenerateJSValidator $funcValue.Properties.incoming}}
-      return processRequest('/{{ToLower $title}}/{{ToLower $funcKey}}', data, callback)
+      return processRequest(o.baseUrl + '/{{ToLower $title}}/{{ToLower $funcKey}}', data, callback)
     },
-  {{end}}
+    {{end}}
   }
-}
+})(o);
 `
