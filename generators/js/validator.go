@@ -23,7 +23,12 @@ func GenerateJSValidator(si *schema.Schema) (string, error) {
 	var validators []string
 	schemaFirstChar := stringext.Pointerize(s.Title)
 
-	for k, property := range s.Properties {
+	for _, property := range schema.SortedSchema(s.Properties) {
+		k := property.Title
+		if k == "" {
+			k = "v"
+		}
+
 		key := stringext.ToLowerFirst(k)
 
 		switch property.Type {

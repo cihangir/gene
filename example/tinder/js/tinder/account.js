@@ -29,16 +29,16 @@ module.exports = (function(o) {
     },
     Create: function(data, callback) {
       rules = {
-        facebookSecretToken: iz(a.facebookSecretToken).required().minLength(1),
         id: iz(null).required().minLength(1),
         profileID: iz(null).required().minLength(1),
-        statusConstant: iz(a.statusConstant).required().inArray(["registered","disabled","spam",]),
-        updatedAt: iz(a.updatedAt).required().date(),
-        createdAt: iz(a.createdAt).required().date(),
-        deletedAt: iz(a.deletedAt).required().date(),
-        emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
+        facebookID: iz(a.facebookID).required().minLength(1),
         facebookAccessToken: iz(a.facebookAccessToken).required().minLength(1),
-        facebookID: iz(a.facebookID).required().minLength(1)
+        facebookSecretToken: iz(a.facebookSecretToken).required().minLength(1),
+        emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
+        statusConstant: iz(a.statusConstant).required().inArray(["registered","disabled","spam",]),
+        createdAt: iz(a.createdAt).required().date(),
+        updatedAt: iz(a.updatedAt).required().date(),
+        deletedAt: iz(a.deletedAt).required().date()
       };
       areRules = are(rules);
       if (!areRules.validFor(data)){
@@ -54,16 +54,16 @@ module.exports = (function(o) {
     },
     Update: function(data, callback) {
       rules = {
-        facebookAccessToken: iz(a.facebookAccessToken).required().minLength(1),
-        facebookID: iz(a.facebookID).required().minLength(1),
-        emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
-        deletedAt: iz(a.deletedAt).required().date(),
-        facebookSecretToken: iz(a.facebookSecretToken).required().minLength(1),
         id: iz(null).required().minLength(1),
         profileID: iz(null).required().minLength(1),
+        facebookID: iz(a.facebookID).required().minLength(1),
+        facebookAccessToken: iz(a.facebookAccessToken).required().minLength(1),
+        facebookSecretToken: iz(a.facebookSecretToken).required().minLength(1),
+        emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
         statusConstant: iz(a.statusConstant).required().inArray(["registered","disabled","spam",]),
+        createdAt: iz(a.createdAt).required().date(),
         updatedAt: iz(a.updatedAt).required().date(),
-        createdAt: iz(a.createdAt).required().date()
+        deletedAt: iz(a.deletedAt).required().date()
       };
       areRules = are(rules);
       if (!areRules.validFor(data)){
