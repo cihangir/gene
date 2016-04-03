@@ -45,10 +45,15 @@ func Write(fileName string, models []byte) error {
 // NewLinesRegex holds the regex to remove newlines from given bytes.Buffer
 var NewLinesRegex = regexp.MustCompile(`(?m:\s*$)`)
 
+// RemoveNewLines removes extranneous new lines from given byte slice
+func RemoveNewLines(b []byte) []byte {
+	return NewLinesRegex.ReplaceAll(b, []byte(""))
+}
+
 // Clear formats the given source with predefined operations, it removes the
 // new lines too
 func Clear(buf bytes.Buffer) ([]byte, error) {
-	bytes := NewLinesRegex.ReplaceAll(buf.Bytes(), []byte(""))
+	bytes := RemoveNewLines(buf.Bytes())
 
 	// Format sources
 	clean, err := format.Source(bytes)
