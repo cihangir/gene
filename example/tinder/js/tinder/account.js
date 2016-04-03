@@ -29,16 +29,16 @@ module.exports = (function(o) {
     },
     Create: function(data, callback) {
       rules = {
-        deletedAt: iz(a.deletedAt).required().date(),
         facebookSecretToken: iz(a.facebookSecretToken).required().minLength(1),
         id: iz(null).required().minLength(1),
+        profileID: iz(null).required().minLength(1),
         statusConstant: iz(a.statusConstant).required().inArray(["registered","disabled","spam",]),
+        updatedAt: iz(a.updatedAt).required().date(),
         createdAt: iz(a.createdAt).required().date(),
+        deletedAt: iz(a.deletedAt).required().date(),
         emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
         facebookAccessToken: iz(a.facebookAccessToken).required().minLength(1),
-        facebookID: iz(a.facebookID).required().minLength(1),
-        profileID: iz(null).required().minLength(1),
-        updatedAt: iz(a.updatedAt).required().date()
+        facebookID: iz(a.facebookID).required().minLength(1)
       };
       areRules = are(rules);
       if (!areRules.validFor(data)){
@@ -54,16 +54,16 @@ module.exports = (function(o) {
     },
     Update: function(data, callback) {
       rules = {
-        emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
         facebookAccessToken: iz(a.facebookAccessToken).required().minLength(1),
         facebookID: iz(a.facebookID).required().minLength(1),
-        profileID: iz(null).required().minLength(1),
-        updatedAt: iz(a.updatedAt).required().date(),
-        createdAt: iz(a.createdAt).required().date(),
+        emailStatusConstant: iz(a.emailStatusConstant).required().inArray(["verified","notVerified",]),
+        deletedAt: iz(a.deletedAt).required().date(),
         facebookSecretToken: iz(a.facebookSecretToken).required().minLength(1),
         id: iz(null).required().minLength(1),
+        profileID: iz(null).required().minLength(1),
         statusConstant: iz(a.statusConstant).required().inArray(["registered","disabled","spam",]),
-        deletedAt: iz(a.deletedAt).required().date()
+        updatedAt: iz(a.updatedAt).required().date(),
+        createdAt: iz(a.createdAt).required().date()
       };
       areRules = are(rules);
       if (!areRules.validFor(data)){

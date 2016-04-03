@@ -34,9 +34,10 @@ type Op struct {
 
 // TemplateData holds template related data for processing
 type TemplateData struct {
-	ModuleName string
-	Schema     *schema.Schema
-	Settings   *schema.Generator
+	ModuleName  string
+	Schema      *schema.Schema
+	Definitions []*schema.Schema
+	Settings    *schema.Generator
 }
 
 var errSkip = errors.New("skip")
@@ -118,9 +119,10 @@ func ProcesRoot(o *Op, req *Req, res *Res) error {
 
 func execute(o *Op, req *Req, res *Res, def *schema.Schema) error {
 	data := &TemplateData{
-		ModuleName: o.moduleName,
-		Schema:     def,
-		Settings:   o.settings,
+		ModuleName:  o.moduleName,
+		Schema:      def,
+		Settings:    o.settings,
+		Definitions: SortedObjectSchemas(def.Definitions),
 	}
 
 	var buf bytes.Buffer

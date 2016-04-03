@@ -1,12 +1,12 @@
 package jsbase
 
 // IndexTemplate provides the template for index file of js client
-var IndexTemplate = `{{$schema := .Schema}}{{$title := $schema.Title}}
+var IndexTemplate = `
 module.exports = (function(o) {
   o.baseUrl || (o.baseUrl = '');
   return {
-    {{range $defKey, $defValue := $schema.Definitions}}
-    {{$defKey}}: require('./{{ToLower $defKey}}')(o),
+    {{range $defValue := .Definitions}}
+    {{$defValue.Title}}: require('./{{ToLower $defValue.Title}}')(o),
     {{end}}
   };
 })(o);
