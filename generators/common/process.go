@@ -23,8 +23,13 @@ type Op struct {
 	Clear          bool
 	DoNotFormat    bool
 	FormatSource   bool
+	RemoveNewLines bool
 	PostProcessors []PostProcessor
 	// TemplateFuncs template.FuncMap
+	//
+	tmpl       *template.Template
+	moduleName string
+	settings   *schema.Generator
 }
 
 // TemplateData holds template related data for processing
@@ -34,14 +39,15 @@ type TemplateData struct {
 	Settings   *schema.Generator
 }
 
-// Proces generates content for other plugins
-func Proces(o *Op, req *Req, res *Res) error {
+var errSkip = errors.New("skip")
+
+func configure(o *Op, req *Req, res *Res) error {
 	if req == nil || req.Context == nil || req.Context.Config == nil {
-		return nil
+		return errSkip
 	}
 
 	if !IsIn(o.Name, req.Context.Config.Generators...) {
-		return nil
+		return errSkip
 	}
 
 	if req.Schema == nil {
@@ -67,53 +73,90 @@ func Proces(o *Op, req *Req, res *Res) error {
 	fullPathPrefix := req.Context.Config.Target + rootPathPrefix + "/"
 	settings.Set("fullPathPrefix", fullPathPrefix)
 
+	o.settings = &settings
+
 	tmpl := template.New("template").Funcs(TemplateFuncs)
 	if _, err := tmpl.Parse(o.Template); err != nil {
 		return err
 	}
 
-	moduleName := strings.ToLower(req.Schema.Title)
+	o.tmpl = tmpl
+	o.moduleName = strings.ToLower(req.Schema.Title)
+	return nil
+}
 
-	var outputs []Output
+// Proces generates content for other plugins
+func Proces(o *Op, req *Req, res *Res) error {
+	if err := configure(o, req, res); err != nil {
+		if err == errSkip {
+			return nil
+		}
+
+		return err
+	}
 
 	for _, def := range SortedObjectSchemas(req.Schema.Definitions) {
-		data := &TemplateData{
-			ModuleName: moduleName,
-			Schema:     def,
-			Settings:   &settings,
-		}
-
-		var buf bytes.Buffer
-
-		if err := tmpl.Execute(&buf, data); err != nil {
+		if err := execute(o, req, res, def); err != nil {
 			return err
 		}
-
-		var content []byte
-		var err error
-		if o.Clear {
-			content, err = utils.Clear(buf)
-			if err != nil {
-				return err
-			}
-		} else {
-			content = buf.Bytes()
-		}
-
-		if o.FormatSource {
-			content, err = format.Source(content)
-			if err != nil {
-				return err
-			}
-		}
-
-		outputs = append(outputs, Output{
-			Content:     content,
-			Path:        o.PathFunc(data),
-			DoNotFormat: o.DoNotFormat,
-		})
 	}
-	res.Output = outputs
+
+	return nil
+}
+
+func ProcesRoot(o *Op, req *Req, res *Res) error {
+	if err := configure(o, req, res); err != nil {
+		if err == errSkip {
+			return nil
+		}
+
+		return err
+	}
+
+	return execute(o, req, res, req.Schema)
+}
+
+func execute(o *Op, req *Req, res *Res, def *schema.Schema) error {
+	data := &TemplateData{
+		ModuleName: o.moduleName,
+		Schema:     def,
+		Settings:   o.settings,
+	}
+
+	var buf bytes.Buffer
+
+	if err := o.tmpl.Execute(&buf, data); err != nil {
+		return err
+	}
+
+	var content []byte
+	var err error
+	if o.Clear {
+		content, err = utils.Clear(buf)
+		if err != nil {
+			return err
+		}
+	} else {
+		content = buf.Bytes()
+	}
+
+	if o.RemoveNewLines {
+		content = utils.RemoveNewLines(content)
+	}
+
+	if o.FormatSource {
+		content, err = format.Source(content)
+		if err != nil {
+			return err
+		}
+	}
+
+	res.Output = append(res.Output, Output{
+		Content:     content,
+		Path:        o.PathFunc(data),
+		DoNotFormat: o.DoNotFormat,
+	})
+
 	return nil
 }
 
