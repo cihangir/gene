@@ -25,10 +25,11 @@ func (g *Generator) Generate(req *common.Req, res *common.Res) error {
 	common.TemplateFuncs["GenerateJSValidator"] = GenerateJSValidator
 
 	o := &common.Op{
-		Name:        "js",
-		Template:    FunctionsTemplate,
-		PathFunc:    pathfunc,
-		DoNotFormat: true,
+		Name:           "js",
+		Template:       FunctionsTemplate,
+		PathFunc:       pathfunc,
+		DoNotFormat:    true,
+		RemoveNewLines: true,
 	}
 
 	return common.Proces(o, req, res)
