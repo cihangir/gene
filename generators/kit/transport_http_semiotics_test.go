@@ -189,7 +189,7 @@ func decodeOneResponse(r *http.Response) (interface{}, error) {
 }
 
 func decodeSomeResponse(r *http.Response) (interface{}, error) {
-	var res models.Account
+	var res []*models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
