@@ -254,7 +254,7 @@ func decode{{$funcKey}}Request(r *http.Request) (interface{}, error) {
 
 {{range $funcKey, $funcValue := $schema.Functions}}
 func decode{{$funcKey}}Response(r *http.Response) (interface{}, error) {
-	var res {{Argumentize $funcValue.Properties.incoming}}
+	var res {{Argumentize $funcValue.Properties.outgoing}}
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
