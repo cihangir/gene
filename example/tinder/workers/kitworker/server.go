@@ -4,8 +4,9 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
-	"github.com/go-kit/kit/tracing/zipkin"
+	"github.com/go-kit/kit/tracing/opentracing"
 	httptransport "github.com/go-kit/kit/transport/http"
+	stdopentracing "github.com/opentracing/opentracing-go"
 )
 
 // ServerOption holds the required parameters for configuring a server
@@ -13,8 +14,8 @@ type ServerOption struct {
 	// Host holds the host's name
 	Host string
 
-	// ZipkinCollector holds the collector for zipkin tracing
-	ZipkinCollector zipkin.Collector
+	// Tracer holds the collector for zipkin tracing
+	Tracer stdopentracing.Tracer
 
 	// LogErrors configures whether server should log error responses or not
 	LogErrors bool
@@ -65,15 +66,8 @@ func (s ServerOption) Configure(moduleName, funcName string, logger log.Logger) 
 	}
 
 	// enable tracing if required
-	if s.Host != "" && s.ZipkinCollector != nil {
-		tracingLogger := log.NewContext(logger).With("component", "tracing")
-
-		endpointSpan := zipkin.MakeNewSpanFunc(s.Host, moduleName, funcName)
-		endpointTrace := zipkin.ToContext(endpointSpan, tracingLogger)
-		// add tracing
-		serverOpts = append(serverOpts, httptransport.ServerBefore(endpointTrace))
-		// add annotation as middleware to server
-		middlewares = append(middlewares, zipkin.AnnotateServer(endpointSpan, s.ZipkinCollector))
+	if s.Tracer != nil {
+		middlewares = append(middlewares, opentracing.TraceServer(s.Tracer, funcName))
 	}
 
 	// log server errors

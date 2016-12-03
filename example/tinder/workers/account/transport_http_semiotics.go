@@ -103,7 +103,7 @@ var semiotics = map[string]semiotic{
 
 // Decode Request functions
 
-func decodeByFacebookIDsRequest(r *http.Request) (interface{}, error) {
+func decodeByFacebookIDsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req []string
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func decodeByFacebookIDsRequest(r *http.Request) (interface{}, error) {
 	return &req, nil
 }
 
-func decodeByIDsRequest(r *http.Request) (interface{}, error) {
+func decodeByIDsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req []int64
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func decodeByIDsRequest(r *http.Request) (interface{}, error) {
 	return &req, nil
 }
 
-func decodeCreateRequest(r *http.Request) (interface{}, error) {
+func decodeCreateRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req models.Account
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func decodeCreateRequest(r *http.Request) (interface{}, error) {
 	return &req, nil
 }
 
-func decodeDeleteRequest(r *http.Request) (interface{}, error) {
+func decodeDeleteRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req int64
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -135,7 +135,7 @@ func decodeDeleteRequest(r *http.Request) (interface{}, error) {
 	return &req, nil
 }
 
-func decodeOneRequest(r *http.Request) (interface{}, error) {
+func decodeOneRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req int64
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func decodeOneRequest(r *http.Request) (interface{}, error) {
 	return &req, nil
 }
 
-func decodeUpdateRequest(r *http.Request) (interface{}, error) {
+func decodeUpdateRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req models.Account
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -153,23 +153,23 @@ func decodeUpdateRequest(r *http.Request) (interface{}, error) {
 
 // Decode Response functions
 
-func decodeByFacebookIDsResponse(r *http.Response) (interface{}, error) {
-	var res []string
+func decodeByFacebookIDsResponse(ctx context.Context, r *http.Response) (interface{}, error) {
+	var res []*models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func decodeByIDsResponse(r *http.Response) (interface{}, error) {
-	var res []int64
+func decodeByIDsResponse(ctx context.Context, r *http.Response) (interface{}, error) {
+	var res []*models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func decodeCreateResponse(r *http.Response) (interface{}, error) {
+func decodeCreateResponse(ctx context.Context, r *http.Response) (interface{}, error) {
 	var res models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
@@ -177,23 +177,23 @@ func decodeCreateResponse(r *http.Response) (interface{}, error) {
 	return &res, nil
 }
 
-func decodeDeleteResponse(r *http.Response) (interface{}, error) {
-	var res int64
+func decodeDeleteResponse(ctx context.Context, r *http.Response) (interface{}, error) {
+	var res models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func decodeOneResponse(r *http.Response) (interface{}, error) {
-	var res int64
+func decodeOneResponse(ctx context.Context, r *http.Response) (interface{}, error) {
+	var res models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func decodeUpdateResponse(r *http.Response) (interface{}, error) {
+func decodeUpdateResponse(ctx context.Context, r *http.Response) (interface{}, error) {
 	var res models.Account
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
@@ -203,7 +203,7 @@ func decodeUpdateResponse(r *http.Response) (interface{}, error) {
 
 // Encode request function
 
-func encodeRequest(r *http.Request, request interface{}) error {
+func encodeRequest(ctx context.Context, r *http.Request, request interface{}) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(request); err != nil {
 		return err
@@ -214,7 +214,7 @@ func encodeRequest(r *http.Request, request interface{}) error {
 
 // Encode response function
 
-func encodeResponse(rw http.ResponseWriter, response interface{}) error {
+func encodeResponse(ctx context.Context, rw http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(rw).Encode(response)
 }
 

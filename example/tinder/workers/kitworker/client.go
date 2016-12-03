@@ -6,16 +6,18 @@ import (
 
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/loadbalancer"
 	kitratelimit "github.com/go-kit/kit/ratelimit"
-	"github.com/go-kit/kit/tracing/zipkin"
+	"github.com/go-kit/kit/sd"
+	"github.com/go-kit/kit/sd/lb"
+	"github.com/go-kit/kit/tracing/opentracing"
 	httptransport "github.com/go-kit/kit/transport/http"
 	jujuratelimit "github.com/juju/ratelimit"
+	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/sony/gobreaker"
 )
 
 // LoadBalancerF
-type LoadBalancerF func(factory loadbalancer.Factory) loadbalancer.LoadBalancer
+type LoadBalancerF func(factory sd.Factory) lb.Balancer
 
 // ClientOption holds the required parameters for configuring a client
 type ClientOption struct {
@@ -23,7 +25,7 @@ type ClientOption struct {
 	Host string
 
 	// ZipkinCollector holds the collector for zipkin tracing
-	ZipkinCollector zipkin.Collector
+	Tracer stdopentracing.Tracer
 
 	// DisableCircuitBreaker disables circuit breaking functionality
 	DisableCircuitBreaker bool
@@ -90,15 +92,8 @@ func (c ClientOption) Configure(moduleName, funcName string) ([]endpoint.Middlew
 	}
 
 	// enable tracing if required
-	if c.Host != "" && c.ZipkinCollector != nil {
-		endpointSpan := zipkin.MakeNewSpanFunc(c.Host, moduleName, funcName)
-		// set tracing parameters to outgoing requests
-		endpointTrace := zipkin.ToRequest(endpointSpan)
-		// add tracing
-		transportOpts = append(transportOpts, httptransport.SetClientBefore(endpointTrace))
-
-		// add annotation as middleware to server
-		middlewares = append(middlewares, zipkin.AnnotateClient(endpointSpan, c.ZipkinCollector))
+	if c.Tracer != nil {
+		middlewares = append(middlewares, opentracing.TraceServer(c.Tracer, funcName))
 	}
 
 	// If any custom middlewares are passed include them

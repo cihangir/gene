@@ -6,8 +6,8 @@ import (
 	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/loadbalancer"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/sd/lb"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"golang.org/x/net/context"
 )
@@ -16,22 +16,22 @@ import (
 // Satisfies AccountService interface
 type AccountClient struct {
 	// ByFacebookIDsLoadBalancer provides remote call to byfacebookids endpoints
-	ByFacebookIDsLoadBalancer loadbalancer.LoadBalancer
+	ByFacebookIDsLoadBalancer lb.Balancer
 
 	// ByIDsLoadBalancer provides remote call to byids endpoints
-	ByIDsLoadBalancer loadbalancer.LoadBalancer
+	ByIDsLoadBalancer lb.Balancer
 
 	// CreateLoadBalancer provides remote call to create endpoints
-	CreateLoadBalancer loadbalancer.LoadBalancer
+	CreateLoadBalancer lb.Balancer
 
 	// DeleteLoadBalancer provides remote call to delete endpoints
-	DeleteLoadBalancer loadbalancer.LoadBalancer
+	DeleteLoadBalancer lb.Balancer
 
 	// OneLoadBalancer provides remote call to one endpoints
-	OneLoadBalancer loadbalancer.LoadBalancer
+	OneLoadBalancer lb.Balancer
 
 	// UpdateLoadBalancer provides remote call to update endpoints
-	UpdateLoadBalancer loadbalancer.LoadBalancer
+	UpdateLoadBalancer lb.Balancer
 }
 
 // NewAccountClient creates a new client for AccountService
@@ -145,7 +145,7 @@ func createClientLoadBalancer(
 	s semiotic,
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
-) loadbalancer.LoadBalancer {
+) lb.Balancer {
 	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {

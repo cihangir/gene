@@ -6,8 +6,8 @@ import (
 	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/loadbalancer"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/sd/lb"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"golang.org/x/net/context"
 )
@@ -16,19 +16,19 @@ import (
 // Satisfies ProfileService interface
 type ProfileClient struct {
 	// CreateLoadBalancer provides remote call to create endpoints
-	CreateLoadBalancer loadbalancer.LoadBalancer
+	CreateLoadBalancer lb.Balancer
 
 	// DeleteLoadBalancer provides remote call to delete endpoints
-	DeleteLoadBalancer loadbalancer.LoadBalancer
+	DeleteLoadBalancer lb.Balancer
 
 	// MarkAsLoadBalancer provides remote call to markas endpoints
-	MarkAsLoadBalancer loadbalancer.LoadBalancer
+	MarkAsLoadBalancer lb.Balancer
 
 	// OneLoadBalancer provides remote call to one endpoints
-	OneLoadBalancer loadbalancer.LoadBalancer
+	OneLoadBalancer lb.Balancer
 
 	// UpdateLoadBalancer provides remote call to update endpoints
-	UpdateLoadBalancer loadbalancer.LoadBalancer
+	UpdateLoadBalancer lb.Balancer
 }
 
 // NewProfileClient creates a new client for ProfileService
@@ -127,7 +127,7 @@ func createClientLoadBalancer(
 	s semiotic,
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
-) loadbalancer.LoadBalancer {
+) lb.Balancer {
 	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {

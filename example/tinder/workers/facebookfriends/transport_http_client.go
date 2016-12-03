@@ -6,8 +6,8 @@ import (
 	"github.com/cihangir/gene/example/tinder/models"
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/loadbalancer"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/sd/lb"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"golang.org/x/net/context"
 )
@@ -16,16 +16,16 @@ import (
 // Satisfies FacebookFriendsService interface
 type FacebookFriendsClient struct {
 	// CreateLoadBalancer provides remote call to create endpoints
-	CreateLoadBalancer loadbalancer.LoadBalancer
+	CreateLoadBalancer lb.Balancer
 
 	// DeleteLoadBalancer provides remote call to delete endpoints
-	DeleteLoadBalancer loadbalancer.LoadBalancer
+	DeleteLoadBalancer lb.Balancer
 
 	// MutualsLoadBalancer provides remote call to mutuals endpoints
-	MutualsLoadBalancer loadbalancer.LoadBalancer
+	MutualsLoadBalancer lb.Balancer
 
 	// OneLoadBalancer provides remote call to one endpoints
-	OneLoadBalancer loadbalancer.LoadBalancer
+	OneLoadBalancer lb.Balancer
 }
 
 // NewFacebookFriendsClient creates a new client for FacebookFriendsService
@@ -109,7 +109,7 @@ func createClientLoadBalancer(
 	s semiotic,
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
-) loadbalancer.LoadBalancer {
+) lb.Balancer {
 	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {

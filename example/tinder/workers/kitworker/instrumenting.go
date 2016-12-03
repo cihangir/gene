@@ -27,9 +27,7 @@ func RequestCountMiddleware(method string, requestCount metrics.Counter) endpoin
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 			defer func() {
-				methodField := metrics.Field{Key: "method", Value: method}
-				errorField := metrics.Field{Key: "error", Value: fmt.Sprintf("%v", err)}
-				requestCount.With(methodField).With(errorField).Add(1)
+				requestCount.With("method", method).With("error", fmt.Sprintf("%v", err)).Add(1)
 			}()
 
 			response, err = next(ctx, request)
@@ -44,11 +42,8 @@ func RequestLatencyMiddleware(method string, requestLatency metrics.Histogram) e
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 			defer func(begin time.Time) {
-				methodField := metrics.Field{Key: "method", Value: method}
-				errorField := metrics.Field{Key: "error", Value: fmt.Sprintf("%v", err)}
-				requestLatency.With(methodField).With(errorField).Observe(int64(time.Since(begin)))
+				requestLatency.With("method", method).With("error", fmt.Sprintf("%v", err)).Observe(float64(time.Since(begin)))
 			}(time.Now())
-
 			response, err = next(ctx, request)
 			return
 		}

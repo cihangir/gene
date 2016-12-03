@@ -4,16 +4,15 @@ import (
 	"flag"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/cihangir/gene/example/tinder/workers/account"
 	"github.com/cihangir/gene/example/tinder/workers/kitworker"
 	"golang.org/x/net/context"
 
-	"github.com/go-kit/kit/loadbalancer"
-	"github.com/go-kit/kit/loadbalancer/static"
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/metrics"
+	"github.com/go-kit/kit/metrics/dogstatsd"
+	"github.com/go-kit/kit/sd"
+	"github.com/go-kit/kit/sd/lb"
 )
 
 func main() {
@@ -25,38 +24,24 @@ func main() {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	logger = log.NewContext(logger).With("listen", *listen).With("caller", log.DefaultCaller)
 
-	transportLogger := log.NewContext(logger).With("transport", "HTTP/JSON")
-	tracingLogger := log.NewContext(transportLogger).With("component", "tracing")
-	zipkinLogger := log.NewContext(tracingLogger).With("component", "zipkin")
+	var name = "name"
+	m := dogstatsd.New(name, logger)
 
 	ctx := context.Background()
 
-	c := &kitworker.ZipkinConf{
-		Address:       ":5000",
-		Timeout:       time.Second,
-		BatchSize:     10,
-		BatchInterval: time.Second,
-	}
-
-	collector, err := kitworker.NewZipkinCollector(c, logger)
-	if err != nil {
-		_ = zipkinLogger.Log("err", err)
-	}
-
-	m, err := kitworker.NewMetric("127.0.0.1:8125", metrics.Field{Key: "key", Value: "value"})
-	if err != nil {
-		panic(err)
-	}
+	// m, err := kitworker.NewMetric("127.0.0.1:8125", metrics.Field{Key: "key", Value: "value"})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	serverOpts := &kitworker.ServerOption{
-		Host:            "localhost:3000",
-		ZipkinCollector: collector,
+		Host: "localhost:3000",
 
 		LogErrors:   true,
 		LogRequests: true,
 
-		Latency: m.Histogram("tinder_api_account_service_request_histogram"),
-		Counter: m.Counter("tinder_api_account_service_request_count"),
+		Latency: m.NewHistogram("tinder_api_account_service_request_histogram", 1.0),
+		Counter: m.NewCounter("tinder_api_account_service_request_count", 1.0),
 	}
 
 	profileApiEndpoints := []string{
@@ -64,14 +49,17 @@ func main() {
 		"profile2.tinder_api.tinder.com",
 	}
 
-	lbCreator := func(factory loadbalancer.Factory) loadbalancer.LoadBalancer {
-		publisher := static.NewPublisher(
-			profileApiEndpoints,
-			factory,
-			logger,
-		)
-
-		return loadbalancer.NewRoundRobin(publisher)
+	lbCreator := func(factory sd.Factory) lb.Balancer {
+		subscriber := sd.FixedSubscriber{}
+		for _, instance := range profileApiEndpoints {
+			e, _, err := factory(instance) // never close
+			if err != nil {
+				logger.Log("instance", instance, "err", err)
+				continue
+			}
+			subscriber = append(subscriber, e)
+		}
+		return lb.NewRoundRobin(subscriber)
 	}
 
 	hostName, err := os.Hostname()
@@ -81,7 +69,6 @@ func main() {
 
 	clientOpts := &kitworker.ClientOption{
 		Host:                hostName + ":" + *listen,
-		ZipkinCollector:     collector,
 		QPS:                 100,
 		LoadBalancerCreator: lbCreator,
 	}
