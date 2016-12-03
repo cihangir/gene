@@ -7,6 +7,10 @@ var InterfaceTemplate = `
 
 package {{ToLower $title}}
 
+import (
+	"golang.org/x/net/context"
+)
+
 const ServiceName = "{{ToLower $title}}"
 
 {{AsComment $schema.Description}} type {{$title}}Service interface { {{range $funcKey, $funcValue := $schema.Functions}}
@@ -99,17 +103,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/loadbalancer"
-	"github.com/go-kit/kit/loadbalancer/static"
 	"github.com/go-kit/kit/log"
-	kitratelimit "github.com/go-kit/kit/ratelimit"
-	"github.com/go-kit/kit/tracing/zipkin"
+	"github.com/go-kit/kit/sd/lb"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/juju/ratelimit"
-	jujuratelimit "github.com/juju/ratelimit"
-	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
 )
 
@@ -117,7 +114,7 @@ import (
 // Satisfies {{$title}}Service interface
 type {{$title}}Client struct {
 	{{range $funcKey, $funcValue := $schema.Functions}}// {{$funcKey}}LoadBalancer provides remote call to {{ToLower $funcKey}} endpoints
-		{{$funcKey}}LoadBalancer loadbalancer.LoadBalancer
+		{{$funcKey}}LoadBalancer lb.Balancer
 
 	{{end}}
 }
@@ -154,7 +151,7 @@ func createClientLoadBalancer(
 	s semiotic,
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
-) loadbalancer.LoadBalancer {
+) lb.Balancer {
 	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {
@@ -191,19 +188,9 @@ import (
     "net/url"
     "strings"
 
-    "github.com/cihangir/gene/example/tinder/models"
-    "github.com/go-kit/kit/circuitbreaker"
-    "github.com/go-kit/kit/endpoint"
-    "github.com/go-kit/kit/loadbalancer"
-    "github.com/go-kit/kit/loadbalancer/static"
-    "github.com/go-kit/kit/log"
-    kitratelimit "github.com/go-kit/kit/ratelimit"
-    "github.com/go-kit/kit/tracing/zipkin"
-    httptransport "github.com/go-kit/kit/transport/http"
-    "github.com/juju/ratelimit"
-    jujuratelimit "github.com/juju/ratelimit"
-    "github.com/sony/gobreaker"
-    "golang.org/x/net/context"
+	"github.com/go-kit/kit/endpoint"
+	httptransport "github.com/go-kit/kit/transport/http"
+	"golang.org/x/net/context"
 )
 
 const (
@@ -241,7 +228,7 @@ var semiotics = map[string]semiotic{
 // Decode Request functions
 
 {{range $funcKey, $funcValue := $schema.Functions}}
-func decode{{$funcKey}}Request(r *http.Request) (interface{}, error) {
+func decode{{$funcKey}}Request(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req {{Argumentize $funcValue.Properties.incoming}}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
@@ -253,7 +240,7 @@ func decode{{$funcKey}}Request(r *http.Request) (interface{}, error) {
 // Decode Response functions
 
 {{range $funcKey, $funcValue := $schema.Functions}}
-func decode{{$funcKey}}Response(r *http.Response) (interface{}, error) {
+func decode{{$funcKey}}Response(ctx context.Context, r *http.Response) (interface{}, error) {
 	var res {{Argumentize $funcValue.Properties.outgoing}}
 	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
@@ -264,7 +251,7 @@ func decode{{$funcKey}}Response(r *http.Response) (interface{}, error) {
 
 // Encode request function
 
-func encodeRequest(r *http.Request, request interface{}) error {
+func encodeRequest(ctx context.Context, r *http.Request, request interface{}) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(request); err != nil {
 		return err
@@ -275,7 +262,7 @@ func encodeRequest(r *http.Request, request interface{}) error {
 
 // Encode response function
 
-func encodeResponse(rw http.ResponseWriter, response interface{}) error {
+func encodeResponse(ctx context.Context, rw http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(rw).Encode(response)
 }
 
