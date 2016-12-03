@@ -136,7 +136,7 @@ type ClientOption struct {
 	// Host holds the host's name
 	Host string
 
-	// ZipkinCollector holds the collector for zipkin tracing
+	// Tracer holds the collector for tracing
 	Tracer stdopentracing.Tracer
 
 	// DisableCircuitBreaker disables circuit breaking functionality
@@ -174,7 +174,6 @@ type ClientOption struct {
 // If required:
 //   Adds circuitbreaker from "github.com/sony/gobreaker"
 //   Adds ratelimiting from  "github.com/juju/ratelimit"
-//   Adds request tracing from "github.com/go-kit/kit/tracing/zipkin"
 func (c ClientOption) Configure(moduleName, funcName string) ([]endpoint.Middleware, []httptransport.ClientOption) {
 	var transportOpts []httptransport.ClientOption
 	var middlewares []endpoint.Middleware
@@ -204,9 +203,13 @@ func (c ClientOption) Configure(moduleName, funcName string) ([]endpoint.Middlew
 	}
 
 	// enable tracing if required
-	if c.Tracer != nil {
-		middlewares = append(middlewares, opentracing.TraceServer(c.Tracer, funcName))
+	if s.Tracer != nil {
+		middlewares = append(middlewares, opentracing.TraceServer(s.Tracer, funcName))
+		serverOpts = append(serverOpts, httptransport.ServerBefore(
+			opentracing.FromHTTPRequest(s.Tracer, funcName, logger),
+		))
 	}
+
 
 	// If any custom middlewares are passed include them
 	if len(c.Middlewares) > 0 {
@@ -254,7 +257,7 @@ type ServerOption struct {
 	// Host holds the host's name
 	Host string
 
-	// Tracer holds the collector for zipkin tracing
+	// Tracer holds the collector for tracing
 	Tracer stdopentracing.Tracer
 
 	// LogErrors configures whether server should log error responses or not
@@ -286,7 +289,6 @@ type ServerOption struct {
 //   Adds RequestLatencyMiddleware
 //   Adds RequestCountMiddleware
 //   Adds RequestLoggingMiddleware
-//   Adds Zipkin Tracing
 //   Adds httptransport.ServerErrorLogger
 func (s ServerOption) Configure(moduleName, funcName string, logger log.Logger) ([]endpoint.Middleware, []httptransport.ServerOption) {
 
