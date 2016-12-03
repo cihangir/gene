@@ -23,6 +23,10 @@ func TestInterface(t *testing.T) {
 
 var expectedInterface = []string{`package account
 
+import (
+	"golang.org/x/net/context"
+)
+
 const ServiceName = "account"
 
 // Account represents a registered User
