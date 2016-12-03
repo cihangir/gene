@@ -28,17 +28,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/loadbalancer"
-	"github.com/go-kit/kit/loadbalancer/static"
 	"github.com/go-kit/kit/log"
-	kitratelimit "github.com/go-kit/kit/ratelimit"
-	"github.com/go-kit/kit/tracing/zipkin"
+	"github.com/go-kit/kit/sd/lb"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/juju/ratelimit"
-	jujuratelimit "github.com/juju/ratelimit"
-	"github.com/sony/gobreaker"
 	"golang.org/x/net/context"
 )
 
@@ -46,19 +39,19 @@ import (
 // Satisfies AccountService interface
 type AccountClient struct {
 	// CreateLoadBalancer provides remote call to create endpoints
-	CreateLoadBalancer loadbalancer.LoadBalancer
+	CreateLoadBalancer lb.Balancer
 
 	// DeleteLoadBalancer provides remote call to delete endpoints
-	DeleteLoadBalancer loadbalancer.LoadBalancer
+	DeleteLoadBalancer lb.Balancer
 
 	// OneLoadBalancer provides remote call to one endpoints
-	OneLoadBalancer loadbalancer.LoadBalancer
+	OneLoadBalancer lb.Balancer
 
 	// SomeLoadBalancer provides remote call to some endpoints
-	SomeLoadBalancer loadbalancer.LoadBalancer
+	SomeLoadBalancer lb.Balancer
 
 	// UpdateLoadBalancer provides remote call to update endpoints
-	UpdateLoadBalancer loadbalancer.LoadBalancer
+	UpdateLoadBalancer lb.Balancer
 }
 
 // NewAccountClient creates a new client for AccountService
@@ -150,7 +143,7 @@ func createClientLoadBalancer(
 	s semiotic,
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
-) loadbalancer.LoadBalancer {
+) lb.Balancer {
 	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {
