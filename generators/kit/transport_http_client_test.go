@@ -144,7 +144,7 @@ func createClientLoadBalancer(
 	clientOpts *kitworker.ClientOption,
 	logger log.Logger,
 ) lb.Balancer {
-	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name)
+	middlewares, transportOpts := clientOpts.Configure(ServiceName, s.Name, logger)
 
 	loadbalancerFactory := func(instance string) (endpoint.Endpoint, io.Closer, error) {
 

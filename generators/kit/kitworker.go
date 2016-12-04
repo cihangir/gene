@@ -118,6 +118,7 @@ import (
 
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
 	kitratelimit "github.com/go-kit/kit/ratelimit"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/lb"
@@ -174,7 +175,7 @@ type ClientOption struct {
 // If required:
 //   Adds circuitbreaker from "github.com/sony/gobreaker"
 //   Adds ratelimiting from  "github.com/juju/ratelimit"
-func (c ClientOption) Configure(moduleName, funcName string) ([]endpoint.Middleware, []httptransport.ClientOption) {
+func (c ClientOption) Configure(moduleName, funcName string, logger log.Logger) ([]endpoint.Middleware, []httptransport.ClientOption) {
 	var transportOpts []httptransport.ClientOption
 	var middlewares []endpoint.Middleware
 
@@ -203,13 +204,12 @@ func (c ClientOption) Configure(moduleName, funcName string) ([]endpoint.Middlew
 	}
 
 	// enable tracing if required
-	if s.Tracer != nil {
-		middlewares = append(middlewares, opentracing.TraceServer(s.Tracer, funcName))
-		serverOpts = append(serverOpts, httptransport.ServerBefore(
-			opentracing.FromHTTPRequest(s.Tracer, funcName, logger),
+	if c.Tracer != nil {
+		middlewares = append(middlewares, opentracing.TraceClient(c.Tracer, funcName))
+		transportOpts = append(transportOpts, httptransport.ClientBefore(
+			opentracing.ToHTTPRequest(c.Tracer, logger),
 		))
 	}
-
 
 	// If any custom middlewares are passed include them
 	if len(c.Middlewares) > 0 {
@@ -239,6 +239,7 @@ func CreateProxyURL(instance, endpoint string) *url.URL {
 
 	return u
 }
+
 `,
 
 	"server": `package kitworker
@@ -310,6 +311,9 @@ func (s ServerOption) Configure(moduleName, funcName string, logger log.Logger) 
 	// enable tracing if required
 	if s.Tracer != nil {
 		middlewares = append(middlewares, opentracing.TraceServer(s.Tracer, funcName))
+		serverOpts = append(serverOpts, httptransport.ServerBefore(
+			opentracing.FromHTTPRequest(s.Tracer, funcName, logger),
+		))
 	}
 
 	// log server errors
