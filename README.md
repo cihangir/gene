@@ -21,7 +21,7 @@ for various cases, like validation, documentation, and interaction control.  A
 JSON Schema provides a contract for the JSON data required by a given
 application, and how that data can be modified.
 
-TLDR: here is an example [twitter.json](https://github.com/cihangir/gene/blob/master/example/tinder.json)
+TLDR: here is an example [tinder.json](https://github.com/cihangir/gene/blob/master/example/tinder.json)
 
 ## Features
 
